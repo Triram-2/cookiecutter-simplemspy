@@ -1,0 +1,354 @@
+# ============================================================================
+# Операционные системы / System Files
+# ============================================================================
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# ============================================================================
+# IDE и Редакторы / IDEs and Editors
+# ============================================================================
+
+# --- JetBrains IDEs ---
+.idea/
+! .idea/artifacts/
+! .idea/runConfigurations/
+*.iws
+*.iml
+*.ipr
+out/
+shelf/
+
+# --- Visual Studio Code ---
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json # Можно коммитить для стандартизации среды
+*.code-workspace
+
+# --- Visual Studio ---
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vspscc
+*.vssscc
+.vs/
+*_i.c
+*_p.c
+*_h.h
+*.ilk
+*.meta
+*.obj
+*.pch
+*.pdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*.log
+*.vsix
+*.vcxproj.user
+*.vcxproj.filters
+*.vcxproj.bak
+*.vcproj.user
+*.vcproj.filters
+*.vcproj.bak
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+Win32/
+ipch/
+Generated Files/
+
+# --- Sublime Text ---
+*.sublime-project
+*.sublime-workspace
+
+# --- Atom ---
+.atom/
+*.[Cc]ache
+
+# --- Eclipse ---
+.project
+.classpath
+.settings/
+*.pydevproject
+.metadata/
+
+# --- NetBeans ---
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+*.nbattrs
+
+# --- Xcode ---
+*.xcodeproj/project.xcworkspace
+*.xcodeproj/xcuserdata/
+*.xcworkspace/sharedata
+*.xcworkspace/xcuserdata/
+build/
+DerivedData/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# ============================================================================
+# Зависимости / Dependencies
+# ============================================================================
+/node_modules/
+/bower_components/
+/vendor/          # Composer (PHP), Go, etc.
+/jspm_packages/
+/web_modules/
+/.pnp.js
+/.pnp.loader.mjs
+/.yarn/cache
+/.yarn/install-state.gz
+/.yarn/patches
+/.yarn/plugins
+/.yarn/releases
+/.yarn/sdks
+/.yarn/versions
+
+# --- Python ---
+/dist/
+/build/
+/eggs/
+/*.egg-info/
+/lib/
+/lib64/
+/include/
+/share/python-wheels/
+/*.egg
+/parts/
+/bin/
+/.Python
+/.installed.cfg
+*.pyc
+*.pyo
+*.pyd
+* $py.class
+/pip-wheel-metadata/
+# Виртуальные окружения
+.env
+.venv
+env/
+venv/
+ENV/
+VENV/
+*/env/
+*/venv/
+.pipenv
+.direnv/
+
+# --- Ruby ---
+/vendor/bundle/
+/.bundle/
+/vendor/cache/
+/log/
+/tmp/
+.byebug_history
+/.yardoc/
+/_yardoc/
+/coverage/
+/spec/tmp
+*.gem
+/.config
+/rerun/
+/mkmf.log
+
+# --- Java / Maven / Gradle ---
+/target/
+/build/
+/.gradle/
+/.mvn/
+*.class
+*.war
+*.ear
+*.jar
+*.nar
+hs_err_pid*
+
+# --- Go ---
+/vendor/
+/pkg/
+/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# --- Rust ---
+/target/
+
+# --- .NET ---
+/bin/
+/obj/
+project.lock.json
+project.assets.json
+*.nupkg
+
+# --- Swift Package Manager ---
+/.build/
+/Packages/
+
+# --- Dart / Flutter ---
+/.dart_tool/
+/.packages
+/build/
+*.iml
+*.ipr
+*.iws
+
+# --- Elixir / Mix ---
+/_build/
+/deps/
+/priv/static/ # Если генерируется сборщиком фронтенда
+
+# ============================================================================
+# Логи, Кеш, Временные файлы / Logs, Cache, Temporary Files
+# ============================================================================
+logs/
+cache/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+*.tmp
+*.temp
+*.bkp
+*.bak
+*.swp
+*~
+*.cache
+*.pid
+*.seed
+*.pid.lock
+
+# ============================================================================
+# Сборки и Артефакты / Build Artefacts & Outputs
+# ============================================================================
+/dist/
+/build/
+/out/
+/public/
+/coverage/
+/.nyc_output/
+*.tar.gz
+*.tgz
+*.zip
+*.rar
+
+# ============================================================================
+# Конфигурационные файлы и Секреты / Config Files & Secrets
+# ============================================================================
+
+.env
+.env.*
+!.env.example
+!.env.template
+*.pem
+*.key
+*.keypair
+*.p12
+*.pfx
+*.cer
+*.crt
+private.key
+public.key
+credentials.*
+# config/database.yml # Пример
+# secrets.yml # Пример
+# settings.local.php # Пример
+# appsettings.Development.json # Пример
+
+# --- Специфичные для инструментов (могут содержать токены) ---
+.npmrc
+.yarnrc
+.yarnrc.yml
+.gemrc
+.aws/
+.boto
+
+# ============================================================================
+# Разное / Miscellaneous
+# ============================================================================
+
+# --- Документация ---
+/_site/
+/docs/_build/
+
+# --- Тестирование ---
+.pytest_cache/
+.tox/
+.coverage*
+coverage*
+htmlcov/
+nosetests.xml
+pytestdebug.log
+.nox/
+.hypothesis/
+
+# --- Линтеры / Форматтеры ---
+.eslintcache
+.stylelintcache
+.php_cs.cache
+.php-cs-fixer.cache
+.ruff_cache
+.mypy_cache/
+
+# --- Базы данных ---
+*.sqlite
+*.sqlite3
+*.db
+
+# --- Загруженные файлы / Данные ---
+/uploads/
+/media/
+/data/
+
+# --- Профилирование (Scalene и др.) ---
+*.prof            # Общий формат файлов профилирования
+
+
+# ============================================================================
+# Специфичное для проекта (Добавьте свои правила здесь)
+# ============================================================================
+# /my_generated_reports/
+# /specific_temp_files/
+# /prompts/
+
+
+# ============================================================================
+# Конец .gitignore
+# Не забудьте адаптировать под свой проект!
+# Если файлы уже добавлены: git rm --cached <файл_или_папка>
+# ============================================================================

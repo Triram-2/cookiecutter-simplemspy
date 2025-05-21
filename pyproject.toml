@@ -1,0 +1,297 @@
+# --- General ---
+[project]
+name = "name"
+version = "0.1.0"
+description = "description"
+readme = "README.md"
+requires-python = ">3.11"
+dependencies = [
+    "fastapi>=0.115.12",
+    "loguru>=0.7.3",
+    "nox>=2025.2.9",
+    "pydantic>=2.11.4",
+    "pydantic-settings>=2.9.1",
+    "starlette>=0.46.2",
+    "uvicorn>=0.34.2",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+# --- Optional Dependencies for Development, Testing, etc. ---
+[project.optional-dependencies]
+# Группа для основных инструментов разработки (линтеры, форматтеры, тайпчекеры)
+lint = [
+    "ruff >= 0.4.0",         # Линтер и форматтер
+    "pyright >= 1.1.350", # Python-обертка для Pyright (проще в установке)
+]
+
+# Группа для тестирования
+test = [
+    "pytest >= 7.0",         # Тестовый фреймворк
+    "pytest-asyncio >= 0.21", # Поддержка asyncio в pytest
+    "coverage[toml] >= 7.0", # Измерение покрытия кода (с поддержкой pyproject.toml)
+    "hypothesis >= 6.50",    # Property-based тестирование
+]
+
+# Группа для профилирования
+profile = [
+    "scalene >= 1.5.30",     # Профилировщик CPU и памяти
+]
+
+# Группа для аудита безопасности зависимостей
+audit = [
+    "pip-audit >= 2.7.0",    # Сканер уязвимостей
+]
+
+# Группа для нагрузочного тестирования
+loadtest = [
+    "locust >= 2.15",    # Инструмент для нагрузочного тестирования
+]
+
+# Группа для автоматизации и релизов (Nox и Commitizen)
+dev = [
+    "nox >= 2023.4.22",      # Запуск задач в изолированных окружениях
+    "commitizen >= 3.12",    # Утилита для коммитов и управления версиями
+]
+
+# Группа "all", включающая все вышеперечисленные для удобной установки всего сразу
+all = [
+    "name[lint]",
+    "name[test]",
+    "name[profile]",
+    "name[audit]",
+    "name[loadtest]",
+    "name[dev]",
+]
+
+
+# --- uv ---
+[tool.uv]
+package = true
+environments = ["sys_platform == 'linux'"]
+
+
+# --- ruff ---
+[tool.ruff]
+line-length = 88
+indent-width = 4
+target-version = "py313"
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv"
+]
+src = ["src"]
+
+[tool.ruff.lint]
+select = [                  # Какие правила включить
+    "E",                    # pycodestyle errors
+    "F",                    # Pyflakes
+    "W",                   # pycodestyle warnings
+    "A",                     # flake8-builtins
+    "B",                    # flake8-bugbear
+    "C",                    # flake8-comprehensions
+    "D",                    # pydocstyle
+    "N",                    # pep8-naming
+    "PL",                   # Pylint
+    "UP",                  # pyupgrade
+    "RUF",                # Ruff-specific
+]
+ignore = [                  # Какие правила игнорировать
+    "E501",              # Длина строки (если не нравится 88)
+    "D100",             # Нет docstring в модуле
+    "D103",             # Нет docstring в функции
+    "PLR0913",       # Слишком много аргументов в функии
+    "D404",
+    "D107",
+    "RUF002",
+    "D415",
+    "D400",
+    "F841",
+    "D101"
+]
+fixable = ["ALL"]       # Автофикс для всех включённых правил
+unfixable = []           # Правила, которые нельзя исправить автоматически
+[tool.ruff.format]
+quote-style = "double" # Использовать двойные кавычки
+indent-style = "space" # Отступы пробелами
+skip-magic-trailing-comma = true # Убирать магическую запятую
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D103"] # Не требовать docstring в тестах
+
+
+# --- pyright ---
+[tool.pyright]
+# 🔹 Основные настройки
+pythonVersion = "3.13" # Версия Python, для которой проверяется код
+pythonPlatform = "Linux" # Платформа: "Linux", "Windows" или "Darwin" (macOS)
+typeCheckingMode = "strict" # Режим проверки типов: "off", "basic", "strict"
+
+# 🔹 Проверка аннотаций и ошибок
+reportUntypedFunctionDecorator = true # Сообщать о неаннотированных декораторах
+reportMissingTypeStubs = false # Сообщать об отсутствии заглушек типов для библиотек
+reportUnknownVariableType = true # Сообщать о переменных с неизвестным типом
+reportUnknownArgumentType = true # Сообщать об аргументах с неизвестным типом
+reportUnknownMemberType = true # Сообщать о членах с неизвестным типом
+reportInvalidTypeVarUse = true # Сообщать о некорректном использовании TypeVar
+reportUnnecessaryTypeIgnore = true # Сообщать о ненужных # type: ignore
+reportUnnecessaryCast = true # Сообщать об избыточных приведениях типов
+reportUnreachable = true # Сообщать о недостижимом коде
+
+# 🔹 Работа с `Any` и Optional
+reportImplicitOptional = true # Сообщать о неявных Optional
+disableBytesTypePromotions = true # Отключить автоматическое приведение bytes к str
+strictListInference = true # Строгая проверка типов списков
+strictDictionaryInference = true # Строгая проверка типов словарей
+strictSetInference = true # Строгая проверка типов множеств # 🔹
+
+# Настройки производительности
+useLibraryCodeForTypes = true # Использовать код библиотек для анализа типов
+include = ["**/*.py"] # Файлы для проверки
+exclude = ["build/**", "dist/**", "venv/**", ".venv/**", "__pycache__/**", "tests/"] # Исключаемые директории
+
+# 🔹 Структура проекта
+executionEnvironments = [{ root = "." }]
+
+# 🔹 Форматирование вывода
+verboseOutput = false # Подробный вывод (true для отладки)
+reportGeneralTypeIssues = true # Сообщать об общих проблемах с типами
+
+# 🔹 Проверка сторонних библиотек
+ignoreExternalImports = false # Игнорировать ошибки в импортах внешних модулей
+
+# 🔹 Поддержка `TypedDict` и `dataclasses`
+reportTypedDictNotRequiredAccess = true # Сообщать о доступе к  необязательным ключам TypedDict
+reportPropertyTypeMismatch = true # Сообщать о несоответствии типов в свойствах
+
+# 🔹 Локальные настройки для отдельных файлов
+extraPaths = ["tests"] # Дополнительные пути для поиска модулей
+
+[tool.pyright.overrides]
+reportMissingTypeStubs = false # Не сообщать об отсутствии заглушек в тестах
+typeCheckingMode = "basic" # Менее строгий режим для тестов
+
+
+# --- Coverage ---
+[tool.coverage.run]
+source = ["src"]
+omit = ["*/tests/*"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = []
+skip_empty = true
+show_missing = true
+
+[tool.coverage.paths]
+source = ["src", "{full_path_to_src}"]
+
+
+# --- pytest ---
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+addopts = "-v -s"
+norecursedirs = [".git", ".venv", "__pycache__", ".idea"]
+log_cli = true
+log_cli_level = "DEBUG"
+asyncio_mode = "auto"
+
+
+# --- Hypothesis ---
+[tool.hypothesis]
+deadline = 500          # Максимальное время на выполнение одного теста. None отключает ограничение времени.
+verbosity = "verbose"   # Уровень вывода: "quiet", "normal", "verbose".
+max_examples = 100      # Максимальное количество примеров, генерируемых для каждого теста.
+derandomize = false     # Установка в true делает генерацию примеров детерминированной.
+phases = ["explicit", "reuse", "generate", "shrink"]
+
+
+# --- Scalene ---
+[tool.scalene]
+# Профилировать CPU и память, но не GPU
+cpu = true
+memory = true
+gpu = false
+
+# Установить интервал сэмплирования 0.05 секунды
+profile-interval = 0.05
+
+# Показывать только строки, занимающие > 2% CPU времени
+cpu-percent-threshold = 2
+
+# Сохранять отчет в HTML файл
+outfile = "scalene_report.html"
+html = true
+
+# Не открывать отчет в браузере автоматически
+web = false # или no-web = true
+
+# Не профилировать библиотеки
+profile-all = false
+
+
+# --- Commitizen ---
+[tool.commitizen]
+name = "cz_conventional_commits"
+
+# Текущую версию Commitizen будет читать/писать из/в эти файлы:
+version = "0.1.0" # Начальная версия или версия последнего релиза
+version_files = [
+    "src/__init__.py:__version__",
+    "pyproject.toml:version"
+]
+
+# Формат тега будет 'vX.Y.Z'
+tag_format = "v$version"
+
+# Настраиваем Changelog
+changelog_file = "CHANGELOG.md"
+changelog_incremental = true # Добавлять в начало, а не перезаписывать
+update_changelog_on_bump = true # Обновлять при бампе
+
+# Правила для версий < 1.0.0
+major_version_zero = true # feat -> patch, BREAKING CHANGE -> minor
+
+# Сообщение коммита при бампе версии
+bump_message = "chore(release): bump version $current_version → $new_version"
+
+# Разрешить BREAKING CHANGE в коммитах типа 'refactor'
+allow_breaking_change = ["refactor"]
+
+# Кастомизация заголовков в Changelog
+change_type_map = { "feat" = "Features", "fix" = "Bug Fixes", "perf" = "Performance Improvements" }
+
+
+# --- pip-audit ---
+[tool.pip-audit]
+vulnerability_service = "OSV"
+
+# Увеличить таймаут для медленных соединений
+timeout = 60
+
+# Игнорировать конкретные уязвимости (например, если они не затрагивают ваш код)
+ignore_vuln = [
+    "PYSEC-2023-123",
+    "CVE-2022-4567",
+]
+
+# Сохранять отчет в формате JSON
+format = "json"
+output = "vulnerabilities.json"
+
+# Не проверять зависимости пакета 'internal-legacy-lib'
+skip_dep = ["internal-legacy-lib"]
+
+# Добавить дополнительный индекс пакетов
+extra_index_url = ["https://my.private.index/simple"]
+
+# Не показывать спиннер прогресса
+progress_spinner = "off"
+
+# Требовать хэши
+require_hashes = true
