@@ -11,13 +11,13 @@
 """
 
 from .base import Base, TimestampMixin
-from .database import get_async_session, async_engine # Добавил async_engine
+from .database import get_async_session, async_engine
 from .base_repository import BaseRepository
 
 __all__ = [
     "Base",
     "TimestampMixin",
     "get_async_session",
-    "async_engine", # Экспортируем и движок
+    "async_engine",
     "BaseRepository",
 ]

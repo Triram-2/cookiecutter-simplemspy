@@ -9,9 +9,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DATA_DIR = BASE_DIR / "data" # Общая папка для данных
 
+# Вспомогательная функция для LogSettings.path
+def _get_log_path_and_create_dir() -> Path:
+    log_path = BASE_DIR / "logs"
+    os.makedirs(log_path, exist_ok=True)
+    return log_path
+
 class LogSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix='LOG_')
-    path: Path = Field(default_factory=lambda: BASE_DIR / "logs")
+    path: Path = Field(default_factory=_get_log_path_and_create_dir)
     console_format: str = (
         "<blue>{time:YYYY-MM-DD HH:mm:ss.SSS}</blue> | "
         "<level>{level: <8}</level> | "
@@ -45,10 +51,7 @@ class DBSettings(BaseSettings):
     name: Optional[str] = "mydatabase"
     
     sqlite_file: Path = Field(default_factory=lambda: DATA_DIR / "db" / "main.sqlite")
-    # Позволяет напрямую установить DATABASE_URL, переопределяя сборку
-    # Это полезно для тестов, где мы можем захотеть использовать in-memory SQLite
-    # или специфичный тестовый URL.
-    # Пример: DB_DATABASE_URL="sqlite+aiosqlite:///:memory:"
+    # Прямое задание DATABASE_URL (переопределяет сборку). Полезно для тестов (напр., "sqlite+aiosqlite:///:memory:").
     database_url_override: Optional[str] = Field(default=None, alias="DATABASE_URL") 
 
     assembled_database_url: Optional[Union[PostgresDsn, str]] = None
@@ -56,26 +59,16 @@ class DBSettings(BaseSettings):
     @field_validator("assembled_database_url", mode="before")
     @classmethod
     def assemble_db_connection(cls, v: Optional[str], info: ValidationInfo) -> Any:
-        # Если database_url_override (DB_DATABASE_URL) задан, используем его
-        if values := info.data: # Проверяем, что values не пустой
+        if values := info.data: 
             if forced_url := values.get("database_url_override"):
-                # Если это :memory: SQLite, нужно обеспечить правильный формат
                 if forced_url == "sqlite+aiosqlite:///:memory:" or forced_url == "sqlite:///:memory:":
-                     # Убедимся, что директория для логов существует, даже для in-memory
-                    os.makedirs(BASE_DIR / "logs", exist_ok=True)
-                    # Для in-memory SQLite не нужно создавать папки для файла БД
                     return "sqlite+aiosqlite:///:memory:"
                 return forced_url
         
-        # Иначе, собираем URL как раньше, на основе DB_TYPE
-        # (Этот блок остается идентичным предыдущей версии)
-        values = info.data # Получаем уже загруженные значения (type, host, etc.)
+        values = info.data 
         db_type = values.get("type", "SQLITE").upper()
 
         if db_type == "POSTGRESQL":
-            # Убедимся, что директория для логов существует
-            os.makedirs(BASE_DIR / "logs", exist_ok=True) 
-            # Для PostgreSQL не нужно создавать папки для файла БД здесь
             return PostgresDsn.build(
                 scheme="postgresql+asyncpg",
                 username=values.get("user"),
@@ -90,8 +83,6 @@ class DBSettings(BaseSettings):
                 sqlite_path = DATA_DIR / "db" / "main.sqlite"
             
             os.makedirs(sqlite_path.parent, exist_ok=True)
-            # Убедимся, что директория для логов существует
-            os.makedirs(BASE_DIR / "logs", exist_ok=True)
             return f"sqlite+aiosqlite:///{sqlite_path.resolve()}"
         
         raise ValueError(f"Неподдерживаемый тип базы данных: {db_type}")
@@ -109,20 +100,8 @@ class AppSettings(BaseSettings):
     app_port: int = Field(default=8000, description="Порт для запуска Uvicorn")
     app_reload: bool = Field(default=True, description="Включить/выключить автоперезагрузку Uvicorn")
 
-    # Новое поле для определения окружения (полезно для тестов)
-    # Может быть установлено через переменную окружения APP_ENV=test
+    # Окружение приложения (напр., "prod", "dev", "test"). Устанавливается через APP_ENV.
     app_env: str = Field(default="prod", description="Окружение приложения: prod, dev, test")
 
 
 settings = AppSettings()
-
-# Для удобства доступа к актуальному URL базы данных
-# Теперь нужно использовать settings.db.assembled_database_url
-# Старый settings.db.database_url был переименован в settings.db.database_url_override
-# и используется для прямого задания URL.
-
-# Пример вывода для проверки (можно удалить)
-# print(f"DB Type: {settings.db.type}")
-# print(f"DB URL Override: {settings.db.database_url_override}")
-# print(f"Assembled DB URL: {settings.db.assembled_database_url}")
-# print(f"App Env: {settings.app_env}")

@@ -55,9 +55,3 @@ class TimestampMixin:
         server_onupdate=func.now(), # Для обновления на стороне БД
         comment="Время последнего обновления записи"
     )
-
-# Пример использования:
-# from sqlalchemy import Column, Integer, String
-# class MyModel(Base, TimestampMixin):
-#     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-#     name: Mapped[str] = mapped_column(String, index=True)
