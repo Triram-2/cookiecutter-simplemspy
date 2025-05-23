@@ -1,7 +1,10 @@
 """Nox sessions for linting, testing, building, and deployment."""
 import os
 import shutil
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import tomli as tomllib
 
 from pathlib import Path
 
