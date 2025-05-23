@@ -5,7 +5,7 @@ from typing import AsyncGenerator, Generator
 
 import pytest
 import pytest_asyncio
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 
 # Устанавливаем переменную окружения для указания тестового .env файла до импорта настроек
@@ -92,7 +92,7 @@ async def async_client(override_get_async_session: None) -> AsyncGenerator[Async
     Зависит от override_get_async_session, чтобы убедиться, что зависимость БД переопределена.
     """
     # Используем lifespan FastAPI для корректной инициализации и завершения приложения в тестах
-    async with AsyncClient(app=fastapi_app, base_url="http://testserver") as client:
+    async with AsyncClient(transport=ASGITransport(app=fastapi_app), base_url="http://testserver") as client:
         yield client
 
 # Если бы мы не использовали override_get_async_session как зависимость для async_client,

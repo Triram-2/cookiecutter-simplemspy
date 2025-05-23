@@ -16,6 +16,7 @@ dependencies = [
     "sqlalchemy[asyncio]>=2.0",
     "asyncpg>=0.29", # Для PostgreSQL
     "aiosqlite>=0.19", # Для SQLite
+    "httpx>=0.25.0",
 ]
 
 [build-system]
@@ -37,6 +38,7 @@ test = [
     "pytest-asyncio >= 0.21", # Поддержка asyncio в pytest
     "coverage[toml] >= 7.0", # Измерение покрытия кода (с поддержкой pyproject.toml)
     "hypothesis >= 6.50",    # Property-based тестирование
+    "pip-audit>=2.7.0",      # Для проверки уязвимостей в тестах
 ]
 
 # Группа для профилирования
@@ -62,12 +64,12 @@ dev = [
 
 # Группа "all", включающая все вышеперечисленные для удобной установки всего сразу
 all = [
-    ".[lint]", # Изменено с name[...] на .[...]
-    ".[test]",
-    ".[profile]",
-    ".[audit]",
-    ".[loadtest]",
-    ".[dev]",
+    "name[lint]",
+    "name[test]",
+    "name[profile]",
+    "name[audit]",
+    "name[loadtest]",
+    "name[dev]",
 ]
 
 
