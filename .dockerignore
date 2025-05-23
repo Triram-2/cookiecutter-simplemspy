@@ -1,0 +1,130 @@
+# .dockerignore
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.override.yml
+
+# Python virtual environment
+.venv
+venv/
+env/
+*.venv
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDEs and editors
+.idea/
+.vscode/
+*.project
+*.tmproj
+*.sublime-workspace
+*.suo
+nbproject/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Logs and databases (если они создаются локально вне контейнера)
+*.log
+*.logs
+*.sqlite
+*.sqlite3
+*.db
+local_data/ # Пример директории с локальными данными
+
+# Тесты и отчеты о покрытии (не нужны в финальном образе)
+tests/
+.pytest_cache/
+coverage_html_report/
+htmlcov/
+.coverage
+coverage.xml
+
+# Документация (исходники и сборка)
+docs/
+site/ # Если используется mkdocs или аналоги
+
+# Файлы окружения (кроме .env.example)
+.env
+.env.*
+!/.env.example 
+# Восклицательный знак означает "не игнорировать", если .env.example нужен в контексте
+
+# Артефакты сборки Python
+build/
+dist/
+*.egg-info/
+*.egg
+MANIFEST
+
+# Файлы Nox
+.nox/
+
+# Файлы отчетов инструментов
+scalene_report.html
+profile_output/
+vulnerabilities.json
+nohup.out # Пример лога от nohup
+
+# Специфичные для проекта временные файлы или директории
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+
+# Файлы настройки локального запуска (если есть)
+local_settings.py
+
+# Файлы операционной системы или специфичные для пользователя
+*.DS_Store
+*~
+*.orig
+
+# Файлы связанные с Cookiecutter, если это шаблон для Cookiecutter
+# {{cookiecutter.project_slug}}/ 
+# (если этот файл будет использоваться самим шаблоном Cookiecutter, то это нужно будет адаптировать)
+
+# Зависимости Node.js, если вдруг используются для фронтенда или сборки ассетов
+node_modules/
+package-lock.json
+yarn.lock
+
+# Lock файлы менеджеров пакетов, если они не копируются явно в Dockerfile перед установкой
+# Pipfile.lock (если используется pipenv)
+# poetry.lock (если используется poetry)
+# uv.lock (если он копируется в Dockerfile, то его не нужно игнорировать, если контекст сборки - корень проекта)
+# В нашем Dockerfile мы копируем uv.lock, поэтому он не должен быть здесь, если Dockerfile в корне.
+# Если Dockerfile в поддиректории, а контекст - корень, тогда uv.lock не игнорировать.
+# Для простоты, предполагая, что Dockerfile и uv.lock в корне, и uv.lock копируется,
+# то uv.lock не должен быть в .dockerignore.
+
+# Если setup.sh не нужен в образе
+setup.sh
+
+# Makefile, noxfile.py (обычно не нужны в образе)
+Makefile
+noxfile.py
+
+# Если locustfile.py не нужен в образе
+locustfile.py
+
+# README файлы, если их много или они большие и не нужны в образе
+# README.md (если не нужен)
+# README.txt (если не нужен)
+# CHANGELOG.md (если не нужен)
+
+# Директория additional, если она не нужна в образе
+additional/

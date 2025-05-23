@@ -109,19 +109,30 @@ def docs(session: nox.Session) -> None:
 def profile(session: nox.Session) -> None:
     """Запуск профилировщика Scalene."""
     session.log("Установка зависимостей для профилирования...")
-    session.install("scalene")
-    install_project_with_deps(session)
+    # session.install("scalene") # Scalene теперь в project.optional-dependencies.profile
+    install_project_with_deps(session, "profile") # Устанавливаем зависимости профилирования, включая сам проект
 
     session.log("Запуск Scalene...")
+    # Комментарий: Текущая команда `scalene src/main.py` (или `scalene src/main.py run`) запускает Uvicorn через src/main.py.
+    # Это профилирует всё приложение, включая Uvicorn, что может быть не всегда желаемым результатом.
+    # Для профилирования конкретных частей бизнес-логики или отдельных функций,
+    # может потребоваться создание специальных скриптов-оберток или изменение команды запуска.
+    # Например, `scalene -m your_module_to_profile` или `python -m scalene --program your_script.py`.
+    # Также, `*session.posargs` здесь может быть нерелевантным, если `src/main.py` не принимает доп. аргументы.
     try:
-        session.run("scalene", "src/main.py", "run", *session.posargs)
+        # Попытка прочитать точку входа или параметры из pyproject.toml, если они там есть
+        # Для данного шаблона, мы просто используем src/main.py как пример
+        # и предполагаем, что пользователь адаптирует это под свои нужды.
+        # Пример: session.run("scalene", "src/main.py", *session.posargs) 
+        # Если src/main.py не принимает 'run', а просто запускает uvicorn, то можно так:
+        # session.run("scalene", "-m", "uvicorn", "src.api:app", "--host", settings.app_host, "--port", str(settings.app_port))
+        # Для простоты примера оставим вызов src/main.py, предполагая, что он запускает Uvicorn
+        session.run("scalene", "src/main.py", *session.posargs)
+
         outfile = PYPROJECT_CONTENT.get("tool", {}).get("scalene", {}).get("outfile", "scalene_report.html")
         session.log(f"Отчет Scalene сохранен (вероятно) в: {Path(outfile).resolve()}")
-    except KeyError:
-         session.warn("Не удалось определить точку входа для Scalene из pyproject.toml. "
-                      "Возможно, потребуется указать ее явно.")
     except Exception as e:
-        session.error(f"Ошибка при запуске Scalene: {e}")
+        session.error(f"Ошибка при запуске Scalene: {e}. Проверьте команду запуска и конфигурацию.")
 
 
 @nox.session(python=False)
@@ -196,12 +207,23 @@ def clean(session: nox.Session) -> None:
 def locust(session: nox.Session) -> None:
      """Запускает нагрузочное тестирование с Locust."""
      session.log("Установка зависимостей для Locust...")
-     # Установите locust
-     session.install("locust")
-     install_project_with_deps(session)
+     install_project_with_deps(session, "loadtest") # locust теперь в loadtest группе
 
-     session.log("Запуск Locust...")
-     session.run("locust", "-f", "locustfile.py", *session.posargs)
+     # Комментарий: Убедитесь, что файл `locustfile.py` существует в корне проекта
+     # и содержит ваши сценарии нагрузочного тестирования.
+     # Этот файл должен быть создан пользователем шаблона.
+     locust_file = "locustfile.py"
+     if not Path(locust_file).exists():
+         session.warn(f"Файл {locust_file} не найден. Для запуска Locust необходимо создать его и определить сценарии нагрузки.")
+         session.log("Пример команды, если locustfile.py существует: locust -f locustfile.py --host=http://localhost:8000")
+         # Можно завершить сессию, если файл не найден, или просто предупредить.
+         # Для шаблона лучше просто предупредить.
+         return 
+
+     session.log(f"Запуск Locust (используя {locust_file})...")
+     # Пример команды: locust -f locustfile.py --host=http://localhost:8000 (хост можно передать через posargs)
+     # session.posargs могут включать, например, --host, --users, --spawn-rate
+     session.run("locust", "-f", locust_file, *session.posargs)
 
 
 # --- Сессия для CI ---

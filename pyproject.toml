@@ -8,11 +8,14 @@ requires-python = ">3.11"
 dependencies = [
     "fastapi>=0.115.12",
     "loguru>=0.7.3",
-    "nox>=2025.2.9",
+    # "nox>=2025.2.9", # Перемещено в dev
     "pydantic>=2.11.4",
     "pydantic-settings>=2.9.1",
     "starlette>=0.46.2",
     "uvicorn>=0.34.2",
+    "sqlalchemy[asyncio]>=2.0",
+    "asyncpg>=0.29", # Для PostgreSQL
+    "aiosqlite>=0.19", # Для SQLite
 ]
 
 [build-system]
@@ -53,25 +56,25 @@ loadtest = [
 
 # Группа для автоматизации и релизов (Nox и Commitizen)
 dev = [
-    "nox >= 2023.4.22",      # Запуск задач в изолированных окружениях
+    "nox >= 2023.4.22",      # Nox теперь здесь
     "commitizen >= 3.12",    # Утилита для коммитов и управления версиями
 ]
 
 # Группа "all", включающая все вышеперечисленные для удобной установки всего сразу
 all = [
-    "name[lint]",
-    "name[test]",
-    "name[profile]",
-    "name[audit]",
-    "name[loadtest]",
-    "name[dev]",
+    ".[lint]", # Изменено с name[...] на .[...]
+    ".[test]",
+    ".[profile]",
+    ".[audit]",
+    ".[loadtest]",
+    ".[dev]",
 ]
 
 
 # --- uv ---
 [tool.uv]
 package = true
-environments = ["sys_platform == 'linux'"]
+# environments = ["sys_platform == 'linux'"] # Удалено
 
 
 # --- ruff ---
@@ -242,7 +245,7 @@ name = "cz_conventional_commits"
 # Текущую версию Commitizen будет читать/писать из/в эти файлы:
 version = "0.1.0" # Начальная версия или версия последнего релиза
 version_files = [
-    "src/__init__.py:__version__",
+    # "src/__init__.py:__version__", # Удалено
     "pyproject.toml:version"
 ]
 
