@@ -21,12 +21,12 @@ class LogSettings(BaseSettings):
     console_format: str = (
         "<blue>{time:YYYY-MM-DD HH:mm:ss.SSS}</blue> | "
         "<level>{level: <8}</level> | "
-        "<cyan>{extra[name]: <18}</cyan>| "
+        "<cyan>{name: <18}</cyan>| "  # Changed extra[name] to name
         "<cyan>{function}:{line}</cyan> - <level>{message}</level>"
     )
     file_format: str = (
         "{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | "
-        "{extra[name]: <18} | "
+        "{name: <18} | " # Changed extra[name] to name
         "{name}:{function}:{line} - {message}"
     )
     console_level: str = "INFO"

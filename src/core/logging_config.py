@@ -29,8 +29,8 @@ class InterceptHandler(logging.Handler):
             frame = frame.f_back
             depth += 1
         
-        logger.opt(depth=depth, exception=record.exc_info).log(
-            level, 
+        logger.opt(depth=depth, exception=record.exc_info).bind(name=record.name).log(
+            level,
             record.getMessage()
         )
 
@@ -66,10 +66,6 @@ def setup_initial_logger():
     logger.info("Базовый логгер Loguru сконфигурирован (консоль, перехват стандартных логов).")
 
 # Выполняем базовую настройку при импорте модуля
-# Этот вызов может приводить к проблемам, если модуль импортируется несколько раз
-# в разных местах до полной инициализации приложения.
-# Рекомендуется вызывать setup_initial_logger() явно при старте приложения.
-# Пока оставим так для простоты, но это место для возможного улучшения.
 setup_initial_logger()
 
 
@@ -90,57 +86,93 @@ def get_logger(name: str):
     """
     if not name:
         bound_logger = logger.bind(name="unnamed_logger")
-        bound_logger.error("Имя логгера не может быть пустым!")
+        logger.error("Имя логгера не может быть пустым! Попытка получить логгер без имени.")
         return bound_logger
 
-    # Определяем пути для лог-файлов на основе текущей даты и имени
     today_date_str = datetime.now().strftime("%d_%m")
     
+    # Проверка прав на базовую директорию логов
+    if not os.path.exists(settings.log.path):
+        logger.error(f"Базовая директория для логов не найдена: {settings.log.path}")
+        try:
+            os.makedirs(settings.log.path, exist_ok=True)
+            if not os.access(settings.log.path, os.W_OK):
+                 logger.error(f"Нет прав на запись в базовую директорию логов (после создания): {settings.log.path}")
+                 return logger.bind(name=name) 
+        except Exception as e:
+            logger.error(f"Ошибка при создании базовой директории логов {settings.log.path}: {e}")
+            return logger.bind(name=name)
+    elif not os.access(settings.log.path, os.W_OK):
+        logger.error(f"Нет прав на запись в базовую директорию логов: {settings.log.path}")
+        return logger.bind(name=name)
+
     info_log_dir = settings.log.path / "info" / today_date_str
     error_log_dir = settings.log.path / "errors" / today_date_str
 
-    os.makedirs(info_log_dir, exist_ok=True)
-    os.makedirs(error_log_dir, exist_ok=True)
+    try:
+        os.makedirs(info_log_dir, exist_ok=True)
+        if not os.access(info_log_dir, os.W_OK):
+            logger.error(f"Нет прав на запись в директорию info логов: {info_log_dir}")
+    except Exception as e:
+        logger.error(f"Ошибка при создании директории info логов {info_log_dir}: {e}")
+
+    try:
+        os.makedirs(error_log_dir, exist_ok=True)
+        if not os.access(error_log_dir, os.W_OK):
+            logger.error(f"Нет прав на запись в директорию error логов: {error_log_dir}")
+    except Exception as e:
+        logger.error(f"Ошибка при создании директории error логов {error_log_dir}: {e}")
 
     info_log_path = info_log_dir / f"{name}.log"
     error_log_path = error_log_dir / f"{name}.log"
 
-    # Фильтр для записей конкретного логгера (по имени)
     name_filter = lambda record: record["extra"].get("name") == name
 
-    # Общие аргументы для файловых обработчиков
-    common_file_args = dict(
+    # Аргументы для файловых обработчиков, когда Loguru управляет файлом по пути
+    base_file_args = dict(
         format=settings.log.file_format,
-        encoding="utf-8",
+        encoding="utf-8", # Encoding for file path sinks
         enqueue=settings.log.enqueue,
         backtrace=settings.log.backtrace,
         diagnose=settings.log.diagnose,
-        filter=name_filter, 
-        compression=settings.log.compression,
-        rotation=settings.log.rotation, 
-        retention=settings.log.retention,
+        compression=settings.log.compression, # Path specific
+        rotation=settings.log.rotation,       # Path specific
+        retention=settings.log.retention,     # Path specific
+        catch=True 
     )
 
-    # Добавляем обработчик для error-логов
-    logger.add(
-        error_log_path, 
-        level=settings.log.error_file_level.upper(), 
-        **common_file_args
-    )
-    
-    # Добавляем обработчик для info-логов
-    # Дополнительный фильтр, чтобы error+ логи не дублировались, если info_level ниже error_level
-    # и также чтобы info логи не попадали в error файл (хотя уровень это уже должен регулировать)
-    def info_filter(record):
-        is_correct_name = name_filter(record)
+    # Настройка error-лога (используем путь к файлу)
+    error_log_args = base_file_args.copy()
+    error_log_args['filter'] = name_filter 
+    try:
+        logger.add(
+            error_log_path, # Используем путь к файлу
+            level=settings.log.error_file_level.upper(), 
+            **error_log_args
+        )
+    except Exception as e:
+        print(f"КРИТИЧЕСКАЯ ОШИБКА: Не удалось настроить error-лог для {name} по пути {error_log_path}: {e}", file=sys.stderr)
+
+    # Настройка info-лога (используем путь к файлу)
+    def info_filter_func(record):
+        if record["extra"].get("name") != name:
+            return False
+        is_at_least_info_level = record["level"].no >= logger.level(settings.log.info_file_level.upper()).no
         is_below_error_level = record["level"].no < logger.level(settings.log.error_file_level.upper()).no
-        return is_correct_name and is_below_error_level
+        return is_at_least_info_level and is_below_error_level
 
-    logger.add(
-        info_log_path, 
-        level=settings.log.info_file_level.upper(),
-        filter=info_filter, # Используем комбинированный фильтр
-        **common_file_args
-    )
-    
+    info_log_args = base_file_args.copy()
+    # info_log_args.pop('filter', None) # Не нужно, т.к. filter не в base_file_args
+                                     # и мы добавляем новый 'filter' ключ ниже
+    info_log_args['filter'] = info_filter_func
+
+    try:
+        logger.add(
+            info_log_path, # Используем путь к файлу
+            level=settings.log.info_file_level.upper(),
+            **info_log_args 
+        )
+    except Exception as e:
+        print(f"КРИТИЧЕСКАЯ ОШИБКА: Не удалось настроить info-лог для {name} по пути {info_log_path}: {e}", file=sys.stderr)
+        
     return logger.bind(name=name)
