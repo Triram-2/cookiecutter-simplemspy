@@ -91,14 +91,19 @@ class DBSettings(BaseSettings):
 
 class AppSettings(BaseSettings):
     # Основная модель настроек приложения
+    # model_config = SettingsConfigDict(env_prefix='APP_') # Можно раскомментировать, если нужен префикс для APP_HOST и т.д.
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore", env_prefix='APP_') # Для примера с .env и префиксом
+
     base_dir: Path = BASE_DIR
     data_dir: Path = Field(default_factory=lambda: DATA_DIR) # Добавляем data_dir
     
     log: LogSettings = Field(default_factory=LogSettings) # Настройки логирования
     db: DBSettings = Field(default_factory=DBSettings)   # Настройки базы данных
 
-    # Если вы планируете использовать .env файл для переопределения настроек:
-    # model_config = SettingsConfigDict(env_file=".env", extra="ignore") 
+    # Настройки для Uvicorn (доступны через переменные окружения APP_HOST, APP_PORT, APP_RELOAD)
+    app_host: str = Field(default="0.0.0.0", description="Хост для запуска Uvicorn")
+    app_port: int = Field(default=8000, description="Порт для запуска Uvicorn")
+    app_reload: bool = Field(default=True, description="Включить/выключить автоперезагрузку Uvicorn при изменениях кода")
 
 # Создаем глобальный экземпляр настроек для использования в приложении
 settings = AppSettings()
