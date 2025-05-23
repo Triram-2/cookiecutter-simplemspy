@@ -4,7 +4,7 @@ name = "name"
 version = "0.1.0"
 description = "description"
 readme = "README.md"
-requires-python = ">3.11"
+requires-python = ">3.10" # Изменено с >3.11 на >3.10
 dependencies = [
     "fastapi>=0.115.12",
     "loguru>=0.7.3",
@@ -37,6 +37,7 @@ test = [
     "pytest-asyncio >= 0.21", # Поддержка asyncio в pytest
     "coverage[toml] >= 7.0", # Измерение покрытия кода (с поддержкой pyproject.toml)
     "hypothesis >= 6.50",    # Property-based тестирование
+    "httpx >= 0.25",         # HTTP клиент для тестов API
 ]
 
 # Группа для профилирования
@@ -62,12 +63,12 @@ dev = [
 
 # Группа "all", включающая все вышеперечисленные для удобной установки всего сразу
 all = [
-    ".[lint]", # Изменено с name[...] на .[...]
-    ".[test]",
-    ".[profile]",
-    ".[audit]",
-    ".[loadtest]",
-    ".[dev]",
+    "name[lint]",
+    "name[test]",
+    "name[profile]",
+    "name[audit]",
+    "name[loadtest]",
+    "name[dev]",
 ]
 
 
@@ -203,6 +204,7 @@ norecursedirs = [".git", ".venv", "__pycache__", ".idea"]
 log_cli = true
 log_cli_level = "DEBUG"
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function" # Устранение PytestDeprecationWarning
 
 
 # --- Hypothesis ---

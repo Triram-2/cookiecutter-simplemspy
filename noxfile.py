@@ -1,7 +1,10 @@
 """Nox sessions for linting, testing, building, and deployment."""
 import os
 import shutil
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import tomli as tomllib # type: ignore
 
 from pathlib import Path
 
@@ -48,11 +51,11 @@ def lint(session: nox.Session) -> None:
 @nox.session(python=PYTHON_VERSIONS)
 def test(session: nox.Session) -> None:
     """Запускает тесты с pytest, coverage и hypothesis, а также pip-audit."""
-    session.log("Установка зависимостей для тестирования...")
-    install_project_with_deps(session, "test")
+    session.log("Установка зависимостей для тестирования (включая 'audit' для pip-audit)...")
+    install_project_with_deps(session, "test", "audit") # Добавлена группа "audit"
 
     session.log("Запуск pip-audit для проверки уязвимостей...")
-    session.run("pip-audit", "--local", "--progress-spinner", "off")
+    session.run("python", "-m", "pip_audit", "--local", "--progress-spinner", "off")
 
     session.log("Запуск тестов с coverage...")
     session.run(
