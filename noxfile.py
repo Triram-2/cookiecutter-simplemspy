@@ -2,33 +2,52 @@
 
 import os
 import shutil
-
-try:
-    import tomllib
-except ModuleNotFoundError:
-    import tomli as tomllib
-
+import sys
 from pathlib import Path
+from typing import Any, Dict, List, TYPE_CHECKING
+
+# Conditional import for tomllib/tomli for type checking and compatibility
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    # If Python < 3.11, tomli is expected to be available (e.g., via lint dependencies)
+    # For type checkers, we can guard this import
+    if TYPE_CHECKING:
+        import tomli as tomllib # pyright: ignore [reportMissingModuleSource, reportGeneralTypeIssues]
+    else:
+        try:
+            import tomli as tomllib
+        except ModuleNotFoundError:
+            # This case should ideally not be hit if tomli is a dependency for older Python versions
+            print("Error: 'tomli' is not installed. Please install it for Python < 3.11.")
+            sys.exit(1)
+
 
 import nox
+from nox import Session # Import Session for type hinting
 
 
 # --- Конфигурация ---
 nox.options.default_venv_backend = "uv"
-PYPROJECT_CONTENT = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
-PROJECT_NAME = PYPROJECT_CONTENT["project"]["name"]
-PYTHON_VERSIONS = ["3.13", "3.12"]
-SRC_DIR = "src"
-TESTS_DIR = "tests"
-DOCS_DIR = "docs"
-COVERAGE_FAIL_UNDER = 70  # Минимальный процент покрытия для тестов
+
+# Type hint for PYPROJECT_CONTENT
+PYPROJECT_CONTENT: Dict[str, Any] = tomllib.loads(
+    Path("pyproject.toml").read_text(encoding="utf-8")
+)
+
+PROJECT_NAME: str = PYPROJECT_CONTENT["project"]["name"]
+PYTHON_VERSIONS: List[str] = ["3.13", "3.12"]
+SRC_DIR: str = "src"
+TESTS_DIR: str = "tests"
+DOCS_DIR: str = "docs"
+COVERAGE_FAIL_UNDER: int = 70  # Минимальный процент покрытия для тестов
 os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 
 
 # --- Вспомогательные функции ---
-def install_project_with_deps(session: nox.Session, *groups: str) -> None:
+def install_project_with_deps(session: Session, *groups: str) -> None:
     """Устанавливает проект и его зависимости из указанных групп."""
-    install_args = ["-e", f".[{','.join(groups)}]"] if groups else ["-e", "."]
+    install_args: List[str] = ["-e", f".[{','.join(groups)}]"] if groups else ["-e", "."]
     session.run_always("uv", "pip", "install", *install_args, external=True)
 
 
@@ -36,10 +55,10 @@ def install_project_with_deps(session: nox.Session, *groups: str) -> None:
 
 
 @nox.session(python=PYTHON_VERSIONS)
-def lint(session: nox.Session) -> None:
+def lint(session: Session) -> None:
     """Запускает линтеры (Ruff, Pyright) и проверку формата."""
     session.log("Установка зависимостей для линтинга...")
-    session.install("ruff", "pyright")
+    install_project_with_deps(session, "lint")
 
     session.log("Запуск Ruff (форматирование --check)...")
     session.run("ruff", "format", ".", "--check")
@@ -54,7 +73,7 @@ def lint(session: nox.Session) -> None:
 
 
 @nox.session(python=PYTHON_VERSIONS)
-def test(session: nox.Session) -> None:
+def test(session: Session) -> None:
     """Запускает тесты с pytest, coverage и hypothesis, а также pip-audit."""
     session.log("Установка зависимостей для тестирования...")
     install_project_with_deps(session, "test")
@@ -85,63 +104,50 @@ def test(session: nox.Session) -> None:
 
 
 @nox.session(python=PYTHON_VERSIONS[0])
-def docs(session: nox.Session) -> None:
+def docs(session: Session) -> None:
     """Сборка документации с помощью Sphinx."""
     session.log("Установка зависимостей для сборки документации...")
     session.install("sphinx", "sphinx-rtd-theme")
     install_project_with_deps(session)  # Установить проект, чтобы autodoc работал
 
-    docs_build_dir = Path(DOCS_DIR) / "_build" / "html"
+    docs_build_dir: Path = Path(DOCS_DIR) / "_build" / "html"
 
     session.log(f"Очистка старой документации в {docs_build_dir}...")
     if docs_build_dir.exists():
         shutil.rmtree(docs_build_dir)
 
     session.log("Сборка HTML документации...")
-    # Команда сборки Sphinx
     session.run(
         "sphinx-build",
         "-b",
-        "html",  # Формат сборки (html)
-        "-W",  # Превращать предупреждения в ошибки
-        "--keep-going",  # Продолжать сборку при ошибках (если нужно)
-        DOCS_DIR,  # Исходная директория документации
-        str(docs_build_dir),  # Выходная директория
+        "html",
+        "-W",
+        "--keep-going",
+        DOCS_DIR,
+        str(docs_build_dir),
     )
     session.log(f"Документация собрана в: {docs_build_dir.resolve()}")
 
 
 @nox.session(python=PYTHON_VERSIONS[0])
-def profile(session: nox.Session) -> None:
+def profile(session: Session) -> None:
     """Запуск профилировщика Scalene."""
     session.log("Установка зависимостей для профилирования...")
-    # session.install("scalene") # Scalene теперь в project.optional-dependencies.profile
-    install_project_with_deps(
-        session, "profile"
-    )  # Устанавливаем зависимости профилирования, включая сам проект
+    install_project_with_deps(session, "profile")
 
     session.log("Запуск Scalene...")
-    # Комментарий: Текущая команда `scalene src/main.py` (или `scalene src/main.py run`) запускает Uvicorn через src/main.py.
-    # Это профилирует всё приложение, включая Uvicorn, что может быть не всегда желаемым результатом.
-    # Для профилирования конкретных частей бизнес-логики или отдельных функций,
-    # может потребоваться создание специальных скриптов-оберток или изменение команды запуска.
-    # Например, `scalene -m your_module_to_profile` или `python -m scalene --program your_script.py`.
-    # Также, `*session.posargs` здесь может быть нерелевантным, если `src/main.py` не принимает доп. аргументы.
     try:
-        # Попытка прочитать точку входа или параметры из pyproject.toml, если они там есть
-        # Для данного шаблона, мы просто используем src/main.py как пример
-        # и предполагаем, что пользователь адаптирует это под свои нужды.
-        # Пример: session.run("scalene", "src/main.py", *session.posargs)
-        # Если src/main.py не принимает 'run', а просто запускает uvicorn, то можно так:
-        # session.run("scalene", "-m", "uvicorn", "src.api:app", "--host", settings.app_host, "--port", str(settings.app_port))
-        # Для простоты примера оставим вызов src/main.py, предполагая, что он запускает Uvicorn
         session.run("scalene", "src/main.py", *session.posargs)
 
-        outfile = (
-            PYPROJECT_CONTENT.get("tool", {})
-            .get("scalene", {})
-            .get("outfile", "scalene_report.html")
-        )
+        # Assuming PYPROJECT_CONTENT structure is valid and keys exist for simplicity
+        # A more robust approach would involve checking key existence
+        outfile_setting = PYPROJECT_CONTENT.get("tool", {}).get("scalene", {}).get("outfile")
+        outfile: str
+        if isinstance(outfile_setting, str):
+            outfile = outfile_setting
+        else:
+            outfile = "scalene_report.html" # Default if not found or not a string
+        
         session.log(f"Отчет Scalene сохранен (вероятно) в: {Path(outfile).resolve()}")
     except Exception as e:
         session.error(
@@ -150,11 +156,13 @@ def profile(session: nox.Session) -> None:
 
 
 @nox.session(python=False)
-def build(session: nox.Session) -> None:
+def build(session: Session) -> None:
     """Сборка Docker-образа."""
-    project_version = PYPROJECT_CONTENT["project"]["version"]
-    image_tag = f"{PROJECT_NAME}:{project_version}"
-    latest_tag = f"{PROJECT_NAME}:latest"
+    project_version_any: Any = PYPROJECT_CONTENT["project"]["version"]
+    project_version: str = str(project_version_any) # Ensure it's a string
+
+    image_tag: str = f"{PROJECT_NAME}:{project_version}"
+    latest_tag: str = f"{PROJECT_NAME}:latest"
 
     session.log(f"Сборка Docker-образа {image_tag} и {latest_tag}...")
     try:
@@ -166,9 +174,8 @@ def build(session: nox.Session) -> None:
             image_tag,
             "-t",
             latest_tag,
-            # Добавьте сюда другие флаги docker build, если нужно (--build-arg, --platform и т.д.)
             *session.posargs,
-            external=True,  # Указываем, что docker - внешняя команда
+            external=True,
         )
         session.log("Сборка Docker-образа завершена успешно.")
     except Exception as e:
@@ -178,10 +185,10 @@ def build(session: nox.Session) -> None:
 
 
 @nox.session(python=False)
-def clean(session: nox.Session) -> None:
+def clean(session: Session) -> None:
     """Удаляет временные файлы и папки сборки/тестирования."""
     session.log("Очистка...")
-    patterns_to_remove = [
+    patterns_to_remove: List[str] = [
         "dist",
         "build",
         "*.egg-info",
@@ -192,45 +199,44 @@ def clean(session: nox.Session) -> None:
         "coverage_html_report",
         "*.prof",
         "profile_output",
-        "scalene_report.html",  # И другие файлы отчетов
+        "scalene_report.html",
         "**/.mypy_cache",
         "**/.ruff_cache",
         "**/__pycache__",
         f"{DOCS_DIR}/_build",
-        "vulnerabilities.json",  # Отчет pip-audit
+        "vulnerabilities.json",
     ]
     for pattern in patterns_to_remove:
         try:
-            if "*" in pattern or "?" in pattern:  # Используем glob для шаблонов
-                for path in Path(".").glob(pattern):
-                    session.log(f"Удаление {path}")
-                    if path.is_dir():
-                        shutil.rmtree(path, ignore_errors=True)
+            if "*" in pattern or "?" in pattern:
+                # Path.glob returns a generator of Path objects
+                path_iter: Iterator[Path] = Path(".").glob(pattern)
+                for path_obj in path_iter: # path_obj is a Path object
+                    session.log(f"Удаление {path_obj}")
+                    if path_obj.is_dir():
+                        shutil.rmtree(path_obj, ignore_errors=True)
                     else:
-                        path.unlink(missing_ok=True)
-            else:  # Прямое удаление файла или папки
-                path = Path(pattern)
-                if path.exists():
-                    session.log(f"Удаление {path}")
-                    if path.is_dir():
-                        shutil.rmtree(path, ignore_errors=True)
+                        path_obj.unlink(missing_ok=True)
+            else:
+                path_obj: Path = Path(pattern) # path_obj is a Path object
+                if path_obj.exists():
+                    session.log(f"Удаление {path_obj}")
+                    if path_obj.is_dir():
+                        shutil.rmtree(path_obj, ignore_errors=True)
                     else:
-                        path.unlink(missing_ok=True)
+                        path_obj.unlink(missing_ok=True)
         except Exception as e:
             session.warn(f"Не удалось удалить {pattern}: {e}")
     session.log("Очистка завершена.")
 
 
 @nox.session(python=PYTHON_VERSIONS[0])
-def locust(session: nox.Session) -> None:
+def locust(session: Session) -> None:
     """Запускает нагрузочное тестирование с Locust."""
     session.log("Установка зависимостей для Locust...")
-    install_project_with_deps(session, "loadtest")  # locust теперь в loadtest группе
+    install_project_with_deps(session, "loadtest")
 
-    # Комментарий: Убедитесь, что файл `locustfile.py` существует в корне проекта
-    # и содержит ваши сценарии нагрузочного тестирования.
-    # Этот файл должен быть создан пользователем шаблона.
-    locust_file = "locustfile.py"
+    locust_file: str = "locustfile.py"
     if not Path(locust_file).exists():
         session.warn(
             f"Файл {locust_file} не найден. Для запуска Locust необходимо создать его и определить сценарии нагрузки."
@@ -238,21 +244,16 @@ def locust(session: nox.Session) -> None:
         session.log(
             "Пример команды, если locustfile.py существует: locust -f locustfile.py --host=http://localhost:8000"
         )
-        # Можно завершить сессию, если файл не найден, или просто предупредить.
-        # Для шаблона лучше просто предупредить.
         return
 
     session.log(f"Запуск Locust (используя {locust_file})...")
-    # Пример команды: locust -f locustfile.py --host=http://localhost:8000 (хост можно передать через posargs)
-    # session.posargs могут включать, например, --host, --users, --spawn-rate
     session.run("locust", "-f", locust_file, *session.posargs)
 
 
 # --- Сессия для CI ---
-# Эта сессия просто запускает другие сессии последовательно
 @nox.session(python=PYTHON_VERSIONS, name="ci")
-def ci_pipeline(session: nox.Session) -> None:
+def ci_pipeline(session: Session) -> None:
     """Запускает основные проверки для CI: lint и test."""
     session.log(f"Запуск CI пайплайна для Python {session.python}")
-    session.notify("lint", [session.python])
+    session.notify("lint", [session.python]) # session.python is str
     session.notify("test", [session.python])
