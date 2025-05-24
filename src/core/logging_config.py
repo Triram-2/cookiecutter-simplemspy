@@ -14,8 +14,8 @@ from typing import Any, Callable, Dict, Optional, Union, TextIO, cast
 
 from loguru import (
     logger as loguru_logger,
-)  # Rename to avoid conflict if we define a 'logger' var
-from loguru._logger import Logger as LoguruLoggerType  # For return type of get_logger
+    Logger,  # Use the public Logger type for return type hints
+)
 from .config import settings, AppSettings  # Import AppSettings for typing 'settings'
 
 
@@ -89,8 +89,8 @@ setup_initial_logger()
 
 
 # --- Функция для получения настроенного логгера ---
-# Loguru's bound logger is still of type loguru._logger.Logger
-def get_logger(name: str) -> LoguruLoggerType:
+# Change return type to loguru.Logger (public type)
+def get_logger(name: str) -> Logger:
     """
     Получает и настраивает логгер Loguru для указанного имени.
     Файловые обработчики (info, error) настраиваются для каждого имени.

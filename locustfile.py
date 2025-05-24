@@ -1,20 +1,20 @@
 from locust import HttpUser, task, between
-from locust.wait_time import WaitTime # For type hinting wait_time
-from typing import Callable # For type hinting host if it were a callable, not used here
+from locust.user.wait_time import WaitTime # More specific import for WaitTime
+from typing import Optional # For host type hint
 
 
 class HelloWorldUser(HttpUser):
     """
     A simple Locust user that makes a GET request to "/".
     """
-    # Type hint for wait_time:
-    # between(1, 5) returns an instance of a class that inherits from WaitTime.
-    # Specifically, it's locust.wait_time.Between.
-    wait_time: WaitTime = between(1, 5)
+    # Type hint for wait_time.
+    # between(1,5) returns an instance of a WaitTime subclass.
+    # If Pyright has issues with 'between' or 'WaitTime' types from locust stubs,
+    # type: ignore is a pragmatic way to handle it.
+    wait_time: WaitTime = between(1, 5) # type: ignore
 
-    # Type hint for host (optional, often set via command line or config)
-    # If you set it in the class, it would be a string.
-    host: str = "http://localhost:8080" # Example host
+    # Type hint for host, matching Optional[str] from the User base class.
+    host: Optional[str] = "http://localhost:8080" # Example host
 
     @task
     def hello_world(self) -> None:
