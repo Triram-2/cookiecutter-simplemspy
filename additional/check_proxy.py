@@ -1,51 +1,61 @@
 import aiohttp
 import asyncio
 import os
+from typing import Dict, Optional, Any, List, Union
 
 
-async def check_proxy(session, proxy, url="https://httpbin.org/ip"):
+async def check_proxy(
+    session: aiohttp.ClientSession, proxy: str, url: str = "https://httpbin.org/ip"
+) -> Optional[Dict[str, Any]]:
     try:
         async with session.get(url, proxy=proxy, timeout=10) as response:
+            response: aiohttp.ClientResponse
             if response.status == 200:
-                data = await response.json()
-                ip = data.get("origin")
-                geo_info = await get_geo_info(session, ip)
-                print(f"Прокси рабочий: {proxy} -> IP: {ip}, Геолокация: {geo_info}")
-                return {"proxy": proxy, "ip": ip, "geo": geo_info}
+                data: Dict[str, Any] = await response.json()
+                ip: Optional[str] = data.get("origin")
+                if ip: # Ensure ip is not None before proceeding
+                    geo_info: str = await get_geo_info(session, ip)
+                    print(f"Прокси рабочий: {proxy} -> IP: {ip}, Геолокация: {geo_info}")
+                    return {"proxy": proxy, "ip": ip, "geo": geo_info}
     except Exception as e:
         print(f"Прокси не работает: {proxy} -> {e}")
     return None
 
 
-async def get_geo_info(session, ip):
+async def get_geo_info(session: aiohttp.ClientSession, ip: str) -> str:
     try:
-        url = f"https://ipinfo.io/{ip}/json"
+        url: str = f"https://ipinfo.io/{ip}/json"
         async with session.get(url, timeout=10) as response:
+            response: aiohttp.ClientResponse
             if response.status == 200:
-                data = await response.json()
+                data: Dict[str, Any] = await response.json()
                 return f"{data.get('country', 'Unknown')} ({data.get('region', 'Unknown')}, {data.get('city', 'Unknown')})"
     except Exception as e:
         print(f"Ошибка геолокации для IP {ip}: {e}")
     return "Геолокация недоступна"
 
 
-async def main():
-    file_path = os.path.join(os.path.dirname(__file__), "proxyes.txt")
+async def main() -> None:
+    file_path: str = os.path.join(os.path.dirname(__file__), "proxyes.txt")
     with open(file_path) as file:
-        proxy_list = [line.strip() for line in file if line.strip()]
+        proxy_list: List[str] = [line.strip() for line in file if line.strip()]
 
-    url = "https://httpbin.org/ip"
-    tasks = []
+    url: str = "https://httpbin.org/ip"
+    tasks: List[asyncio.Task[Optional[Dict[str, Any]]]] = []
 
     async with aiohttp.ClientSession() as session:
+        session: aiohttp.ClientSession
         for proxy in proxy_list:
-            tasks.append(check_proxy(session, proxy, url))
+            tasks.append(asyncio.create_task(check_proxy(session, proxy, url))) # Use asyncio.create_task
 
-        results = await asyncio.gather(*tasks)
-        working_proxies = [result for result in results if result is not None]
+        results: List[Optional[Dict[str, Any]]] = await asyncio.gather(*tasks)
+        working_proxies: List[Dict[str, Any]] = [
+            result for result in results if result is not None
+        ]
 
     print(f"\nРабочих прокси найдено: {len(working_proxies)}")
     for proxy_info in working_proxies:
+        proxy_info: Dict[str, Any]
         print(
             f"{proxy_info['proxy']} -> IP: {proxy_info['ip']}, Геолокация: {proxy_info['geo']}"
         )
