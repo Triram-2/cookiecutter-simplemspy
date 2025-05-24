@@ -256,5 +256,17 @@ def locust(session: Session) -> None:
 def ci_pipeline(session: Session) -> None:
     """Запускает основные проверки для CI: lint и test."""
     session.log(f"Запуск CI пайплайна для Python {session.python}")
-    session.notify("lint", [session.python])  # session.python is str
-    session.notify("test", [session.python])
+
+    # session.python is typed as str | None.
+    # session.notify expects posargs: Iterable[str] | None.
+    # If session.python is None, [None] is not Iterable[str].
+    # We ensure only a list of strings or an empty list is passed.
+    # In this specific CI context, session.python should always be a string
+    # due to parameterization with PYTHON_VERSIONS, but this satisfies Pyright's
+    # strictness based on the general type hint of session.python.
+    current_python_version_arg: List[str] = []
+    if session.python is not None:
+        current_python_version_arg.append(session.python)
+
+    session.notify("lint", current_python_version_arg)
+    session.notify("test", current_python_version_arg)

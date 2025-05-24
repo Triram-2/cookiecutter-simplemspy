@@ -36,8 +36,8 @@ class _Base:
     # This id could be part of PkModel as per task, but often included in a general base
     # id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
 
-    @declared_attr
-    def __tablename__(cls: Type[Any]) -> str:  # cls is a type, e.g., MyModel
+    @declared_attr  # type: ignore[arg-type]
+    def __tablename__(cls: type) -> str:  # cls is a type, e.g., MyModel
         # Преобразует имя класса из CamelCase в snake_case для имени таблицы
         # The noqa: N805 for 'cls' might still be needed depending on linter rules for @declared_attr
         name: str = re.sub(r"(?<!^)(?=[A-Z])", "_", cls.__name__).lower()
@@ -57,7 +57,8 @@ class _Base:
 # and aligns with how SQLAlchemy stubs sometimes handle it, while acknowledging `DeclarativeMeta` or `Type[Model]`
 # could be more semantically precise depending on interpretation.
 # The task mentioned `Base: Type = ...` which implies `Type[Any]`.
-Base: Any = declarative_base(
+# Let type inference work here, or use a more specific type if necessary.
+Base = declarative_base(
     cls=_Base,
     # metadata=metadata_obj # If metadata_obj were defined above
     metadata=None,  # metadata=None for Alembic, it will use its own with the convention

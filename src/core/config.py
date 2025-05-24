@@ -18,7 +18,7 @@ def _get_log_path_and_create_dir() -> Path:
 
 
 class LogSettings(BaseSettings):
-    model_config: SettingsConfigDict = SettingsConfigDict(env_prefix="LOG_")
+    model_config = SettingsConfigDict(env_prefix="LOG_")
 
     path: Path = Field(default_factory=_get_log_path_and_create_dir)
     console_format: str = (
@@ -44,7 +44,7 @@ class LogSettings(BaseSettings):
 
 
 class DBSettings(BaseSettings):  # Renamed from DatabaseSettings in task to match file
-    model_config: SettingsConfigDict = SettingsConfigDict(env_prefix="DB_")
+    model_config = SettingsConfigDict(env_prefix="DB_")
 
     type: Literal["SQLITE", "POSTGRESQL"] = Field(  # Using Literal as per description
         default="SQLITE", description="Тип базы данных: SQLITE или POSTGRESQL"
@@ -119,7 +119,7 @@ class DBSettings(BaseSettings):  # Renamed from DatabaseSettings in task to matc
 
 
 class AppSettings(BaseSettings):  # Renamed from Settings in task to match file
-    model_config: SettingsConfigDict = SettingsConfigDict(
+    model_config = SettingsConfigDict(
         env_file=".env", extra="ignore", env_prefix="APP_"
     )
 

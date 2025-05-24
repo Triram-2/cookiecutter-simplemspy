@@ -37,13 +37,13 @@ if __name__ == "__main__":
     std_logger.info(
         "Это тестовое сообщение от стандартного logging."
     )  # Это сообщение должно быть перехвачено
-    log.info(
+    log.info(  # type: ignore[misc]
         f"Запуск Uvicorn сервера на http://{settings.app_host}:{settings.app_port}"
     )
-    log.info(
+    log.info(  # type: ignore[misc]
         f"Автоперезагрузка при изменениях кода: {'Включена' if settings.app_reload else 'Выключена'}"
     )
-    log.info("Для остановки сервера нажмите CTRL+C")
+    log.info("Для остановки сервера нажмите CTRL+C")  # type: ignore[misc]
 
     uvicorn.run(
         # Путь к объекту FastAPI приложения.
