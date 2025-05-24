@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Optional, Union, Any, Dict, List, Type, Literal
+from typing import Optional, Union, Any, Dict, Literal
 
 from pydantic import Field, PostgresDsn, field_validator, ValidationInfo
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -19,7 +19,7 @@ def _get_log_path_and_create_dir() -> Path:
 
 class LogSettings(BaseSettings):
     model_config: SettingsConfigDict = SettingsConfigDict(env_prefix="LOG_")
-    
+
     path: Path = Field(default_factory=_get_log_path_and_create_dir)
     console_format: str = (
         "<blue>{time:YYYY-MM-DD HH:mm:ss.SSS}</blue> | "
@@ -32,9 +32,9 @@ class LogSettings(BaseSettings):
         "{name: <18} | "
         "{name}:{function}:{line} - {message}"
     )
-    console_level: str = "INFO" # Consider Literal[...] if levels are fixed
-    info_file_level: str = "INFO" # Consider Literal[...]
-    error_file_level: str = "ERROR" # Consider Literal[...]
+    console_level: str = "INFO"  # Consider Literal[...] if levels are fixed
+    info_file_level: str = "INFO"  # Consider Literal[...]
+    error_file_level: str = "ERROR"  # Consider Literal[...]
     compression: Optional[str] = None
     enqueue: bool = True
     backtrace: bool = True
@@ -43,10 +43,10 @@ class LogSettings(BaseSettings):
     retention: str = "7 days"
 
 
-class DBSettings(BaseSettings): # Renamed from DatabaseSettings in task to match file
+class DBSettings(BaseSettings):  # Renamed from DatabaseSettings in task to match file
     model_config: SettingsConfigDict = SettingsConfigDict(env_prefix="DB_")
 
-    type: Literal["SQLITE", "POSTGRESQL"] = Field( # Using Literal as per description
+    type: Literal["SQLITE", "POSTGRESQL"] = Field(  # Using Literal as per description
         default="SQLITE", description="Тип базы данных: SQLITE или POSTGRESQL"
     )
 
@@ -54,11 +54,11 @@ class DBSettings(BaseSettings): # Renamed from DatabaseSettings in task to match
     port: int = 5432
     user: Optional[str] = "postgres"
     password: Optional[str] = "postgres"
-    name: Optional[str] = "mydatabase" # Corresponds to db_name in task
+    name: Optional[str] = "mydatabase"  # Corresponds to db_name in task
 
     # sqlite_file in task is Optional[str], but Path is used here and is more appropriate.
     sqlite_file: Path = Field(default_factory=lambda: DATA_DIR / "db" / "main.sqlite")
-    
+
     # database_url_override in task is Optional[PostgresDsn | str].
     # Here it's Optional[str], which is fine as PostgresDsn will be applied by Pydantic if it matches.
     database_url_override: Optional[str] = Field(default=None, alias="DATABASE_URL")
@@ -68,11 +68,13 @@ class DBSettings(BaseSettings): # Renamed from DatabaseSettings in task to match
 
     @field_validator("assembled_database_url", mode="before")
     @classmethod
-    def assemble_db_connection(cls, v: Optional[str], info: ValidationInfo) -> Union[PostgresDsn, str]:
+    def assemble_db_connection(
+        cls, v: Optional[str], info: ValidationInfo
+    ) -> Union[PostgresDsn, str]:
         # `v` is the current value of `assembled_database_url` (None if not set)
         # `info.data` contains the raw data provided to the model
-        values: Dict[str, Any] = info.data # Existing data in the model
-        
+        values: Dict[str, Any] = info.data  # Existing data in the model
+
         forced_url: Optional[Any] = values.get("database_url_override")
         if forced_url:
             # Special handling for in-memory SQLite for tests
@@ -80,7 +82,7 @@ class DBSettings(BaseSettings): # Renamed from DatabaseSettings in task to match
                 return "sqlite+aiosqlite:///:memory:"
             # If forced_url is a valid PostgresDsn string, Pydantic will handle it.
             # If it's any other string, it will be returned as is.
-            return str(forced_url) # Ensure it's a string if not None
+            return str(forced_url)  # Ensure it's a string if not None
 
         # If database_url_override is not set, assemble from other fields
         db_type: str = values.get("type", "SQLITE").upper()
@@ -92,21 +94,21 @@ class DBSettings(BaseSettings): # Renamed from DatabaseSettings in task to match
             pg_host: str = values.get("host", "localhost")
             pg_port: int = values.get("port", 5432)
             pg_name: Optional[str] = values.get("name")
-            
+
             return PostgresDsn.build(
                 scheme="postgresql+asyncpg",
                 username=pg_user,
                 password=pg_password,
                 host=pg_host,
                 port=pg_port,
-                path=f"/{pg_name}" if pg_name else None, # Path should start with /
+                path=f"/{pg_name}" if pg_name else None,  # Path should start with /
             )
         elif db_type == "SQLITE":
             sqlite_path_val: Optional[Any] = values.get("sqlite_file")
             sqlite_path: Path
             if isinstance(sqlite_path_val, Path):
                 sqlite_path = sqlite_path_val
-            else: # Fallback if not a Path (e.g. if loaded as string)
+            else:  # Fallback if not a Path (e.g. if loaded as string)
                 sqlite_path = DATA_DIR / "db" / "main.sqlite"
 
             # Ensure the directory for the SQLite file exists
@@ -116,7 +118,7 @@ class DBSettings(BaseSettings): # Renamed from DatabaseSettings in task to match
         raise ValueError(f"Неподдерживаемый тип базы данных: {db_type}")
 
 
-class AppSettings(BaseSettings): # Renamed from Settings in task to match file
+class AppSettings(BaseSettings):  # Renamed from Settings in task to match file
     model_config: SettingsConfigDict = SettingsConfigDict(
         env_file=".env", extra="ignore", env_prefix="APP_"
     )
@@ -125,12 +127,12 @@ class AppSettings(BaseSettings): # Renamed from Settings in task to match file
     # app_name: str = "MyApplication" # Example, not in original file
     # debug: bool = False # Example, not in original file
     # app_version: str = "0.1.0" # Example, not in original file
-    
-    base_dir: Path = BASE_DIR # Corresponds to project_dir in task description
-    data_dir: Path = Field(default_factory=lambda: DATA_DIR) # Matches data_dir in task
+
+    base_dir: Path = BASE_DIR  # Corresponds to project_dir in task description
+    data_dir: Path = Field(default_factory=lambda: DATA_DIR)  # Matches data_dir in task
 
     log: LogSettings = Field(default_factory=LogSettings)
-    db: DBSettings = Field(default_factory=DBSettings) # Renamed from DatabaseSettings
+    db: DBSettings = Field(default_factory=DBSettings)  # Renamed from DatabaseSettings
 
     app_host: str = Field(default="0.0.0.0", description="Хост для запуска Uvicorn")
     app_port: int = Field(default=8000, description="Порт для запуска Uvicorn")
@@ -142,7 +144,7 @@ class AppSettings(BaseSettings): # Renamed from Settings in task to match file
     app_env: Literal["prod", "dev", "test"] = Field(
         default="prod", description="Окружение приложения: prod, dev, test"
     )
-    
+
     # sentry_dsn: Optional[str] = None # Example, not in original file
     # api_v1_prefix: str = "/api/v1" # Example, not in original file
     # openapi_url: Optional[str] = "/openapi.json" # Example, not in original file

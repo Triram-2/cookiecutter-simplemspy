@@ -3,13 +3,14 @@
 Основа для всех моделей SQLAlchemy.
 Включает декларативную базу и опциональный миксин для временных меток.
 """
-import re
-from datetime import datetime # Import datetime for Mapped[datetime]
-from typing import Any, Dict, Type # Import necessary typing modules
 
-from sqlalchemy import DateTime, func, MetaData
+import re
+from datetime import datetime  # Import datetime for Mapped[datetime]
+from typing import Any, Dict, Type  # Import necessary typing modules
+
+from sqlalchemy import DateTime, func
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column
-from sqlalchemy.ext.declarative import declared_attr, DeclarativeMeta # For Base type
+from sqlalchemy.ext.declarative import declared_attr
 
 # Декларативная база для всех моделей
 # https://alembic.sqlalchemy.org/en/latest/naming.html
@@ -31,6 +32,7 @@ class _Base:
     Базовый класс для моделей SQLAlchemy с автоматическим именованием таблицы.
     Имя таблицы будет преобразовано из MyModelClass в my_model_class.
     """
+
     # This id could be part of PkModel as per task, but often included in a general base
     # id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
 
@@ -40,6 +42,7 @@ class _Base:
         # The noqa: N805 for 'cls' might still be needed depending on linter rules for @declared_attr
         name: str = re.sub(r"(?<!^)(?=[A-Z])", "_", cls.__name__).lower()
         return name
+
 
 # The result of declarative_base() is a metaclass instance (usually DeclarativeMeta)
 # which is then used as a base class for models.
@@ -57,7 +60,7 @@ class _Base:
 Base: Any = declarative_base(
     cls=_Base,
     # metadata=metadata_obj # If metadata_obj were defined above
-    metadata=None # metadata=None for Alembic, it will use its own with the convention
+    metadata=None,  # metadata=None for Alembic, it will use its own with the convention
 )
 
 
@@ -67,11 +70,12 @@ class TimestampMixin:
     `created_at`: время создания записи.
     `updated_at`: время последнего обновления записи.
     """
+
     # Ensure `from datetime import datetime` is present
     # Using `datetime` (python type) for Mapped, SQLAlchemy handles conversion.
     # `nullable=False` is a good practice for these fields unless explicitly allowed.
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), # Storing with timezone is often recommended
+        DateTime(timezone=True),  # Storing with timezone is often recommended
         default=func.now(),
         server_default=func.now(),
         nullable=False,
@@ -86,6 +90,7 @@ class TimestampMixin:
         nullable=False,
         comment="Время последнего обновления записи",
     )
+
 
 # Example PkModel as per task (not in original file, but for illustration)
 # class PkModel:

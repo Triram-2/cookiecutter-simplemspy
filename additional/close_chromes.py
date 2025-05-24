@@ -16,10 +16,10 @@ def close_processes(process_names: List[str]) -> None:
 
     for process in process_iterator:
         try:
-            proc_name: str = process.info.get("name", "") 
+            proc_name: str = process.info.get("name", "")
             proc_pid: int = process.info.get("pid", 0)
 
-            if not proc_name: # Skip if name could not be retrieved
+            if not proc_name:  # Skip if name could not be retrieved
                 continue
 
             # Check if the process name exactly matches any in the list
@@ -29,15 +29,25 @@ def close_processes(process_names: List[str]) -> None:
                 if p_name.lower() == proc_name.lower():
                     should_terminate = True
                     break
-            
+
             if not should_terminate:
                 # Broader check for browser-related processes
-                browser_keywords = ["chrom", "nacl", "sandbox", "crashpad", "firefox", "edge", "opera", "safari", "msedge"]
+                browser_keywords = [
+                    "chrom",
+                    "nacl",
+                    "sandbox",
+                    "crashpad",
+                    "firefox",
+                    "edge",
+                    "opera",
+                    "safari",
+                    "msedge",
+                ]
                 for keyword in browser_keywords:
                     if keyword in proc_name.lower():
                         should_terminate = True
                         break
-            
+
             if should_terminate:
                 print(f"Попытка завершения процесса: {proc_name} (PID: {proc_pid})")
                 process.terminate()
@@ -47,14 +57,25 @@ def close_processes(process_names: List[str]) -> None:
 
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess) as e:
             # process.info might be None if the process terminated unexpectedly
-            pid_for_log = proc_pid if 'proc_pid' in locals() else process.pid
-            name_for_log = proc_name if 'proc_name' in locals() and proc_name else "Неизвестное имя"
-            print(f"Ошибка при завершении процесса (PID: {pid_for_log}, Имя: {name_for_log}): {e}")
-        except Exception as e: # Catch any other unexpected errors
-            pid_for_log = proc_pid if 'proc_pid' in locals() else process.pid
-            name_for_log = proc_name if 'proc_name' in locals() and proc_name else "Неизвестное имя"
-            print(f"Неожиданная ошибка при обработке процесса (PID: {pid_for_log}, Имя: {name_for_log}): {e}")
-
+            pid_for_log = proc_pid if "proc_pid" in locals() else process.pid
+            name_for_log = (
+                proc_name
+                if "proc_name" in locals() and proc_name
+                else "Неизвестное имя"
+            )
+            print(
+                f"Ошибка при завершении процесса (PID: {pid_for_log}, Имя: {name_for_log}): {e}"
+            )
+        except Exception as e:  # Catch any other unexpected errors
+            pid_for_log = proc_pid if "proc_pid" in locals() else process.pid
+            name_for_log = (
+                proc_name
+                if "proc_name" in locals() and proc_name
+                else "Неизвестное имя"
+            )
+            print(
+                f"Неожиданная ошибка при обработке процесса (PID: {pid_for_log}, Имя: {name_for_log}): {e}"
+            )
 
     print(f"Всего завершено процессов: {closed_count}")
 
@@ -74,7 +95,7 @@ def main() -> None:
     ]
     # The close_processes function also checks for keywords like "chrom", "firefox", etc.
     # so this list is for specific main process names.
-    
+
     print("Запуск скрипта для закрытия процессов браузеров...")
     close_processes(chrome_process_names)
     print("Скрипт завершил работу.")

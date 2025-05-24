@@ -9,12 +9,14 @@ import logging
 import os
 from datetime import datetime
 from pathlib import Path
-from types import FrameType # For typing frame objects
+from types import FrameType  # For typing frame objects
 from typing import Any, Callable, Dict, Optional, Union, TextIO, cast
 
-from loguru import logger as loguru_logger # Rename to avoid conflict if we define a 'logger' var
-from loguru._logger import Logger as LoguruLoggerType # For return type of get_logger
-from .config import settings, AppSettings # Import AppSettings for typing 'settings'
+from loguru import (
+    logger as loguru_logger,
+)  # Rename to avoid conflict if we define a 'logger' var
+from loguru._logger import Logger as LoguruLoggerType  # For return type of get_logger
+from .config import settings, AppSettings  # Import AppSettings for typing 'settings'
 
 
 # --- Перехватчик стандартного логирования ---
@@ -34,9 +36,9 @@ class InterceptHandler(logging.Handler):
         frame: Optional[FrameType] = cast(Optional[FrameType], logging.currentframe())
         depth: int = 2
         while frame and frame.f_code.co_filename == logging.__file__:
-            frame = frame.f_back # type: ignore # frame can be None here
+            frame = frame.f_back  # type: ignore # frame can be None here
             depth += 1
-        
+
         # Ensure frame is not None before accessing f_code, though opt should handle it
         # The use of .bind(name=record.name) is good.
         loguru_logger.opt(depth=depth, exception=record.exc_info).bind(
@@ -60,18 +62,18 @@ def setup_initial_logger() -> None:
     loguru_logger.level("CRITICAL", color="<bold><light-red>")
 
     # Используем AppSettings для типизации settings
-    current_settings: AppSettings = settings 
+    current_settings: AppSettings = settings
 
     # Добавляем консольный обработчик из настроек
     # sys.stderr is TextIO
     loguru_logger.add(
-        cast(TextIO, sys.stderr), # Sink can be TextIO
+        cast(TextIO, sys.stderr),  # Sink can be TextIO
         format=current_settings.log.console_format,
         level=current_settings.log.console_level.upper(),
-        colorize=True, # bool
-        enqueue=current_settings.log.enqueue, # bool
-        backtrace=current_settings.log.backtrace, # bool
-        diagnose=current_settings.log.diagnose, # bool
+        colorize=True,  # bool
+        enqueue=current_settings.log.enqueue,  # bool
+        backtrace=current_settings.log.backtrace,  # bool
+        diagnose=current_settings.log.diagnose,  # bool
     )
 
     # Перехватываем стандартное логирование Python
@@ -93,9 +95,11 @@ def get_logger(name: str) -> LoguruLoggerType:
     Получает и настраивает логгер Loguru для указанного имени.
     Файловые обработчики (info, error) настраиваются для каждого имени.
     """
-    if not name: # Ensure name is not empty
+    if not name:  # Ensure name is not empty
         # Log an error and return a default bound logger
-        loguru_logger.error("Имя логгера не может быть пустым! Попытка получить логгер без имени.")
+        loguru_logger.error(
+            "Имя логгера не может быть пустым! Попытка получить логгер без имени."
+        )
         return loguru_logger.bind(name="unnamed_logger_error")
 
     current_settings: AppSettings = settings
@@ -111,7 +115,7 @@ def get_logger(name: str) -> LoguruLoggerType:
                 loguru_logger.error(
                     f"Нет прав на запись в базовую директорию логов (после создания): {log_path_base}"
                 )
-                return loguru_logger.bind(name=name) # Return before further setup
+                return loguru_logger.bind(name=name)  # Return before further setup
         except Exception as e:
             loguru_logger.error(
                 f"Ошибка при создании базовой директории логов {log_path_base}: {e}"
@@ -135,13 +139,16 @@ def get_logger(name: str) -> LoguruLoggerType:
                 return False
             return True
         except Exception as e:
-            loguru_logger.error(f"Ошибка при создании/проверке директории логов {log_dir}: {e}")
+            loguru_logger.error(
+                f"Ошибка при создании/проверке директории логов {log_dir}: {e}"
+            )
             return False
 
-    if not _ensure_log_dir_writable(info_log_dir) or not _ensure_log_dir_writable(error_log_dir):
+    if not _ensure_log_dir_writable(info_log_dir) or not _ensure_log_dir_writable(
+        error_log_dir
+    ):
         # If directories cannot be prepared, return a logger bound to the name but without file handlers
         return loguru_logger.bind(name=name)
-
 
     info_log_path: Path = info_log_dir / f"{name}.log"
     error_log_path: Path = error_log_dir / f"{name}.log"
@@ -158,9 +165,9 @@ def get_logger(name: str) -> LoguruLoggerType:
         "backtrace": current_settings.log.backtrace,
         "diagnose": current_settings.log.diagnose,
         "compression": current_settings.log.compression,
-        "rotation": current_settings.log.rotation, # str
-        "retention": current_settings.log.retention, # str
-        "catch": True, # bool
+        "rotation": current_settings.log.rotation,  # str
+        "retention": current_settings.log.retention,  # str
+        "catch": True,  # bool
     }
 
     # Настройка error-лога
@@ -168,8 +175,8 @@ def get_logger(name: str) -> LoguruLoggerType:
     error_log_args["filter"] = name_filter
     try:
         loguru_logger.add(
-            error_log_path, # Sink can be Path
-            level=current_settings.log.error_file_level.upper(), # str
+            error_log_path,  # Sink can be Path
+            level=current_settings.log.error_file_level.upper(),  # str
             **error_log_args,
         )
     except Exception as e:
@@ -184,14 +191,18 @@ def get_logger(name: str) -> LoguruLoggerType:
     def info_filter_func(record: Dict[str, Any]) -> bool:
         if record["extra"].get("name") != name:
             return False
-        
+
         # Accessing level object and its 'no' attribute
         # record["level"] is a loguru._logger.Level Object
-        current_record_level_no: int = record["level"].no 
-        
-        info_config_level_no: int = loguru_logger.level(current_settings.log.info_file_level.upper()).no
-        error_config_level_no: int = loguru_logger.level(current_settings.log.error_file_level.upper()).no
-        
+        current_record_level_no: int = record["level"].no
+
+        info_config_level_no: int = loguru_logger.level(
+            current_settings.log.info_file_level.upper()
+        ).no
+        error_config_level_no: int = loguru_logger.level(
+            current_settings.log.error_file_level.upper()
+        ).no
+
         is_at_least_info_level: bool = current_record_level_no >= info_config_level_no
         is_below_error_level: bool = current_record_level_no < error_config_level_no
         return is_at_least_info_level and is_below_error_level
@@ -201,8 +212,8 @@ def get_logger(name: str) -> LoguruLoggerType:
 
     try:
         loguru_logger.add(
-            info_log_path, # Sink can be Path
-            level=current_settings.log.info_file_level.upper(), # str
+            info_log_path,  # Sink can be Path
+            level=current_settings.log.info_file_level.upper(),  # str
             **info_log_args,
         )
     except Exception as e:

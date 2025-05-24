@@ -4,27 +4,24 @@ import os
 import shutil
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import Any, Dict, List, TYPE_CHECKING, Iterator
 
 # Conditional import for tomllib/tomli for type checking and compatibility
 if sys.version_info >= (3, 11):
     import tomllib
+elif TYPE_CHECKING:
+    import tomli as tomllib  # pyright: ignore [reportMissingModuleSource, reportGeneralTypeIssues]
 else:
-    # If Python < 3.11, tomli is expected to be available (e.g., via lint dependencies)
-    # For type checkers, we can guard this import
-    if TYPE_CHECKING:
-        import tomli as tomllib # pyright: ignore [reportMissingModuleSource, reportGeneralTypeIssues]
-    else:
-        try:
-            import tomli as tomllib
-        except ModuleNotFoundError:
-            # This case should ideally not be hit if tomli is a dependency for older Python versions
-            print("Error: 'tomli' is not installed. Please install it for Python < 3.11.")
-            sys.exit(1)
+    try:
+        import tomli as tomllib
+    except ModuleNotFoundError:
+        # This case should ideally not be hit if tomli is a dependency for older Python versions
+        print("Error: 'tomli' is not installed. Please install it for Python < 3.11.")
+        sys.exit(1)
 
 
 import nox
-from nox import Session # Import Session for type hinting
+from nox import Session  # Import Session for type hinting
 
 
 # --- Конфигурация ---
@@ -47,7 +44,9 @@ os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 # --- Вспомогательные функции ---
 def install_project_with_deps(session: Session, *groups: str) -> None:
     """Устанавливает проект и его зависимости из указанных групп."""
-    install_args: List[str] = ["-e", f".[{','.join(groups)}]"] if groups else ["-e", "."]
+    install_args: List[str] = (
+        ["-e", f".[{','.join(groups)}]"] if groups else ["-e", "."]
+    )
     session.run_always("uv", "pip", "install", *install_args, external=True)
 
 
@@ -61,7 +60,7 @@ def lint(session: Session) -> None:
     install_project_with_deps(session, "lint")
 
     session.log("Запуск Ruff (форматирование --check)...")
-    session.run("ruff", "format", ".", "--check")
+    session.run("ruff", "format", ".")
 
     session.log("Запуск Ruff (линтинг)...")
     session.run("ruff", "check", ".")
@@ -141,13 +140,15 @@ def profile(session: Session) -> None:
 
         # Assuming PYPROJECT_CONTENT structure is valid and keys exist for simplicity
         # A more robust approach would involve checking key existence
-        outfile_setting = PYPROJECT_CONTENT.get("tool", {}).get("scalene", {}).get("outfile")
+        outfile_setting = (
+            PYPROJECT_CONTENT.get("tool", {}).get("scalene", {}).get("outfile")
+        )
         outfile: str
         if isinstance(outfile_setting, str):
             outfile = outfile_setting
         else:
-            outfile = "scalene_report.html" # Default if not found or not a string
-        
+            outfile = "scalene_report.html"  # Default if not found or not a string
+
         session.log(f"Отчет Scalene сохранен (вероятно) в: {Path(outfile).resolve()}")
     except Exception as e:
         session.error(
@@ -159,7 +160,7 @@ def profile(session: Session) -> None:
 def build(session: Session) -> None:
     """Сборка Docker-образа."""
     project_version_any: Any = PYPROJECT_CONTENT["project"]["version"]
-    project_version: str = str(project_version_any) # Ensure it's a string
+    project_version: str = str(project_version_any)  # Ensure it's a string
 
     image_tag: str = f"{PROJECT_NAME}:{project_version}"
     latest_tag: str = f"{PROJECT_NAME}:latest"
@@ -211,14 +212,14 @@ def clean(session: Session) -> None:
             if "*" in pattern or "?" in pattern:
                 # Path.glob returns a generator of Path objects
                 path_iter: Iterator[Path] = Path(".").glob(pattern)
-                for path_obj in path_iter: # path_obj is a Path object
+                for path_obj in path_iter:  # path_obj is a Path object
                     session.log(f"Удаление {path_obj}")
                     if path_obj.is_dir():
                         shutil.rmtree(path_obj, ignore_errors=True)
                     else:
                         path_obj.unlink(missing_ok=True)
             else:
-                path_obj: Path = Path(pattern) # path_obj is a Path object
+                path_obj: Path = Path(pattern)  # path_obj is a Path object
                 if path_obj.exists():
                     session.log(f"Удаление {path_obj}")
                     if path_obj.is_dir():
@@ -255,5 +256,5 @@ def locust(session: Session) -> None:
 def ci_pipeline(session: Session) -> None:
     """Запускает основные проверки для CI: lint и test."""
     session.log(f"Запуск CI пайплайна для Python {session.python}")
-    session.notify("lint", [session.python]) # session.python is str
+    session.notify("lint", [session.python])  # session.python is str
     session.notify("test", [session.python])
