@@ -31,7 +31,7 @@ class IDModel(BaseModel):
     Базовая схема для моделей, имеющих целочисленный ID.
     """
 
-    id: int = Field(..., description="Уникальный идентификатор", example=1)
+    id: int = Field(..., description="Уникальный идентификатор", example=1) # type: ignore[reportUnknownVariableType, reportCallIssue]
 
 
 class TimestampModel(BaseModel):

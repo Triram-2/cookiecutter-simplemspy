@@ -14,24 +14,23 @@ from src.db.base_repository import BaseRepository  # Наш базовый ре�
 ModelType = TypeVar("ModelType", bound=BaseModelDB)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
-# Дженерик тип для репозитория, конкретизирующий типы для BaseRepository
-RepositoryType = TypeVar(
-    "RepositoryType",
-    bound=BaseRepository[ModelType, CreateSchemaType, UpdateSchemaType],
-)
+# RepositoryType TypeVar is removed
 
 
-class BaseService(
-    Generic[ModelType, CreateSchemaType, UpdateSchemaType, RepositoryType]
-):
+class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     """
     Базовый сервис с CRUD-операциями.
 
     Атрибуты:
-        repository (RepositoryType): Экземпляр репозитория для работы с данными.
+        repository (BaseRepository[ModelType, CreateSchemaType, UpdateSchemaType]):
+            Экземпляр репозитория для работы с данными.
     """
 
-    def __init__(self, repository: RepositoryType):
+    repository: BaseRepository[ModelType, CreateSchemaType, UpdateSchemaType]
+
+    def __init__(
+        self, repository: BaseRepository[ModelType, CreateSchemaType, UpdateSchemaType]
+    ):
         """
         Инициализатор сервиса.
 

@@ -265,7 +265,7 @@ def ci_pipeline(session: Session) -> None:
     # due to parameterization with PYTHON_VERSIONS, but this satisfies Pyright's
     # strictness based on the general type hint of session.python.
     current_python_version_arg: List[str] = []
-    if session.python is not None:
+    if isinstance(session.python, str):
         current_python_version_arg.append(session.python)
 
     session.notify("lint", current_python_version_arg)

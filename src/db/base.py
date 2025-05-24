@@ -5,12 +5,13 @@
 """
 
 import re
+import inflection  # Added for tableize
 from datetime import datetime  # Import datetime for Mapped[datetime]
 from typing import Any, Dict, Type  # Import necessary typing modules
 
 from sqlalchemy import DateTime, func
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column
-from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.declarative import declared_attr, DeclarativeMeta
 
 # Декларативная база для всех моделей
 # https://alembic.sqlalchemy.org/en/latest/naming.html
@@ -37,11 +38,10 @@ class _Base:
     # id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
 
     @declared_attr  # type: ignore[arg-type]
-    def __tablename__(cls: type) -> str:  # cls is a type, e.g., MyModel
+    def __tablename__(cls: Type['_Base']) -> str:
         # Преобразует имя класса из CamelCase в snake_case для имени таблицы
         # The noqa: N805 for 'cls' might still be needed depending on linter rules for @declared_attr
-        name: str = re.sub(r"(?<!^)(?=[A-Z])", "_", cls.__name__).lower()
-        return name
+        return inflection.tableize(cls.__name__)
 
 
 # The result of declarative_base() is a metaclass instance (usually DeclarativeMeta)
@@ -58,7 +58,7 @@ class _Base:
 # could be more semantically precise depending on interpretation.
 # The task mentioned `Base: Type = ...` which implies `Type[Any]`.
 # Let type inference work here, or use a more specific type if necessary.
-Base = declarative_base(
+Base: DeclarativeMeta = declarative_base(
     cls=_Base,
     # metadata=metadata_obj # If metadata_obj were defined above
     metadata=None,  # metadata=None for Alembic, it will use its own with the convention
