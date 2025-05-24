@@ -3,21 +3,27 @@
 Модуль с базовым классом сервиса для CRUD-операций.
 """
 
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
+from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db.base import Base as BaseModelDB # SQLAlchemy Base Model
-from src.db.base_repository import BaseRepository # Наш базовый репозиторий
+from src.db.base import Base as BaseModelDB  # SQLAlchemy Base Model
+from src.db.base_repository import BaseRepository  # Наш базовый репозиторий
 
 # Дженерик типы для моделей и схем
 ModelType = TypeVar("ModelType", bound=BaseModelDB)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 # Дженерик тип для репозитория, конкретизирующий типы для BaseRepository
-RepositoryType = TypeVar("RepositoryType", bound=BaseRepository[ModelType, CreateSchemaType, UpdateSchemaType])
+RepositoryType = TypeVar(
+    "RepositoryType",
+    bound=BaseRepository[ModelType, CreateSchemaType, UpdateSchemaType],
+)
 
-class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType, RepositoryType]):
+
+class BaseService(
+    Generic[ModelType, CreateSchemaType, UpdateSchemaType, RepositoryType]
+):
     """
     Базовый сервис с CRUD-операциями.
 
@@ -62,7 +68,7 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType, Reposit
             Список экземпляров модели.
         """
         return await self.repository.get_multi(db, skip=skip, limit=limit)
-    
+
     async def get_all(self, db: AsyncSession) -> List[ModelType]:
         """
         Получение всех записей.
@@ -110,7 +116,7 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType, Reposit
         self,
         db: AsyncSession,
         *,
-        id: Any, # Сервис обычно оперирует ID, а не db_obj напрямую
+        id: Any,  # Сервис обычно оперирует ID, а не db_obj напрямую
         obj_in: Union[UpdateSchemaType, Dict[str, Any]],
     ) -> Optional[ModelType]:
         """
@@ -127,8 +133,8 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType, Reposit
         """
         db_obj = await self.repository.get(db, id=id)
         if not db_obj:
-            return None # Или можно вызывать исключение (например, HTTPException(404))
-        
+            return None  # Или можно вызывать исключение (например, HTTPException(404))
+
         # Дополнительная бизнес-логика до обновления
         updated_db_obj = await self.repository.update(db, db_obj=db_obj, obj_in=obj_in)
         # И/или после обновления
@@ -150,8 +156,9 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType, Reposit
         deleted_obj = await self.repository.delete(db, id=id)
         # И/или после удаления (например, очистка связанных данных, если это не делается на уровне БД)
         if not deleted_obj:
-            return None # Или HTTPException(404)
+            return None  # Или HTTPException(404)
         return deleted_obj
+
 
 # Пример использования (потребует определения соответствующих моделей, схем и репозитория):
 #

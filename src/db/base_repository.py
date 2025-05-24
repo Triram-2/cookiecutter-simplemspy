@@ -8,12 +8,12 @@ from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
-from sqlalchemy import select, delete, func, exc as sa_exc
+from sqlalchemy import select, func, exc as sa_exc
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db.base import Base # Импортируем нашу декларативную базу
+from src.db.base import Base  # Импортируем нашу декларативную базу
 
-ModelType = TypeVar("ModelType", bound=Base) 
+ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
@@ -46,7 +46,7 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         Returns:
             Экземпляр модели или None, если не найдено.
         """
-        statement = select(self.model).where(self.model.id == id) # type: ignore
+        statement = select(self.model).where(self.model.id == id)  # type: ignore
         result = await db.execute(statement)
         return result.scalar_one_or_none()
 
@@ -67,7 +67,7 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         statement = select(self.model).offset(skip).limit(limit)
         result = await db.execute(statement)
         return list(result.scalars().all())
-    
+
     async def get_all(self, db: AsyncSession) -> List[ModelType]:
         """
         Получение всех записей из таблицы.
@@ -96,7 +96,6 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         result = await db.execute(statement)
         return result.scalar_one()
 
-
     async def create(self, db: AsyncSession, *, obj_in: CreateSchemaType) -> ModelType:
         """
         Создание новой записи.
@@ -115,7 +114,9 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             await db.commit()
         except sa_exc.IntegrityError as e:
             await db.rollback()
-            warnings.warn(f"IntegrityError during create: {e}", RuntimeWarning)
+            warnings.warn(
+                f"IntegrityError during create: {e}", RuntimeWarning, stacklevel=2
+            )
             raise e
         await db.refresh(db_obj)
         return db_obj
@@ -138,23 +139,25 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         Returns:
             Обновленный экземпляр модели.
         """
-        obj_data = jsonable_encoder(db_obj) 
-        
+        obj_data = jsonable_encoder(db_obj)
+
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
-            update_data = obj_in.model_dump(exclude_unset=True) 
-            
+            update_data = obj_in.model_dump(exclude_unset=True)
+
         for field in obj_data:
             if field in update_data:
                 setattr(db_obj, field, update_data[field])
-        
+
         db.add(db_obj)
         try:
             await db.commit()
         except sa_exc.IntegrityError as e:
             await db.rollback()
-            warnings.warn(f"IntegrityError during update: {e}", RuntimeWarning)
+            warnings.warn(
+                f"IntegrityError during update: {e}", RuntimeWarning, stacklevel=2
+            )
             raise e
         await db.refresh(db_obj)
         return db_obj
@@ -175,9 +178,13 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             await db.delete(obj)
             try:
                 await db.commit()
-            except sa_exc.IntegrityError as e: # Например, если есть связанные записи, не позволяющие удаление
+            except (
+                sa_exc.IntegrityError
+            ) as e:  # Например, если есть связанные записи, не позволяющие удаление
                 await db.rollback()
-                warnings.warn(f"IntegrityError during delete: {e}", RuntimeWarning)
+                warnings.warn(
+                    f"IntegrityError during delete: {e}", RuntimeWarning, stacklevel=2
+                )
                 raise e
             return obj
         return None
@@ -198,6 +205,8 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             await db.commit()
         except sa_exc.IntegrityError as e:
             await db.rollback()
-            warnings.warn(f"IntegrityError during delete_obj: {e}", RuntimeWarning)
+            warnings.warn(
+                f"IntegrityError during delete_obj: {e}", RuntimeWarning, stacklevel=2
+            )
             raise e
         return db_obj

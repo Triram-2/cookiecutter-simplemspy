@@ -4,16 +4,20 @@
 Предоставляет асинхронный движок (engine) и фабрику сессий.
 """
 
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy.orm import sessionmaker # Для возможного использования синхронных частей, если потребуется
-from typing import AsyncGenerator, Generator # Добавил Generator для синхронной сессии
-from sqlalchemy.orm import Session # Добавил Session для синхронной сессии
+from typing import AsyncGenerator, Generator
 
-from src.core.config import settings # Импортируем наши настройки
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.orm import (
+    sessionmaker,
+)  # Для возможного использования синхронных частей, если потребуется
+from sqlalchemy.orm import Session  # Добавил Session для синхронной сессии
+from sqlalchemy import create_engine
+
+from src.core.config import settings  # Импортируем наши настройки
 
 # Создаем асинхронный движок SQLAlchemy
 async_engine = create_async_engine(
-    str(settings.db.assembled_database_url), # Используем обновленное поле из настроек
+    str(settings.db.assembled_database_url),  # Используем обновленное поле из настроек
     echo=False,  # Можно сделать настраиваемым через settings, если нужно логирование SQL запросов
     # pool_pre_ping=True, # Полезно для долгоживущих соединений (проверяет соединение перед использованием)
     # pool_size=5, # Начальное количество соединений в пуле (можно вынести в settings.db.pool_size)
@@ -26,8 +30,9 @@ AsyncSessionLocal = async_sessionmaker(
     class_=AsyncSession,
     autoflush=False,
     autocommit=False,
-    expire_on_commit=False, # Важно для асинхронного кода, чтобы объекты были доступны после коммита
+    expire_on_commit=False,  # Важно для асинхронного кода, чтобы объекты были доступны после коммита
 )
+
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     """
@@ -41,15 +46,13 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
             # а не в самой зависимости. Зависимость должна предоставлять сессию.
             # await session.commit() # Пример, если бы коммит был здесь
         except Exception:
-            await session.rollback() # Откатываем транзакцию при любой ошибке
+            await session.rollback()  # Откатываем транзакцию при любой ошибке
             raise
         # finally:
-            # async with AsyncSessionLocal() менеджером контекста сессия закроется автоматически.
-            # Явный session.close() здесь не обязателен и может быть избыточен.
-            # await session.close() 
+        # async with AsyncSessionLocal() менеджером контекста сессия закроется автоматически.
+        # Явный session.close() здесь не обязателен и может быть избыточен.
+        # await session.close()
 
-# --- Синхронный движок и сессии для Alembic или других синхронных задач ---
-from sqlalchemy import create_engine # Moved import here as it's only for sync part
 
 def get_sync_database_url(db_url: str) -> str:
     if "+asyncpg" in db_url:
@@ -58,15 +61,13 @@ def get_sync_database_url(db_url: str) -> str:
         return db_url.replace("+aiosqlite", "")
     return db_url
 
+
 SYNC_DATABASE_URL = get_sync_database_url(str(settings.db.assembled_database_url))
 
 sync_engine = create_engine(SYNC_DATABASE_URL, echo=False)
 
-SessionLocalSync = sessionmaker(
-    autocommit=False, 
-    autoflush=False, 
-    bind=sync_engine
-)
+SessionLocalSync = sessionmaker(autocommit=False, autoflush=False, bind=sync_engine)
+
 
 def get_sync_session() -> Generator[Session, None, None]:
     """Предоставляет синхронную сессию БД."""

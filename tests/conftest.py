@@ -24,17 +24,17 @@ os.environ["APP_ENV"] = "test"
 
 
 from src.api import app as fastapi_app  # Приложение FastAPI
-from src.core.config import settings # Наши настройки
+from src.core.config import settings  # Наши настройки
 from src.db.base import Base  # Базовый класс для моделей SQLAlchemy
-from src.db.database import get_async_session # Оригинальная зависимость сессии
+from src.db.database import get_async_session  # Оригинальная зависимость сессии
 
 
 # Создаем тестовый асинхронный движок для SQLite in-memory
 # URL берется из настроек, которые теперь должны учитывать DB_DATABASE_URL="sqlite+aiosqlite:///:memory:"
 # или собирать его на основе APP_ENV='test'
 test_engine = create_async_engine(
-    str(settings.db.assembled_database_url), # Используем собранный URL из настроек
-    echo=False, # Можно сделать True для отладки SQL в тестах
+    str(settings.db.assembled_database_url),  # Используем собранный URL из настроек
+    echo=False,  # Можно сделать True для отладки SQL в тестах
 )
 
 # Создаем фабрику для тестовых асинхронных сессий
@@ -55,7 +55,9 @@ def event_loop(request) -> Generator[asyncio.AbstractEventLoop, None, None]:
     loop.close()
 
 
-@pytest_asyncio.fixture(scope="function") # Используем function scope для изоляции БД между тестами
+@pytest_asyncio.fixture(
+    scope="function"
+)  # Используем function scope для изоляции БД между тестами
 async def db_session() -> AsyncGenerator[AsyncSession, None]:
     """Фикстура для предоставления тестовой сессии БД SQLite in-memory."""
     async with test_engine.begin() as connection:
@@ -73,11 +75,14 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest_asyncio.fixture(scope="function")
-async def override_get_async_session(db_session: AsyncSession) -> AsyncGenerator[None, None]:
+async def override_get_async_session(
+    db_session: AsyncSession,
+) -> AsyncGenerator[None, None]:
     """Переопределяет зависимость get_async_session на использование тестовой сессии."""
+
     async def _override_get_async_session() -> AsyncGenerator[AsyncSession, None]:
         yield db_session
-    
+
     fastapi_app.dependency_overrides[get_async_session] = _override_get_async_session
     yield
     # Возвращаем оригинальную зависимость после теста, если это необходимо
@@ -86,14 +91,19 @@ async def override_get_async_session(db_session: AsyncSession) -> AsyncGenerator
 
 
 @pytest_asyncio.fixture(scope="function")
-async def async_client(override_get_async_session: None) -> AsyncGenerator[AsyncClient, None]:
+async def async_client(
+    override_get_async_session: None,
+) -> AsyncGenerator[AsyncClient, None]:
     """
     Фикстура для создания асинхронного HTTP клиента для тестирования API.
     Зависит от override_get_async_session, чтобы убедиться, что зависимость БД переопределена.
     """
     # Используем lifespan FastAPI для корректной инициализации и завершения приложения в тестах
-    async with AsyncClient(transport=ASGITransport(app=fastapi_app), base_url="http://testserver") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=fastapi_app), base_url="http://testserver"
+    ) as client:
         yield client
+
 
 # Если бы мы не использовали override_get_async_session как зависимость для async_client,
 # а хотели бы, чтобы приложение создавалось с оверрайдом один раз на модуль или сессию:
@@ -101,7 +111,7 @@ async def async_client(override_get_async_session: None) -> AsyncGenerator[Async
 # def test_app_with_overrides():
 #     async def _override_get_async_session_module_scope():
 #          # Здесь логика получения сессии для такого скоупа, может быть сложнее
-#         session = TestAsyncSessionLocal() 
+#         session = TestAsyncSessionLocal()
 #         try:
 #             yield session
 #         finally:

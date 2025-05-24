@@ -40,9 +40,9 @@ class MyModel(Base, TimestampMixin): # TimestampMixin опционален
 Или же, импортировать модуль целиком:
 ```python
 # В env.py Alembic:
-# import src.models.my_model 
+# import src.models.my_model
 # или если __all__ настроен в src/models/__init__.py:
-# from src.models import * 
+# from src.models import *
 ```
 
 Рекомендуется явно импортировать каждую модель или модуль с моделями в `env.py` Alembic

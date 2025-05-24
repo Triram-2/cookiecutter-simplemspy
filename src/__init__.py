@@ -27,5 +27,5 @@
 # from .core.config import settings
 # from .api import app
 #
-# __all__ = ["settings", "app"] 
+# __all__ = ["settings", "app"]
 # (Но для данного шаблона это не рекомендуется, лучше импортировать из конкретных подмодулей)

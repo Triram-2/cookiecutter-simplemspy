@@ -38,7 +38,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 # from pydantic import EmailStr # Если используется в схемах
 
 # Предполагается, что UserRepository - это конкретная реализация BaseRepository для User
-# from src.db.repositories.user_repository import UserRepository 
+# from src.db.repositories.user_repository import UserRepository
 from src.db.base_repository import BaseRepository # Или используется BaseRepository напрямую
 from src.models.user_model import User # Пример модели User (нужно ее определить)
 from src.schemas.user_schemas import UserCreate, UserUpdate # Пример схем (нужно их определить)
@@ -72,10 +72,10 @@ class UserService(BaseService[User, UserCreate, UserUpdate, BaseRepository[User,
         #     existing_user = await self.repository.get_by_email(db, email=user_in.email)
         #     if existing_user:
         #         raise ValueError("Пользователь с таким email уже существует.")
-        
+
         # Вызов стандартного метода создания из BaseService (или напрямую из репозитория)
         new_user = await super().create(db, obj_in=user_in)
-        
+
         # Какая-то логика после создания, например, отправка email
         # send_welcome_email(new_user.email, new_user.name) # Функция должна быть определена
         return new_user
@@ -86,6 +86,4 @@ class UserService(BaseService[User, UserCreate, UserUpdate, BaseRepository[User,
 
 from .base_service import BaseService
 
-__all__ = [
-    "BaseService",
-]
+__all__ = ["BaseService"]

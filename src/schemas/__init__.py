@@ -41,7 +41,7 @@ class ItemUpdate(BaseModel): # Или наследовать от ItemBase и с
 
 class ItemRead(ItemBase, IDModel, TimestampModel):
     # Эта схема будет использоваться для ответа API, включая id и временные метки
-    
+
     class Config:
         from_attributes = True # Для сериализации из ORM-модели Item
         json_schema_extra = {
@@ -56,18 +56,6 @@ class ItemRead(ItemBase, IDModel, TimestampModel):
 ```
 """
 
-from .common import (
-    Msg,
-    IDModel,
-    TimestampModel,
-    PaginationParams,
-    PaginatedResponse,
-)
+from .common import Msg, IDModel, TimestampModel, PaginationParams, PaginatedResponse
 
-__all__ = [
-    "Msg",
-    "IDModel",
-    "TimestampModel",
-    "PaginationParams",
-    "PaginatedResponse",
-]
+__all__ = ["IDModel", "Msg", "PaginatedResponse", "PaginationParams", "TimestampModel"]
