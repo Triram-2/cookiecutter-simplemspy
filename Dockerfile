@@ -40,6 +40,8 @@ RUN uv sync --python /opt/venv/bin/python --no-dev --frozen || \
 # Добавил --no-dev для уменьшения образа, если это поддерживается uv sync или pip install для проекта.
 # Добавил --frozen-lockfile для uv sync, чтобы он падал, если lock не соответствует toml.
 
+RUN echo "Listing site-packages in builder:" && ls -R /opt/venv/lib/python3.12/site-packages/
+
 # --- Финальная стадия ---
 FROM python:3.12-slim AS runner
 
@@ -62,6 +64,8 @@ WORKDIR /app
 
 # Копируем виртуальное окружение со стадии сборки
 COPY --from=builder --chown=appuser:appgroup /opt/venv /opt/venv
+
+RUN echo "Listing site-packages in runner:" && ls -R /opt/venv/lib/python3.12/site-packages/
 
 # Копируем исходный код приложения
 # Убедимся, что .dockerignore настроен правильно, чтобы не копировать лишнее
