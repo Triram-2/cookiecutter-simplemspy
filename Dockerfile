@@ -86,4 +86,4 @@ EXPOSE 8000
 # Для простоты, здесь можно захардкодить порт, на котором Uvicorn слушает внутри контейнера,
 # а маппинг на хостовой порт делать в docker-compose.yml.
 # Пусть Uvicorn внутри контейнера всегда слушает на 8000.
-CMD ["/opt/venv/bin/uvicorn", "name.api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/opt/venv/bin/python", "-m", "uvicorn", "name.api:app", "--host", "0.0.0.0", "--port", "8000"]
