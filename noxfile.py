@@ -69,7 +69,14 @@ def lint(session: Session) -> None:
     session.run("ruff", "check", ".")
 
     session.log("Запуск Pyright...")
-    session.run("python", "-m", "pyright", "--project", "pyproject.toml")
+    session.run(
+        "python",
+        "-m",
+        "pyright",
+        "--project",
+        "pyproject.toml",
+        env={"PYTHONPATH": "."},
+    )
 
     session.log("Линтинг завершен успешно.")
 
