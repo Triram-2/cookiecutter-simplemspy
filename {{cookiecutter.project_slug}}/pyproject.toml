@@ -27,6 +27,9 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools]
 package-dir = {"{{cookiecutter.python_package_name}}" = "src"}
 
+[tool.setuptools.packages.find]
+where = ["src"]
+
 
 # --- Optional Dependencies for Development, Testing, etc. ---
 [project.optional-dependencies]
