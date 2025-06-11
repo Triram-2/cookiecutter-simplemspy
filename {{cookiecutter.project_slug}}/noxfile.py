@@ -29,12 +29,12 @@ from nox import Session  # Import Session for type hinting
 # nox.options.default_venv_backend = "uv"
 
 # Type hint for PYPROJECT_CONTENT
-PYPROJECT_CONTENT: Dict[str, Any] = tomllib.loads(
-    Path("pyproject.toml").read_text(encoding="utf-8")
-)
+# PYPROJECT_CONTENT: Dict[str, Any] = tomllib.loads(
+#     Path("pyproject.toml").read_text(encoding="utf-8")
+# )
 
-PROJECT_NAME: str = PYPROJECT_CONTENT["project"]["name"]
-PYTHON_VERSIONS: List[str] = ["{{cookiecutter.python_version}}", "3.12"]
+# PROJECT_NAME: str = PYPROJECT_CONTENT["project"]["name"]
+PYTHON_VERSIONS: List[str] = ["3.12"]
 SRC_DIR: str = "src"
 TESTS_DIR: str = "tests"
 DOCS_DIR: str = "docs"
