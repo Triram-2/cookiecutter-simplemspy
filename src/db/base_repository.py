@@ -11,9 +11,7 @@ from pydantic import BaseModel as PydanticBaseModel  # Alias for clarity
 from sqlalchemy import select, func, exc as sa_exc
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db.base import Base  # Импортируем нашу декларативную базу
-
-ModelType = TypeVar("ModelType", bound=Base)
+ModelType = TypeVar("ModelType", bound=Any)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=PydanticBaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=PydanticBaseModel)
 
