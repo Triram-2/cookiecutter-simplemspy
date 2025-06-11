@@ -271,4 +271,4 @@ def ci_pipeline(session: Session) -> None:
         current_python_version_arg.append(session.python)
 
     session.notify("lint", current_python_version_arg)
-    session.notify("test", current_python_version_arg)
+    session.notify("test")
