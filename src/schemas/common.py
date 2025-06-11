@@ -6,7 +6,7 @@
 from datetime import datetime
 from typing import Generic, List, TypeVar, Any, ClassVar, Dict
 
-from pydantic import BaseModel, Field, conint
+from pydantic import BaseModel, Field
 
 # Для обобщенных типов в PaginatedResponse
 T = TypeVar("T")
@@ -39,14 +39,8 @@ class TimestampModel(BaseModel):
     Базовая схема (или миксин) для моделей с временными метками.
     """
 
-    created_at: datetime = Field(
-        ..., description="Время создания записи", example="2023-10-26T10:00:00Z"
-    )  # type: ignore[reportUnknownVariableType, reportCallIssue]
-    updated_at: datetime = Field(
-        ...,
-        description="Время последнего обновления записи",
-        example="2023-10-26T12:00:00Z",
-    )  # type: ignore[reportUnknownVariableType, reportCallIssue]
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         # Позволяет Pydantic корректно работать с объектами ORM,
@@ -59,12 +53,15 @@ class PaginationParams(BaseModel):
     Параметры для пагинации в запросах API.
     """
 
-    skip: conint(ge=0) = Field(
-        0, description="Количество пропускаемых записей (смещение)"
-    )  # type: ignore
-    limit: conint(ge=1, le=200) = Field(
-        100, description="Максимальное количество записей на странице (до 200)"
-    )  # type: ignore
+    skip: int = Field(
+        default=0, ge=0, description="Количество пропускаемых записей (смещение)"
+    )
+    limit: int = Field(
+        default=100,
+        ge=1,
+        le=200,
+        description="Максимальное количество записей на странице (до 200)",
+    )
 
 
 class PaginatedResponse(Generic[T], BaseModel):
@@ -72,7 +69,7 @@ class PaginatedResponse(Generic[T], BaseModel):
     Обобщенная схема для пагинированных ответов API.
     """
 
-    items: List[T] = Field(..., description="Список элементов на текущей странице")  # type: ignore[reportInvalidTypeForm]
+    items: List[T] = Field(..., description="Список элементов на текущей странице")
     total: int = Field(..., description="Общее количество элементов", example=100)  # type: ignore[reportUnknownVariableType, reportCallIssue, reportInvalidTypeForm]
     skip: int = Field(..., description="Количество пропущенных элементов", example=0)  # type: ignore[reportUnknownVariableType, reportCallIssue]
     limit: int = Field(..., description="Количество элементов на странице", example=10)  # type: ignore[reportUnknownVariableType, reportCallIssue]

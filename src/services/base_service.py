@@ -7,11 +7,10 @@ from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db.base import Base as BaseModelDB  # SQLAlchemy Base Model
 from src.db.base_repository import BaseRepository  # Наш базовый репозиторий
 
 # Дженерик типы для моделей и схем
-ModelType = TypeVar("ModelType", bound=BaseModelDB)
+ModelType = TypeVar("ModelType", bound=Any)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 # RepositoryType TypeVar is removed
