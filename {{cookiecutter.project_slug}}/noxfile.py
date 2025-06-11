@@ -26,7 +26,7 @@ from nox import Session  # Import Session for type hinting
 
 
 # --- Конфигурация ---
-nox.options.default_venv_backend = "uv"
+# nox.options.default_venv_backend = "uv"
 
 # Type hint for PYPROJECT_CONTENT
 PYPROJECT_CONTENT: Dict[str, Any] = tomllib.loads(
@@ -46,47 +46,16 @@ os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 
 # --- Вспомогательные функции ---
 def install_project_with_deps(session: Session, *groups: str) -> None:
-    """Устанавливает проект и его зависимости из указанных групп (вручную).""" # Docstring can remain or be updated
-    session.log(f"DIAGNOSTIC: install_project_with_deps called with groups: {groups}")
-    session.log("DIAGNOSTIC: Commenting out original install logic.")
+    """Устанавливает проект и его зависимости из указанных групп используя pip."""
+    install_spec = "."
+    if groups:
+        install_spec = f".[{','.join(groups)}]"
 
-    # Commented out original logic (actual commenting will be done by replacing the block):
-    # # 1. Install base project dependencies
-    # base_dependencies = PYPROJECT_CONTENT.get("project", {}).get("dependencies", [])
-    # if base_dependencies:
-    #     session.log(f"Installing base dependencies: {base_dependencies}")
-    #     session.run_always("uv", "pip", "install", "-vvv", *base_dependencies, external=True)
-    # else:
-    #     session.log("No base dependencies found in pyproject.toml.")
-    # # 2. Install dependencies from specified groups (extras)
-    # if groups:
-    #     all_extras_deps = []
-    #     optional_deps = PYPROJECT_CONTENT.get("project", {}).get("optional-dependencies", {})
-    #     for group_name in groups: # Renamed 'group' to 'group_name' to avoid conflict if 'groups' var was a list of lists
-    #         group_specific_deps = optional_deps.get(group_name, [])
-    #         if group_specific_deps:
-    #             session.log(f"Found dependencies for group '{group_name}': {group_specific_deps}")
-    #             all_extras_deps.extend(group_specific_deps)
-    #         else:
-    #             session.log(f"No dependencies found for group: {group_name}")
-    #
-    #     if all_extras_deps:
-    #         # Deduplicate dependencies that might be listed in multiple groups or also in base
-    #         unique_extras_deps = list(set(all_extras_deps))
-    #         session.log(f"Installing unique extra dependencies: {unique_extras_deps}")
-    #         session.run_always("uv", "pip", "install", "-vvv", *unique_extras_deps, external=True)
-    #     else:
-    #         session.log("No dependencies found for the specified groups.")
-    # else:
-    #     session.log("No groups specified, skipping extras installation.")
-    # # 3. Install the project itself in editable mode, without re-installing its direct dependencies
-    # session.log("Installing project in editable mode with --no-deps...")
-    # session.run_always("uv", "pip", "install", "-vvv", "-e", ".", "--no-deps", external=True)
-    # session.log("Project installed in editable mode with --no-deps.")
-
-    session.log("DIAGNOSTIC: Attempting to install only 'fastapi'")
-    session.run_always("uv", "pip", "install", "-vvv", "fastapi", external=True)
-    session.log("DIAGNOSTIC: 'fastapi' installation attempt finished.")
+    session.log(f"Installing with pip: -e {install_spec}")
+    # The -e flag tells pip to install in "editable" mode.
+    # session.install will translate this to 'pip install -e .' or 'pip install -e .[extras]'
+    session.install("-e", install_spec)
+    session.log(f"Finished pip install -e {install_spec}")
 
 
 # --- Сессии Nox ---
