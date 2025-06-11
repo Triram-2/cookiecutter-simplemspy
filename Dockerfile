@@ -1,7 +1,7 @@
 # Dockerfile
 
 # --- Стадия сборки зависимостей ---
-FROM python:3.12-slim AS builder
+FROM python:3.13-slim AS builder
 
 LABEL stage="builder"
 
@@ -21,8 +21,6 @@ WORKDIR /app
 
 # Создаем виртуальное окружение
 # Используем python из базового образа, чтобы uv его нашел
-RUN uv venv /opt/venv --python $(which python) --seed
-RUN /opt/venv/bin/pip install uv
 
 # Копируем файлы проекта, необходимые для установки зависимостей
 COPY pyproject.toml uv.lock* ./ 
@@ -36,15 +34,14 @@ COPY ./ ./
 # Для простоты шаблона, пока установим все (кроме dev, если `uv sync` их не ставит по умолчанию).
 # Если uv.lock существует, uv sync его использует. Иначе, он может попытаться разрешить зависимости из pyproject.toml.
 # Предполагаем, что uv.lock будет сгенерирован и будет основным источником.
-RUN /opt/venv/bin/python -m uv sync --no-dev --frozen || \
-    (echo 'uv sync failed, falling back to pip install' && /opt/venv/bin/python -m uv pip install . --no-cache --no-deps)
+RUN uv sync --frozen
 # Добавил --no-dev для уменьшения образа, если это поддерживается uv sync или pip install для проекта.
 # Добавил --frozen-lockfile для uv sync, чтобы он падал, если lock не соответствует toml.
 
-RUN echo "Listing site-packages in builder:" && ls -R /opt/venv/lib/python3.12/site-packages/
+RUN echo "Listing site-packages in builder /app/.venv:" && ls -R /app/.venv/lib/python3.13/site-packages/ || echo "/app/.venv not found or empty"
 
 # --- Финальная стадия ---
-FROM python:3.12-slim AS runner
+FROM python:3.13-slim AS runner
 
 LABEL stage="runner"
 
@@ -55,7 +52,7 @@ ENV PYTHONUNBUFFERED=1 \
     # Путь к файлу БД SQLite внутри контейнера (если используется)
     # Может быть переопределен через DB_SQLITE_FILE в .env
     APP_SQLITE_DB_PATH="/app/data/db/main.sqlite" \
-    PYTHONPATH="/opt/venv/lib/python3.12/site-packages:$PYTHONPATH"
+    PYTHONPATH="/opt/venv/lib/python3.13/site-packages:$PYTHONPATH"
 
 # Создаем группу и пользователя приложения
 RUN groupadd -r appgroup && useradd -r -g appgroup -d /app -s /sbin/nologin -c "Application User" appuser
@@ -64,9 +61,7 @@ RUN groupadd -r appgroup && useradd -r -g appgroup -d /app -s /sbin/nologin -c "
 WORKDIR /app
 
 # Копируем виртуальное окружение со стадии сборки
-COPY --from=builder --chown=appuser:appgroup /opt/venv /opt/venv
-
-RUN echo "Listing site-packages in runner:" && ls -R /opt/venv/lib/python3.12/site-packages/
+COPY --from=builder --chown=appuser:appgroup /app/.venv /opt/venv
 
 # Копируем исходный код приложения
 # Убедимся, что .dockerignore настроен правильно, чтобы не копировать лишнее
