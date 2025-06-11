@@ -1,13 +1,25 @@
 import sys
 import os
+import logging
+import uvicorn
+
+# Path manipulation and module aliasing code
+# This block needs to be before any project-specific imports that rely on these paths.
 _src_path = os.path.dirname(os.path.abspath(__file__))
 _project_root = os.path.dirname(_src_path)
 if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
-# Ensure 'src' is imported and then alias 'name' to 'src' module
-# This allows 'from name.module' to effectively become 'from src.module'
-import src
-sys.modules['name'] = src
+
+# Ensure 'src' is imported. Add noqa for E402 if Ruff flags it due to path code above.
+import src  # noqa: E402
+
+# Alias 'name' to 'src' module. This must be after 'import src' and after path setup.
+sys.modules["name"] = src
+
+# Imports from the 'name' (src) package. Add noqa for E402 if Ruff flags them.
+from name.core.config import settings  # noqa: E402
+from name.core.logging_config import get_logger  # noqa: E402
+
 """
 Основная точка входа для запуска FastAPI приложения с использованием Uvicorn.
 
@@ -24,14 +36,9 @@ sys.modules['name'] = src
 """
 
 # Добавим стандартный лог для проверки InterceptHandler
-import logging
-
-import uvicorn
 
 # Импортируем сам объект FastAPI приложения.
 # Он экспортируется из name.api.__init__, который в свою очередь импортирует его из name.api.main
-from name.core.config import settings
-from name.core.logging_config import get_logger  # Импортируем наш логгер
 
 # Получаем экземпляр логгера для этого модуля
 # (хотя базовая конфигурация логгера уже должна была произойти при импорте logging_config)

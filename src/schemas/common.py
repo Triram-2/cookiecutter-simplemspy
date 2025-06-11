@@ -4,9 +4,9 @@
 """
 
 from datetime import datetime
-from typing import Generic, List, TypeVar, Any, ClassVar, Dict
+from typing import Generic, List, TypeVar, ClassVar  # Added ClassVar back
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict  # Added ConfigDict
 
 # Для обобщенных типов в PaginatedResponse
 T = TypeVar("T")
@@ -19,11 +19,9 @@ class Msg(BaseModel):
 
     message: str = Field(..., description="Текстовое сообщение от API")
 
-    class Config:
-        # Добавляем пример для OpenAPI документации
-        json_schema_extra: ClassVar[Dict[str, Any]] = {
-            "example": {"message": "Действие успешно выполнено"}
-        }
+    model_config: ClassVar[ConfigDict] = {
+        "json_schema_extra": {"example": {"message": "Действие успешно выполнено"}}
+    }
 
 
 class IDModel(BaseModel):
@@ -31,7 +29,11 @@ class IDModel(BaseModel):
     Базовая схема для моделей, имеющих целочисленный ID.
     """
 
-    id: int = Field(..., description="Уникальный идентификатор", example=1)  # type: ignore[reportUnknownVariableType, reportCallIssue]
+    id: int = Field(
+        ...,
+        description="Уникальный идентификатор",
+        json_schema_extra={"example": 1},  # Changed from example=1
+    )  # type: ignore[reportUnknownVariableType, reportCallIssue]
 
 
 class TimestampModel(BaseModel):
@@ -42,10 +44,11 @@ class TimestampModel(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
+    model_config: ClassVar[ConfigDict] = {
         # Позволяет Pydantic корректно работать с объектами ORM,
         # обращаясь к атрибутам через model.attr вместо model['attr']
-        from_attributes = True
+        "from_attributes": True
+    }
 
 
 class PaginationParams(BaseModel):
@@ -64,20 +67,30 @@ class PaginationParams(BaseModel):
     )
 
 
-class PaginatedResponse(Generic[T], BaseModel):
+class PaginatedResponse(BaseModel, Generic[T]):
     """
     Обобщенная схема для пагинированных ответов API.
     """
 
     items: List[T] = Field(..., description="Список элементов на текущей странице")
-    total: int = Field(..., description="Общее количество элементов", example=100)  # type: ignore[reportUnknownVariableType, reportCallIssue, reportInvalidTypeForm]
-    skip: int = Field(..., description="Количество пропущенных элементов", example=0)  # type: ignore[reportUnknownVariableType, reportCallIssue]
-    limit: int = Field(..., description="Количество элементов на странице", example=10)  # type: ignore[reportUnknownVariableType, reportCallIssue]
+    total: int = Field(
+        ...,
+        description="Общее количество элементов",
+        json_schema_extra={"example": 100},  # Changed from example=100
+    )  # type: ignore[reportUnknownVariableType, reportCallIssue, reportInvalidTypeForm]
+    skip: int = Field(
+        ...,
+        description="Количество пропущенных элементов",
+        json_schema_extra={"example": 0},  # Changed from example=0
+    )  # type: ignore[reportUnknownVariableType, reportCallIssue]
+    limit: int = Field(
+        ...,
+        description="Количество элементов на странице",
+        json_schema_extra={"example": 10},  # Changed from example=10
+    )  # type: ignore[reportUnknownVariableType, reportCallIssue]
 
-    class Config:
-        "Пример для OpenAPI (может потребовать доработки в зависимости от типа T)"
-
-        json_schema_extra: ClassVar[Dict[str, Any]] = {
+    model_config: ClassVar[ConfigDict] = {
+        "json_schema_extra": {
             "example": {
                 "items": [
                     {"id": 1, "name": "Пример объекта 1"},
@@ -88,6 +101,10 @@ class PaginatedResponse(Generic[T], BaseModel):
                 "limit": 10,
             }
         }
+        # Note: The comment "Пример для OpenAPI (может потребовать доработки в зависимости от типа T)"
+        # was part of the Config class docstring. It's not directly translatable to ConfigDict
+        # unless it's a general comment about the model itself.
+    }
 
 
 # Пример использования IDModel и TimestampModel вместе:
@@ -98,9 +115,9 @@ class PaginatedResponse(Generic[T], BaseModel):
 #     name: str
 #     description: Optional[str] = None
 
-#     class Config:
-#         from_attributes = True # Для корректной работы с ORM моделями
-#         json_schema_extra = {
+#     model_config: ConfigDict = { # Example of how it would look if MyItem was defined here
+#         "from_attributes": True, # Для корректной работы с ORM моделями
+#         "json_schema_extra": {
 #             "example": {
 #                 "id": 1,
 #                 "name": "Пример элемента",
