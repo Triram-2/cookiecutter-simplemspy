@@ -53,7 +53,7 @@ def install_project_with_deps(session: Session, *groups: str) -> None:
     base_dependencies = PYPROJECT_CONTENT.get("project", {}).get("dependencies", [])
     if base_dependencies:
         session.log(f"Installing base dependencies: {base_dependencies}")
-        session.run_always("uv", "pip", "install", *base_dependencies, external=True)
+        session.run_always("uv", "pip", "install", "-vvv", *base_dependencies, external=True)
     else:
         session.log("No base dependencies found in pyproject.toml.")
 
@@ -73,7 +73,7 @@ def install_project_with_deps(session: Session, *groups: str) -> None:
             # Deduplicate dependencies that might be listed in multiple groups or also in base
             unique_extras_deps = list(set(all_extras_deps))
             session.log(f"Installing unique extra dependencies: {unique_extras_deps}")
-            session.run_always("uv", "pip", "install", *unique_extras_deps, external=True)
+            session.run_always("uv", "pip", "install", "-vvv", *unique_extras_deps, external=True)
         else:
             session.log("No dependencies found for the specified groups.")
     else:
@@ -81,7 +81,7 @@ def install_project_with_deps(session: Session, *groups: str) -> None:
 
     # 3. Install the project itself in editable mode, without re-installing its direct dependencies
     session.log("Installing project in editable mode with --no-deps...")
-    session.run_always("uv", "pip", "install", "-e", ".", "--no-deps", external=True)
+    session.run_always("uv", "pip", "install", "-vvv", "-e", ".", "--no-deps", external=True)
     session.log("Project installed in editable mode with --no-deps.")
 
 
