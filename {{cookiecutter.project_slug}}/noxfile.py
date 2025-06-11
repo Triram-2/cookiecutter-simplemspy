@@ -46,11 +46,43 @@ os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 
 # --- Вспомогательные функции ---
 def install_project_with_deps(session: Session, *groups: str) -> None:
-    """Устанавливает проект и его зависимости из указанных групп."""
-    install_args: List[str] = (
-        ["-e", f".[{','.join(groups)}]"] if groups else ["-e", "."]
-    )
-    session.run_always("uv", "pip", "install", *install_args, external=True)
+    """Устанавливает проект и его зависимости из указанных групп (вручную).""" # Updated docstring
+    session.log(f"Manually installing dependencies for groups: {groups} and project in editable mode.")
+
+    # 1. Install base project dependencies
+    base_dependencies = PYPROJECT_CONTENT.get("project", {}).get("dependencies", [])
+    if base_dependencies:
+        session.log(f"Installing base dependencies: {base_dependencies}")
+        session.run_always("uv", "pip", "install", *base_dependencies, external=True)
+    else:
+        session.log("No base dependencies found in pyproject.toml.")
+
+    # 2. Install dependencies from specified groups (extras)
+    if groups:
+        all_extras_deps = []
+        optional_deps = PYPROJECT_CONTENT.get("project", {}).get("optional-dependencies", {})
+        for group_name in groups: # Renamed 'group' to 'group_name' to avoid conflict if 'groups' var was a list of lists
+            group_specific_deps = optional_deps.get(group_name, [])
+            if group_specific_deps:
+                session.log(f"Found dependencies for group '{group_name}': {group_specific_deps}")
+                all_extras_deps.extend(group_specific_deps)
+            else:
+                session.log(f"No dependencies found for group: {group_name}")
+
+        if all_extras_deps:
+            # Deduplicate dependencies that might be listed in multiple groups or also in base
+            unique_extras_deps = list(set(all_extras_deps))
+            session.log(f"Installing unique extra dependencies: {unique_extras_deps}")
+            session.run_always("uv", "pip", "install", *unique_extras_deps, external=True)
+        else:
+            session.log("No dependencies found for the specified groups.")
+    else:
+        session.log("No groups specified, skipping extras installation.")
+
+    # 3. Install the project itself in editable mode, without re-installing its direct dependencies
+    session.log("Installing project in editable mode with --no-deps...")
+    session.run_always("uv", "pip", "install", "-e", ".", "--no-deps", external=True)
+    session.log("Project installed in editable mode with --no-deps.")
 
 
 # --- Сессии Nox ---
