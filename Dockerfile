@@ -38,8 +38,6 @@ RUN uv sync --frozen
 # Добавил --no-dev для уменьшения образа, если это поддерживается uv sync или pip install для проекта.
 # Добавил --frozen-lockfile для uv sync, чтобы он падал, если lock не соответствует toml.
 
-RUN echo "Listing site-packages in builder /app/.venv:" && ls -R /app/.venv/lib/python3.13/site-packages/ || echo "/app/.venv not found or empty"
-
 # --- Финальная стадия ---
 FROM python:3.13-slim AS runner
 
