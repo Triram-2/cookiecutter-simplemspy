@@ -26,7 +26,7 @@
     должны передаваться в конструктор (Dependency Injection), что упрощает их
     мок во время тестирования.
 -   Для стандартных CRUD-операций можно использовать `BaseService` из
-    `src.services.base_service`, наследуя от него и передавая
+    `name.services.base_service`, наследуя от него и передавая
     соответствующий репозиторий.
 
 Пример структуры конкретного сервиса:
@@ -38,10 +38,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 # from pydantic import EmailStr # Если используется в схемах
 
 # Предполагается, что UserRepository - это конкретная реализация BaseRepository для User
-# from src.db.repositories.user_repository import UserRepository
-from src.db.base_repository import BaseRepository # Или используется BaseRepository напрямую
-from src.models.user_model import User # Пример модели User (нужно ее определить)
-from src.schemas.user_schemas import UserCreate, UserUpdate # Пример схем (нужно их определить)
+# from name.db.repositories.user_repository import UserRepository
+from name.db.base_repository import BaseRepository # Или используется BaseRepository напрямую
+from name.models.user_model import User # Пример модели User (нужно ее определить)
+from name.schemas.user_schemas import UserCreate, UserUpdate # Пример схем (нужно их определить)
 from .base_service import BaseService
 
 # Пример определения UserRepository, если он не вынесен в отдельный файл
