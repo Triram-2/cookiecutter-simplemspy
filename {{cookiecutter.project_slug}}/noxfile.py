@@ -46,15 +46,11 @@ os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 
 # --- Вспомогательные функции ---
 def install_project_with_deps(session: Session, *groups: str) -> None:
-    """Устанавливает проект и его зависимости из указанных групп. (DIAGNOSTIC VERSION)"""
-    # For diagnosis, always perform a simple editable install without extras
-    # This helps determine if the base editable install is the problem or if extras are.
-    actual_install_args: List[str] = ["-e", "."]
-    if groups:
-         session.log(f"DIAGNOSTIC: Installing with groups {groups}, but using simplified command: uv pip install -e .")
-    else:
-         session.log("DIAGNOSTIC: Installing without groups, using command: uv pip install -e .")
-    session.run_always("uv", "pip", "install", *actual_install_args, external=True)
+    """Устанавливает проект и его зависимости из указанных групп."""
+    install_args: List[str] = (
+        ["-e", f".[{','.join(groups)}]"] if groups else ["-e", "."]
+    )
+    session.run_always("uv", "pip", "install", *install_args, external=True)
 
 
 # --- Сессии Nox ---
