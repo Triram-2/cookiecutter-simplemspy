@@ -75,6 +75,7 @@ def lint(session: Session) -> None:
         "pyright",
         "--project",
         "pyproject.toml",
+        env={"PYTHONPATH": "."},
     )
 
     session.log("Линтинг завершен успешно.")
