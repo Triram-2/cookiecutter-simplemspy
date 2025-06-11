@@ -26,7 +26,7 @@ from nox import Session  # Import Session for type hinting
 
 
 # --- Конфигурация ---
-# nox.options.default_venv_backend = "uv"
+nox.options.default_venv_backend = "uv"
 
 # Type hint for PYPROJECT_CONTENT
 PYPROJECT_CONTENT: Dict[str, Any] = tomllib.loads(
@@ -46,14 +46,15 @@ os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 
 # --- Вспомогательные функции ---
 def install_project_with_deps(session: Session, *groups: str) -> None:
-    """Устанавливает проект и его зависимости из указанных групп используя pip."""
-    install_spec = "."
-    if groups:
-        install_spec = f".[{','.join(groups)}]"
-
-    session.log(f"Installing with pip: -e {install_spec}")
-    session.install("-e", install_spec)
-    session.log(f"Finished pip install -e {install_spec}")
+    """Устанавливает проект и его зависимости из указанных групп используя uv pip install.""" # Docstring updated
+    install_args: List[str] = (
+        ["-e", f".[{','.join(groups)}]"] if groups else ["-e", "."]
+    )
+    # Construct a string for logging that represents the command as it would be typed
+    log_command_str = "uv pip install " + " ".join(install_args)
+    session.log(f"Installing with: {log_command_str}")
+    session.run_always("uv", "pip", "install", *install_args, external=True)
+    session.log(f"Finished: {log_command_str}")
 
 
 # --- Сессии Nox ---
