@@ -3,14 +3,14 @@ from datetime import datetime, timezone
 
 from pydantic import BaseModel, ValidationError
 
-from name.schemas.common import (
+from my_awesome_project.schemas.common import (
     Msg,
     IDModel,
     TimestampModel,
     PaginationParams,
     PaginatedResponse,
 )
-import name.schemas
+import my_awesome_project.schemas
 
 
 def test_msg_schema():
@@ -80,8 +80,8 @@ def test_paginated_response_schema():
 
 
 def test_schemas_init_exports():
-    assert name.schemas.IDModel is IDModel
-    assert name.schemas.Msg is Msg
-    assert name.schemas.TimestampModel is TimestampModel
-    assert name.schemas.PaginationParams is PaginationParams
-    assert name.schemas.PaginatedResponse is PaginatedResponse
+    assert my_awesome_project.schemas.IDModel is IDModel
+    assert my_awesome_project.schemas.Msg is Msg
+    assert my_awesome_project.schemas.TimestampModel is TimestampModel
+    assert my_awesome_project.schemas.PaginationParams is PaginationParams
+    assert my_awesome_project.schemas.PaginatedResponse is PaginatedResponse
