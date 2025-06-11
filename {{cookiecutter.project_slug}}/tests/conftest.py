@@ -16,10 +16,10 @@ os.environ["DB_DATABASE_URL"] = "sqlite+aiosqlite:///:memory:"
 os.environ["APP_ENV"] = "test"
 
 
-from name.api import app as fastapi_app
-from name.core.config import settings
-from name.db.base import Base
-from name.db.database import get_async_session
+from {{cookiecutter.python_package_name}}.api import app as fastapi_app
+from {{cookiecutter.python_package_name}}.core.config import settings
+from {{cookiecutter.python_package_name}}.db.base import Base
+from {{cookiecutter.python_package_name}}.db.database import get_async_session
 
 
 # Test asynchronous engine for SQLite in-memory.
