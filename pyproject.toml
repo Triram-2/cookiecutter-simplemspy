@@ -25,7 +25,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-package-dir = {"" = "src"}
+package-dir = {"name" = "src"}
 
 
 # --- Optional Dependencies for Development, Testing, etc. ---
