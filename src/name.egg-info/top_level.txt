@@ -1,9 +1,0 @@
-__init__
-api
-core
-db
-main
-models
-schemas
-services
-utils
