@@ -10,15 +10,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 from types import FrameType  # For typing frame objects
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Optional,
-    Union,
-    TextIO,
-    cast,
-)
+from typing import Any, Callable, Dict, Optional, Union, TextIO, cast
 
 from loguru import logger as loguru_logger
 

@@ -1,4 +1,4 @@
-from locust import HttpUser, task, between
+from locust import HttpUser, task, between # type: ignore
 from typing import Optional, Callable, Union # For host type hint and wait_time
 
 
