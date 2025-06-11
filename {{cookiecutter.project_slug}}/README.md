@@ -1,14 +1,14 @@
-# Название Проекта: FastAPI Template
+# {{cookiecutter.project_name}}
 
 ## 1. Обзор Проекта
 
-Этот репозиторий (triram-2/cookiecutter-simplemspy) представляет собой комплексный шаблон для создания приложений на FastAPI. Он включает структурированную компоновку проекта, интеграцию с Docker, инструменты для разработки и общие конфигурации для быстрого старта вашего проекта. Шаблон разработан таким образом, чтобы его можно было легко настраивать и расширять для различных сценариев использования.
+Этот репозиторий ({{cookiecutter.github_username}}/{{cookiecutter.repo_name}}) представляет собой комплексный шаблон для создания приложений на FastAPI. Он включает структурированную компоновку проекта, интеграцию с Docker, инструменты для разработки и общие конфигурации для быстрого старта вашего проекта. Шаблон разработан таким образом, чтобы его можно было легко настраивать и расширять для различных сценариев использования.
 
 ## 2. Предварительные требования
 
 Перед началом работы убедитесь, что у вас установлено следующее:
 
-*   **Python:** Версия 3.11 или выше.
+*   **Python:** Версия {{cookiecutter.python_version}} или выше.
 *   **uv:** Для управления зависимостями и виртуальными окружениями. Руководство по установке: [https://github.com/astral-sh/uv](https://github.com/astral-sh/uv)
 *   **Docker:** (Опционально, для контейнеризированной установки) Для запуска приложения в контейнере. Руководство по установке: [https://docs.docker.com/engine/install/](https://docs.docker.com/engine/install/)
 *   **Make:** (Опционально, для использования сокращенных команд Makefile) Инструмент автоматизации сборки.
@@ -19,8 +19,8 @@
 
 1.  **Клонируйте репозиторий:**
     ```bash
-    git clone https://github.com/triram-2/cookiecutter-simplemspy.git
-    cd cookiecutter-simplemspy
+    git clone https://github.com/{{cookiecutter.github_username}}/{{cookiecutter.repo_name}}.git
+    cd {{cookiecutter.repo_name}}
     ```
 
 2.  **Создайте и активируйте виртуальное окружение:**
@@ -61,7 +61,7 @@
     ```bash
     uvicorn src.main:app --reload
     ```
-    Приложение теперь должно быть доступно по адресу `http://localhost:8000`.
+    Приложение теперь должно быть доступно по адресу `http://localhost:{{cookiecutter.app_port_host}}`.
 
 ## 4. Автоматизированная Локальная Установка (с `setup.sh`)
 
@@ -70,8 +70,8 @@
 
 1.  **Клонируйте репозиторий:**
     ```bash
-    git clone https://github.com/triram-2/cookiecutter-simplemspy.git
-    cd cookiecutter-simplemspy
+    git clone https://github.com/{{cookiecutter.github_username}}/{{cookiecutter.repo_name}}.git
+    cd {{cookiecutter.repo_name}}
     ```
 
 2.  **Сделайте скрипт исполняемым:**
@@ -115,7 +115,7 @@
 **Предоставленный Dockerfile:**
 ```dockerfile
 # Этап 1: Сборка приложения
-FROM python:3.11-slim as builder
+FROM python:{{cookiecutter.python_version}}-slim as builder
 
 # Установка рабочей директории
 WORKDIR /app
@@ -134,13 +134,13 @@ RUN uv pip install --system -r requirements.txt --no-cache-dir
 COPY . .
 
 # Этап 2: Создание финального образа
-FROM python:3.11-slim
+FROM python:{{cookiecutter.python_version}}-slim
 
 # Установка рабочей директории
 WORKDIR /app
 
 # Копирование установленных зависимостей из builder stage
-COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/lib/python{{cookiecutter.python_version}}/site-packages /usr/local/lib/python{{cookiecutter.python_version}}/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Копирование кода приложения
@@ -150,10 +150,10 @@ COPY alembic.ini /app/alembic.ini # Если используете Alembic
 COPY alembic/ /app/alembic/     # Если используете Alembic
 
 # Открытие порта, на котором работает приложение
-EXPOSE 8000
+EXPOSE {{cookiecutter.internal_app_port}}
 
 # Команда для запуска приложения
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "{{cookiecutter.python_package_name}}.api:app", "--host", "0.0.0.0", "--port", "{{cookiecutter.internal_app_port}}"]
 ```
 
 **Использование `docker-compose.yml`:**
@@ -168,7 +168,7 @@ CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
     *   `-d`: Запуск контейнеров в фоновом режиме.
 
 2.  **Доступ к приложению:**
-    Приложение должно быть доступно по адресу `http://localhost:8000` (или по порту, настроенному в `docker-compose.yml`).
+    Приложение должно быть доступно по адресу `http://localhost:{{cookiecutter.app_port_host}}` (или по порту, настроенному в `docker-compose.yml`).
 
 3.  **Переменные окружения для Docker:**
     Файл `docker-compose.yml` использует файл `.env` в корне проекта для предоставления переменных окружения сервисам. Убедитесь, что ваш файл `.env` правильно настроен, особенно детали подключения к базе данных, так как контейнер FastAPI будет использовать их для подключения к контейнеру PostgreSQL. `POSTGRES_SERVER` обычно должен быть именем сервиса, определенным в `docker-compose.yml` (например, `db`).
@@ -292,7 +292,7 @@ CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
 *   **`src/core/config.py`:** Использует `BaseSettings` из Pydantic для загрузки и валидации переменных окружения. Это обеспечивает типизированные настройки, доступные во всем приложении.
 
 **Ключевые Переменные Конфигурации:** (Полный список см. в `src/core/config.py` и `.env.example`)
-*   `PROJECT_NAME`: Название проекта.
+*   `PROJECT_NAME`: {{cookiecutter.project_name}}.
 *   `API_V1_STR`: Префикс URL для API версии 1.
 *   `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_SERVER`, `POSTGRES_PORT`: Детали подключения к базе данных.
 *   `SECRET_KEY`: Секретный ключ для JWT-токенов и других функций безопасности.
@@ -337,7 +337,7 @@ CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
     ```
 6.  **Закоммитьте ваши изменения:** Используйте четкие и описательные сообщения коммитов.
 7.  **Отправьте изменения в ваш форк:** `git push origin feature/your-feature-name`.
-8.  **Создайте Pull Request (PR)** в ветку `main` оригинального репозитория (triram-2/cookiecutter-simplemspy). Предоставьте подробное описание ваших изменений в PR.
+8.  **Создайте Pull Request (PR)** в ветку `main` оригинального репозитория ({{cookiecutter.github_username}}/{{cookiecutter.repo_name}}). Предоставьте подробное описание ваших изменений в PR.
 
 Пожалуйста, убедитесь, что ваш код соответствует стандартам кодирования проекта и проходит все проверки CI.
 
@@ -347,13 +347,13 @@ CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
 *   **Проверьте переменные окружения:** Убедитесь, что ваш файл `.env` правильно настроен и загружен.
 *   **Подключение к базе данных:** Если у вас проблемы с базой данных, убедитесь, что сервер PostgreSQL запущен и доступен с учетными данными из вашего файла `.env`. При использовании Docker убедитесь, что контейнер базы данных запущен, и контейнер приложения FastAPI может к нему подключиться (обычно через имя сервиса, например, `db`).
 *   **Зависимости:** Убедитесь, что все зависимости правильно установлены с помощью `uv pip install -r requirements.txt`. Если возникают ошибки импорта, попробуйте повторно активировать виртуальное окружение (`source .venv/bin/activate` или `uv venv`) или переустановить зависимости.
-*   **Конфликты портов:** Убедитесь, что порт, который пытается использовать приложение (по умолчанию 8000), не занят другим процессом.
+*   **Конфликты портов:** Убедитесь, что порт, который пытается использовать приложение (по умолчанию {{cookiecutter.app_port_host}}), не занят другим процессом.
 *   **Распространенные проблемы:**
     *   **`ModuleNotFoundError`**: Дважды проверьте, что вы активировали виртуальное окружение (`source .venv/bin/activate`).
     *   **Миграции Alembic (если используются):** Если у вас есть несоответствия схемы базы данных, убедитесь, что миграции сгенерированы и применены правильно.
     *   **Разрешения:** В Linux/macOS убедитесь, что скрипты, такие как `setup.sh`, являются исполняемыми (`chmod +x setup.sh`).
 
-Если вы столкнулись с ошибкой или проблемой, не описанной здесь, пожалуйста, [создайте issue](https://github.com/triram-2/cookiecutter-simplemspy/issues) на GitHub с подробной информацией, включая:
+Если вы столкнулись с ошибкой или проблемой, не описанной здесь, пожалуйста, [создайте issue](https://github.com/{{cookiecutter.github_username}}/{{cookiecutter.repo_name}}/issues) на GitHub с подробной информацией, включая:
 *   Шаги для воспроизведения проблемы.
 *   Ожидаемое поведение.
 *   Фактическое поведение.

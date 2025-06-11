@@ -1,7 +1,7 @@
 # Dockerfile
 
 # --- Стадия сборки зависимостей ---
-FROM python:3.13-slim AS builder
+FROM python:{{cookiecutter.python_version}}-slim AS builder
 
 LABEL stage="builder"
 
@@ -39,7 +39,7 @@ RUN uv sync --frozen
 # Добавил --frozen-lockfile для uv sync, чтобы он падал, если lock не соответствует toml.
 
 # --- Финальная стадия ---
-FROM python:3.13-slim AS runner
+FROM python:{{cookiecutter.python_version}}-slim AS runner
 
 LABEL stage="runner"
 
@@ -50,7 +50,7 @@ ENV PYTHONUNBUFFERED=1 \
     # Путь к файлу БД SQLite внутри контейнера (если используется)
     # Может быть переопределен через DB_SQLITE_FILE в .env
     APP_SQLITE_DB_PATH="/app/data/db/main.sqlite" \
-    PYTHONPATH="/opt/venv/lib/python3.13/site-packages:$PYTHONPATH"
+    PYTHONPATH="/opt/venv/lib/python{{cookiecutter.python_version}}/site-packages:$PYTHONPATH"
 
 # Создаем группу и пользователя приложения
 RUN groupadd -r appgroup && useradd -r -g appgroup -d /app -s /sbin/nologin -c "Application User" appuser
@@ -74,7 +74,7 @@ USER appuser
 
 # Открываем порт, на котором будет работать приложение
 # Этот порт должен соответствовать порту в CMD Uvicorn
-EXPOSE 8000 
+EXPOSE {{cookiecutter.internal_app_port}}
 # (Примечание: CMD ниже использует порт 8000, если APP_PORT не задан. Согласуем с APP_PORT из AppSettings)
 # Если Uvicorn в CMD будет запускаться на порту 80, то EXPOSE 80
 
@@ -85,4 +85,4 @@ EXPOSE 8000
 # Для простоты, здесь можно захардкодить порт, на котором Uvicorn слушает внутри контейнера,
 # а маппинг на хостовой порт делать в docker-compose.yml.
 # Пусть Uvicorn внутри контейнера всегда слушает на 8000.
-CMD ["/opt/venv/bin/python", "-m", "uvicorn", "name.api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/opt/venv/bin/python", "-m", "uvicorn", "{{cookiecutter.python_package_name}}.api:app", "--host", "0.0.0.0", "--port", "{{cookiecutter.internal_app_port}}"]
