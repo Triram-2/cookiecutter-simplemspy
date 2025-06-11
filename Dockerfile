@@ -23,6 +23,8 @@ WORKDIR /app
 # Используем python из базового образа, чтобы uv его нашел
 RUN uv venv /opt/venv --python $(which python)
 
+RUN /opt/venv/bin/pip install uv
+
 # Копируем файлы проекта, необходимые для установки зависимостей
 COPY pyproject.toml uv.lock* ./ 
 # uv.lock* для случая, если lock файл называется uv.lock или имеет суффикс платформы
