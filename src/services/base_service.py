@@ -7,7 +7,7 @@ from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db.base_repository import BaseRepository  # Наш базовый репозиторий
+from name.db.base_repository import BaseRepository  # Наш базовый репозиторий
 
 # Дженерик типы для моделей и схем
 ModelType = TypeVar("ModelType", bound=Any)
@@ -181,7 +181,7 @@ class BaseService(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 #         super().__init__(repository)
 
 # # Использование в коде:
-# # from src.db import get_async_session # Для примера использования
+# # from name.db import get_async_session # Для примера использования
 # # user_repo = UserRepository()
 # # user_service = UserService(user_repo)
 # # async def main_example():

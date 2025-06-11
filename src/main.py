@@ -5,12 +5,12 @@
   `python src/main.py`
 
 Или передать его Uvicorn для запуска:
-  `uvicorn src.main:app --reload` (где `app` - это экземпляр FastAPI из `src.api`)
-  Обратите внимание, что при запуске через `uvicorn src.main:app`, uvicorn будет искать
+  `uvicorn name.main:app --reload` (где `app` - это экземпляр FastAPI из `name.api`)
+  Обратите внимание, что при запуске через `uvicorn name.main:app`, uvicorn будет искать
   объект `app` в этом файле. Если вы хотите, чтобы uvicorn запускал приложение
-  из `src.api.main:app` (или `src.api:app`), то команда будет `uvicorn src.api:app --reload`.
+  из `name.api.main:app` (или `name.api:app`), то команда будет `uvicorn name.api:app --reload`.
   Данный `main.py` предоставляет удобный способ запуска с уже примененными настройками
-  из `src.core.config.settings`.
+  из `name.core.config.settings`.
 """
 
 # Добавим стандартный лог для проверки InterceptHandler
@@ -19,9 +19,9 @@ import logging
 import uvicorn
 
 # Импортируем сам объект FastAPI приложения.
-# Он экспортируется из src.api.__init__, который в свою очередь импортирует его из src.api.main
-from src.core.config import settings
-from src.core.logging_config import get_logger  # Импортируем наш логгер
+# Он экспортируется из name.api.__init__, который в свою очередь импортирует его из name.api.main
+from name.core.config import settings
+from name.core.logging_config import get_logger  # Импортируем наш логгер
 
 # Получаем экземпляр логгера для этого модуля
 # (хотя базовая конфигурация логгера уже должна была произойти при импорте logging_config)
@@ -47,10 +47,10 @@ if __name__ == "__main__":
 
     uvicorn.run(
         # Путь к объекту FastAPI приложения.
-        # "src.api:app" означает, что Uvicorn будет искать объект `app`
-        # в модуле `src.api` (который является `src/api/__init__.py`).
+        # "name.api:app" означает, что Uvicorn будет искать объект `app`
+        # в модуле `name.api` (который является `src/api/__init__.py`).
         # В `src/api/__init__.py` мы экспортируем `app` из `src.api.main`.
-        "src.api:app",
+        "name.api:app",
         host=settings.app_host,
         port=settings.app_port,
         reload=settings.app_reload,
@@ -59,6 +59,6 @@ if __name__ == "__main__":
         # workers=settings.app_workers, # Если добавим app_workers в AppSettings
     )
 
-# Если вы хотите иметь возможность импортировать `app` из `src.main`
-# (например, для `uvicorn src.main:app`), то `app` должен быть доступен здесь.
-# Он уже импортирован выше: `from src.api import app`
+# Если вы хотите иметь возможность импортировать `app` из `name.main`
+# (например, для `uvicorn name.main:app`), то `app` должен быть доступен здесь.
+# Он уже импортирован выше: `from name.api import app`

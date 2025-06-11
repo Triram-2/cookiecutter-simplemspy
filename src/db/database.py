@@ -13,7 +13,7 @@ from sqlalchemy.orm import (
 from sqlalchemy.orm import Session  # Добавил Session для синхронной сессии
 from sqlalchemy import create_engine
 
-from src.core.config import settings  # Импортируем наши настройки
+from name.core.config import settings  # Импортируем наши настройки
 
 # Создаем асинхронный движок SQLAlchemy
 async_engine = create_async_engine(
