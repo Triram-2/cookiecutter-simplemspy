@@ -29,12 +29,12 @@ from nox import Session  # Import Session for type hinting
 # nox.options.default_venv_backend = "uv"
 
 # Type hint for PYPROJECT_CONTENT
-# PYPROJECT_CONTENT: Dict[str, Any] = tomllib.loads(
-#     Path("pyproject.toml").read_text(encoding="utf-8")
-# )
+PYPROJECT_CONTENT: Dict[str, Any] = tomllib.loads(
+    Path("pyproject.toml").read_text(encoding="utf-8")
+)
 
-# PROJECT_NAME: str = PYPROJECT_CONTENT["project"]["name"]
-PYTHON_VERSIONS: List[str] = ["3.12"]
+PROJECT_NAME: str = PYPROJECT_CONTENT["project"]["name"]
+PYTHON_VERSIONS: List[str] = ["3.11", "3.12"]
 SRC_DIR: str = "src"
 TESTS_DIR: str = "tests"
 DOCS_DIR: str = "docs"
@@ -46,11 +46,14 @@ os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 
 # --- Вспомогательные функции ---
 def install_project_with_deps(session: Session, *groups: str) -> None:
-    """Installs ONLY 'fastapi' for diagnostics."""
-    session.log(f"DIAGNOSTIC: install_project_with_deps called with groups: {groups} - Will only attempt to install 'fastapi'.")
-    session.log("DIAGNOSTIC: Attempting to pip install only 'fastapi'")
-    session.install("fastapi")
-    session.log("DIAGNOSTIC: 'fastapi' installation attempt with pip finished.")
+    """Устанавливает проект и его зависимости из указанных групп используя pip."""
+    install_spec = "."
+    if groups:
+        install_spec = f".[{','.join(groups)}]"
+
+    session.log(f"Installing with pip: -e {install_spec}")
+    session.install("-e", install_spec)
+    session.log(f"Finished pip install -e {install_spec}")
 
 
 # --- Сессии Nox ---
