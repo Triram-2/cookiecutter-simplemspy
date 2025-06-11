@@ -59,9 +59,9 @@
 
 6.  **Запустите приложение:**
     ```bash
-    uvicorn src.main:app --reload
+    uvicorn main:app --reload --host 127.0.0.1 --port {{cookiecutter.app_port_host}}
     ```
-    Приложение теперь должно быть доступно по адресу `http://localhost:{{cookiecutter.app_port_host}}`.
+    Приложение теперь должно быть доступно по адресу `http://127.0.0.1:{{cookiecutter.app_port_host}}`.
 
 ## 4. Автоматизированная Локальная Установка (с `setup.sh`)
 
@@ -101,7 +101,7 @@
 
 6.  **Запустите приложение:**
     ```bash
-    uvicorn src.main:app --reload
+    uvicorn main:app --reload --host 127.0.0.1 --port {{cookiecutter.app_port_host}}
     ```
 
 ## 5. Настройка Docker
@@ -153,7 +153,7 @@ COPY alembic/ /app/alembic/     # Если используете Alembic
 EXPOSE {{cookiecutter.internal_app_port}}
 
 # Команда для запуска приложения
-CMD ["uvicorn", "{{cookiecutter.python_package_name}}.api:app", "--host", "0.0.0.0", "--port", "{{cookiecutter.internal_app_port}}"]
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "{{cookiecutter.internal_app_port}}"]
 ```
 
 **Использование `docker-compose.yml`:**
@@ -168,7 +168,7 @@ CMD ["uvicorn", "{{cookiecutter.python_package_name}}.api:app", "--host", "0.0.0
     *   `-d`: Запуск контейнеров в фоновом режиме.
 
 2.  **Доступ к приложению:**
-    Приложение должно быть доступно по адресу `http://localhost:{{cookiecutter.app_port_host}}` (или по порту, настроенному в `docker-compose.yml`).
+    Приложение должно быть доступно по адресу `http://127.0.0.1:{{cookiecutter.app_port_host}}` (или по порту, настроенному в `docker-compose.yml`).
 
 3.  **Переменные окружения для Docker:**
     Файл `docker-compose.yml` использует файл `.env` в корне проекта для предоставления переменных окружения сервисам. Убедитесь, что ваш файл `.env` правильно настроен, особенно детали подключения к базе данных, так как контейнер FastAPI будет использовать их для подключения к контейнеру PostgreSQL. `POSTGRES_SERVER` обычно должен быть именем сервиса, определенным в `docker-compose.yml` (например, `db`).

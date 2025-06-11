@@ -111,7 +111,7 @@ class AppSettings(BaseSettings):
     log: LogSettings = Field(default_factory=LogSettings)
     db: DBSettings = Field(default_factory=DBSettings)
 
-    app_host: str = Field(default="0.0.0.0", description="Host for Uvicorn")
+    app_host: str = Field(default="127.0.0.1", description="Host for Uvicorn")
     app_port: int = Field(default=int("{{cookiecutter.app_port_host}}"), description="Port for Uvicorn")
     app_reload: bool = Field(
         default=True, description="Enable/disable Uvicorn auto-reloading"
