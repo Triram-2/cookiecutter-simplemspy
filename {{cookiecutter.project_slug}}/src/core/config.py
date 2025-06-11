@@ -44,7 +44,7 @@ class DBSettings(BaseSettings):
     )
 
     host: str = "{{cookiecutter.db_host}}"
-    port: int = int("{{cookiecutter.db_port}}")
+    port: int = Field(default=5432, description="Порт базы данных")
     user: Optional[str] = "{{cookiecutter.db_user}}"
     password: Optional[str] = "{{cookiecutter.db_password}}"
     name: Optional[str] = "{{cookiecutter.db_name}}"
@@ -112,7 +112,7 @@ class AppSettings(BaseSettings):
     db: DBSettings = Field(default_factory=DBSettings)
 
     app_host: str = Field(default="127.0.0.1", description="Host for Uvicorn")
-    app_port: int = Field(default=int("{{cookiecutter.app_port_host}}"), description="Port for Uvicorn")
+    app_port: int = Field(default=8000, description="Порт FastAPI приложения")
     app_reload: bool = Field(
         default=True, description="Enable/disable Uvicorn auto-reloading"
     )

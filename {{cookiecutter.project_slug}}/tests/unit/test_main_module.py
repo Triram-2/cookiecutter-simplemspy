@@ -1,5 +1,5 @@
-from name import main as main_module
-from name.core.config import AppSettings
+from my_awesome_project import main as main_module
+from my_awesome_project.core.config import AppSettings
 
 
 def test_main_module_imports_and_attributes():

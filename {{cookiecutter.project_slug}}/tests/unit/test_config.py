@@ -1,6 +1,6 @@
 from pydantic import PostgresDsn
 
-from name.core.config import LogSettings, DBSettings, AppSettings, BASE_DIR, DATA_DIR
+from my_awesome_project.core.config import LogSettings, DBSettings, AppSettings, BASE_DIR, DATA_DIR
 
 
 def test_log_settings_instantiation():

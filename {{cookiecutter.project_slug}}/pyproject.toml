@@ -1,10 +1,10 @@
 # --- General ---
 [project]
-name = "{{cookiecutter.python_package_name}}"
-version = "{{cookiecutter.project_version}}"
+name = "my_awesome_project"
+version = "0.1.0"
 description = "{{cookiecutter.project_description}}"
 readme = "README.md"
-requires-python = ">={{cookiecutter.python_version}}"
+requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.115.12",
     "loguru>=0.7.3",
@@ -88,12 +88,12 @@ dev = [
 
 # Группа "all", включающая все вышеперечисленные для удобной установки всего сразу
 all = [
-    "{{cookiecutter.python_package_name}}[lint]",
-    "{{cookiecutter.python_package_name}}[test]",
-    "{{cookiecutter.python_package_name}}[profile]",
-    "{{cookiecutter.python_package_name}}[audit]",
-    "{{cookiecutter.python_package_name}}[loadtest]",
-    "{{cookiecutter.python_package_name}}[dev]",
+    "my_awesome_project[lint]",
+    "my_awesome_project[test]",
+    "my_awesome_project[profile]",
+    "my_awesome_project[audit]",
+    "my_awesome_project[loadtest]",
+    "my_awesome_project[dev]",
 ]
 
 
@@ -107,7 +107,7 @@ package = true
 [tool.ruff]
 line-length = 88
 indent-width = 4
-target-version = "py{{cookiecutter.python_version.replace('.', '')}}"
+target-version = "py310"
 exclude = [
     ".git",
     "__pycache__",
@@ -182,7 +182,7 @@ skip-magic-trailing-comma = true # Убирать магическую запя�
 # --- pyright ---
 [tool.pyright]
 # 🔹 Основные настройки
-pythonVersion = "{{cookiecutter.python_version}}" # Версия Python, для которой проверяется код
+pythonVersion = "3.10" # Версия Python, для которой проверяется код
 pythonPlatform = "Linux" # Платформа: "Linux", "Windows" или "Darwin" (macOS)
 typeCheckingMode = "strict" # Режим проверки типов: "off", "basic", "strict"
 
@@ -295,7 +295,7 @@ profile-all = false
 name = "cz_conventional_commits"
 
 # Текущую версию Commitizen будет читать/писать из/в эти файлы:
-version = "{{cookiecutter.project_version}}" # Начальная версия или версия последнего релиза
+version = "0.1.0" # Начальная версия или версия последнего релиза
 version_files = [
     # "src/__init__.py:__version__", # Удалено
     "pyproject.toml:version"
