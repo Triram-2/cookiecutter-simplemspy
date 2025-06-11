@@ -23,7 +23,6 @@
   "sqlite_db_path": "data/db/main.sqlite",
   "_copy_without_render": [
     "*.html",
-    "docs/_static/*",
-    "src/name.egg-info/*"
+    "docs/_static/*"
   ]
 }
