@@ -6,19 +6,20 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, TYPE_CHECKING, Iterator
 
-# Conditional import for tomllib/tomli for type checking and compatibility
+# Conditional import for tomllib/tomli
 if sys.version_info >= (3, 11):
     import tomllib
-elif TYPE_CHECKING:
-    import tomli as tomllib  # pyright: ignore [reportMissingModuleSource, reportGeneralTypeIssues]
 else:
     try:
         import tomli as tomllib
     except ModuleNotFoundError:
-        # This case should ideally not be hit if tomli is a dependency for older Python versions
         print("Error: 'tomli' is not installed. Please install it for Python < 3.11.")
         sys.exit(1)
 
+if TYPE_CHECKING:
+    # If you need to import specific types from tomllib for type hinting, do it here.
+    # For example: from tomllib import TOMLDecodeError
+    pass  # Often, just having tomllib imported as above is enough.
 
 import nox
 from nox import Session  # Import Session for type hinting
@@ -68,7 +69,7 @@ def lint(session: Session) -> None:
     session.run("ruff", "check", ".")
 
     session.log("Запуск Pyright...")
-    session.run("pyright")
+    session.run("python", "-m", "pyright", "--project", "pyproject.toml")
 
     session.log("Линтинг завершен успешно.")
 
