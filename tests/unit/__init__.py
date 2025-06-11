@@ -1,2 +1,1 @@
-# tests/unit/__init__.py
-# Пакет для модульных (unit) тестов.
+# Package for unit tests.

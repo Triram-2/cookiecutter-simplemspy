@@ -1,9 +1,8 @@
 import pytest
-from datetime import datetime, timezone  # Ensure timezone is imported
+from datetime import datetime, timezone
 
 from pydantic import BaseModel, ValidationError
 
-# Assuming internal imports are now 'from module...' not 'from name.module...'
 from name.schemas.common import (
     Msg,
     IDModel,
@@ -11,7 +10,7 @@ from name.schemas.common import (
     PaginationParams,
     PaginatedResponse,
 )
-import name.schemas  # To test __init__ exports
+import name.schemas
 
 
 def test_msg_schema():
@@ -19,9 +18,9 @@ def test_msg_schema():
     msg_instance = Msg(**data)
     assert msg_instance.message == "Hello"
     with pytest.raises(ValidationError):
-        Msg(message=None)  # type: ignore
+        Msg(message=None)
     with pytest.raises(ValidationError):
-        Msg()  # type: ignore
+        Msg()
 
 
 def test_id_model_schema():
@@ -29,19 +28,19 @@ def test_id_model_schema():
     id_instance = IDModel(**data)
     assert id_instance.id == 123
     with pytest.raises(ValidationError):
-        IDModel(id="abc")  # type: ignore
+        IDModel(id="abc")
     with pytest.raises(ValidationError):
-        IDModel()  # type: ignore
+        IDModel()
 
 
 def test_timestamp_model_schema():
-    now = datetime.now(timezone.utc)  # noqa: UP017
+    now = datetime.now(timezone.utc) # noqa: UP017
     data = {"created_at": now, "updated_at": now}
     ts_instance = TimestampModel(**data)
     assert ts_instance.created_at == now
     assert ts_instance.updated_at == now
     with pytest.raises(ValidationError):
-        TimestampModel(created_at=now)  # type: ignore
+        TimestampModel(created_at=now)
 
 
 def test_pagination_params_schema():
@@ -77,7 +76,7 @@ def test_paginated_response_schema():
     assert paginated_instance.total == 2
 
     with pytest.raises(ValidationError):
-        PaginatedResponse[SampleItem](items=[item1], total=1, skip=0)  # type: ignore
+        PaginatedResponse[SampleItem](items=[item1], total=1, skip=0) # Missing 'limit'
 
 
 def test_schemas_init_exports():
