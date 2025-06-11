@@ -35,7 +35,7 @@ COPY ./ ./
 # Для простоты шаблона, пока установим все (кроме dev, если `uv sync` их не ставит по умолчанию).
 # Если uv.lock существует, uv sync его использует. Иначе, он может попытаться разрешить зависимости из pyproject.toml.
 # Предполагаем, что uv.lock будет сгенерирован и будет основным источником.
-RUN uv sync --python /opt/venv/bin/python --no-dev --frozen --strict || \
+RUN uv sync --python /opt/venv/bin/python --no-dev --frozen || \
     (echo 'uv sync failed, falling back to pip install' && uv pip install --python /opt/venv/bin/python --no-cache --no-deps . )
 # Добавил --no-dev для уменьшения образа, если это поддерживается uv sync или pip install для проекта.
 # Добавил --frozen-lockfile для uv sync, чтобы он падал, если lock не соответствует toml.
@@ -86,4 +86,4 @@ EXPOSE 8000
 # Для простоты, здесь можно захардкодить порт, на котором Uvicorn слушает внутри контейнера,
 # а маппинг на хостовой порт делать в docker-compose.yml.
 # Пусть Uvicorn внутри контейнера всегда слушает на 8000.
-CMD ["python", "-m", "uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "src/main.py"]

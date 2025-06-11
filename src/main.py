@@ -1,3 +1,13 @@
+import sys
+import os
+_src_path = os.path.dirname(os.path.abspath(__file__))
+_project_root = os.path.dirname(_src_path)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+# Ensure 'src' is imported and then alias 'name' to 'src' module
+# This allows 'from name.module' to effectively become 'from src.module'
+import src
+sys.modules['name'] = src
 """
 Основная точка входа для запуска FastAPI приложения с использованием Uvicorn.
 
