@@ -34,8 +34,8 @@ COPY pyproject.toml uv.lock* ./
 # Для простоты шаблона, пока установим все (кроме dev, если `uv sync` их не ставит по умолчанию).
 # Если uv.lock существует, uv sync его использует. Иначе, он может попытаться разрешить зависимости из pyproject.toml.
 # Предполагаем, что uv.lock будет сгенерирован и будет основным источником.
-RUN . /opt/venv/bin/activate && uv sync --no-dev --frozen-lockfile || \
-    ( . /opt/venv/bin/activate && uv pip install --no-cache --no-dev . )
+RUN . /opt/venv/bin/activate && uv sync --no-dev --frozen || \
+    ( . /opt/venv/bin/activate && uv pip install --no-cache --no-deps . )
 # Добавил --no-dev для уменьшения образа, если это поддерживается uv sync или pip install для проекта.
 # Добавил --frozen-lockfile для uv sync, чтобы он падал, если lock не соответствует toml.
 
