@@ -1,2 +1,1 @@
-# tests/__init__.py
-# Корневой пакет для всех тестов.
+# Root package for all tests.

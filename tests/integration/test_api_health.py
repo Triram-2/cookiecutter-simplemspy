@@ -1,14 +1,12 @@
-# tests/integration/test_api_health.py
 import pytest
 from httpx import AsyncClient
-from starlette import status  # Для использования именованных кодов статуса
+from starlette import status
 
-# Помечаем все тесты в этом модуле как асинхронные
 pytestmark = pytest.mark.asyncio
 
 
 async def test_health_check(async_client: AsyncClient):
-    """Тестирует эндпоинт проверки работоспособности /health."""
+    """Tests the /health endpoint."""
     response = await async_client.get("/health")
 
     assert response.status_code == status.HTTP_200_OK
