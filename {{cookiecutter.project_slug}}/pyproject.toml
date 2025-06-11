@@ -112,7 +112,8 @@ exclude = [
     ".git",
     "__pycache__",
     ".venv",
-    "locustfile.py"
+    "locustfile.py",
+    ".nox"
 ]
 src = ["src"]
 
