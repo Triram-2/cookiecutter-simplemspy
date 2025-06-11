@@ -21,7 +21,7 @@ WORKDIR /app
 
 # Создаем виртуальное окружение
 # Используем python из базового образа, чтобы uv его нашел
-RUN uv venv /opt/venv --python $(which python)
+RUN uv venv /opt/venv --python $(which python) --seed
 RUN /opt/venv/bin/pip install uv
 
 # Копируем файлы проекта, необходимые для установки зависимостей
