@@ -17,6 +17,7 @@ dependencies = [
     "asyncpg>=0.29", # Для PostgreSQL
     "aiosqlite>=0.19", # Для SQLite
     "httpx>=0.25.0",
+    "inflection>=0.5.1", # For string case conversions (e.g., table names)
 ]
 
 [build-system]
