@@ -23,10 +23,10 @@ os.environ["DB_DATABASE_URL"] = "sqlite+aiosqlite:///:memory:"
 os.environ["APP_ENV"] = "test"
 
 
-from src.api import app as fastapi_app  # Приложение FastAPI
-from src.core.config import settings  # Наши настройки
-from src.db.base import Base  # Базовый класс для моделей SQLAlchemy
-from src.db.database import get_async_session  # Оригинальная зависимость сессии
+from name.api import app as fastapi_app  # Приложение FastAPI
+from name.core.config import settings  # Наши настройки
+from name.db.base import Base  # Базовый класс для моделей SQLAlchemy
+from name.db.database import get_async_session  # Оригинальная зависимость сессии
 
 
 # Создаем тестовый асинхронный движок для SQLite in-memory
