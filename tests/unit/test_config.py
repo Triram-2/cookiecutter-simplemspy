@@ -6,7 +6,7 @@ from name.core.config import LogSettings, DBSettings, AppSettings, BASE_DIR, DAT
 def test_log_settings_instantiation():
     log_settings = LogSettings()
     assert log_settings.path == BASE_DIR / "logs"
-    assert (BASE_DIR / "logs").exists() # Check directory creation
+    assert (BASE_DIR / "logs").exists()  # Check directory creation
     assert log_settings.console_level == "INFO"
 
 
@@ -17,7 +17,7 @@ def test_db_settings_default_sqlite():
     expected_url = f"sqlite+aiosqlite:///{sqlite_file_path.resolve()}"
     validated_settings = DBSettings(type="SQLITE", sqlite_file=db_settings.sqlite_file)
     assert validated_settings.assembled_database_url == expected_url
-    assert sqlite_file_path.parent.exists() # Check directory creation
+    assert sqlite_file_path.parent.exists()  # Check directory creation
 
 
 def test_db_settings_postgres():
@@ -56,7 +56,7 @@ def test_db_settings_override_postgres_url():
 
 def test_app_settings_instantiation(monkeypatch):
     # Prevent modification of actual .env for tests if loaded
-    monkeypatch.setenv("APP_APP_ENV", "test") # Respect env_prefix
+    monkeypatch.setenv("APP_APP_ENV", "test")  # Respect env_prefix
     app_settings = AppSettings()
     assert app_settings.app_env == "test"
     assert app_settings.db is not None
@@ -66,6 +66,6 @@ def test_app_settings_instantiation(monkeypatch):
 
 
 def test_data_dir_creation():
-    _ = AppSettings() # Instantiation should trigger dir creation via DBSettings
+    _ = AppSettings()  # Instantiation should trigger dir creation via DBSettings
     assert DATA_DIR.exists()
     assert (DATA_DIR / "db").exists()

@@ -34,7 +34,7 @@ def test_id_model_schema():
 
 
 def test_timestamp_model_schema():
-    now = datetime.now(timezone.utc) # noqa: UP017
+    now = datetime.now(timezone.utc)  # noqa: UP017
     data = {"created_at": now, "updated_at": now}
     ts_instance = TimestampModel(**data)
     assert ts_instance.created_at == now
@@ -76,7 +76,7 @@ def test_paginated_response_schema():
     assert paginated_instance.total == 2
 
     with pytest.raises(ValidationError):
-        PaginatedResponse[SampleItem](items=[item1], total=1, skip=0) # Missing 'limit'
+        PaginatedResponse[SampleItem](items=[item1], total=1, skip=0)  # Missing 'limit'
 
 
 def test_schemas_init_exports():

@@ -8,6 +8,7 @@ T = TypeVar("T")
 
 class Msg(BaseModel):
     """Schema for simple API text messages."""
+
     message: str = Field(..., description="Text message from API")
 
     model_config: ClassVar[ConfigDict] = {
@@ -17,11 +18,15 @@ class Msg(BaseModel):
 
 class IDModel(BaseModel):
     """Base schema for models with an integer ID."""
-    id: int = Field(..., description="Unique identifier", json_schema_extra={"example": 1})
+
+    id: int = Field(
+        ..., description="Unique identifier", json_schema_extra={"example": 1}
+    )
 
 
 class TimestampModel(BaseModel):
     """Base schema for models with timestamps."""
+
     created_at: datetime
     updated_at: datetime
 
@@ -34,6 +39,7 @@ class TimestampModel(BaseModel):
 
 class PaginationParams(BaseModel):
     """Parameters for API request pagination."""
+
     skip: int = Field(default=0, ge=0, description="Number of records to skip (offset)")
     limit: int = Field(
         default=100, ge=1, le=200, description="Maximum records per page (up to 200)"
@@ -42,10 +48,17 @@ class PaginationParams(BaseModel):
 
 class PaginatedResponse(BaseModel, Generic[T]):
     """Generic schema for paginated API responses."""
+
     items: List[T] = Field(..., description="List of items on the current page")
-    total: int = Field(..., description="Total number of items", json_schema_extra={"example": 100})
-    skip: int = Field(..., description="Number of skipped items", json_schema_extra={"example": 0})
-    limit: int = Field(..., description="Number of items per page", json_schema_extra={"example": 10})
+    total: int = Field(
+        ..., description="Total number of items", json_schema_extra={"example": 100}
+    )
+    skip: int = Field(
+        ..., description="Number of skipped items", json_schema_extra={"example": 0}
+    )
+    limit: int = Field(
+        ..., description="Number of items per page", json_schema_extra={"example": 10}
+    )
 
     model_config: ClassVar[ConfigDict] = {
         "json_schema_extra": {

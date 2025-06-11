@@ -33,13 +33,11 @@ if __name__ == "__main__":
     log.info(
         f"Starting Uvicorn server on http://{settings.app_host}:{settings.app_port}"
     )
-    log.info(
-        f"Code auto-reloading: {'Enabled' if settings.app_reload else 'Disabled'}"
-    )
+    log.info(f"Code auto-reloading: {'Enabled' if settings.app_reload else 'Disabled'}")
     log.info("Press CTRL+C to stop the server.")
 
     uvicorn.run(
-        "name.api:app", # Path to the FastAPI application object
+        "name.api:app",  # Path to the FastAPI application object
         host=settings.app_host,
         port=settings.app_port,
         reload=settings.app_reload,

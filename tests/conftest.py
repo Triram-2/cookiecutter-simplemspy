@@ -27,7 +27,7 @@ from name.db.database import get_async_session
 # or be assembled based on APP_ENV='test'.
 test_engine = create_async_engine(
     str(settings.db.assembled_database_url),
-    echo=False, # Can be True for debugging SQL in tests
+    echo=False,  # Can be True for debugging SQL in tests
 )
 
 TestAsyncSessionLocal = async_sessionmaker(
@@ -47,7 +47,9 @@ def event_loop(request) -> Generator[asyncio.AbstractEventLoop, None, None]:
     loop.close()
 
 
-@pytest_asyncio.fixture(scope="function") # Use function scope for DB isolation between tests
+@pytest_asyncio.fixture(
+    scope="function"
+)  # Use function scope for DB isolation between tests
 async def db_session() -> AsyncGenerator[AsyncSession, None]:
     """Fixture to provide a test SQLite in-memory DB session."""
     async with test_engine.begin() as connection:
@@ -80,7 +82,7 @@ async def override_get_async_session(
 
 @pytest_asyncio.fixture(scope="function")
 async def async_client(
-    override_get_async_session: None, # Ensures DB dependency is overridden
+    override_get_async_session: None,  # Ensures DB dependency is overridden
 ) -> AsyncGenerator[AsyncClient, None]:
     """
     Fixture to create an async HTTP client for API testing.

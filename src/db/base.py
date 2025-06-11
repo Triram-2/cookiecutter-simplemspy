@@ -21,10 +21,7 @@ class _Base:
         return inflection.tableize(cls.__name__)
 
 
-Base: DeclarativeMeta = declarative_base(
-    cls=_Base,
-    metadata=None,
-)
+Base: DeclarativeMeta = declarative_base(cls=_Base, metadata=None)
 
 
 class TimestampMixin:
@@ -33,6 +30,7 @@ class TimestampMixin:
     `created_at`: Time of record creation.
     `updated_at`: Time of last record update.
     """
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=func.now(),
