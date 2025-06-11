@@ -10,7 +10,7 @@ services:
       # Маппинг: ХОСТ:КОНТЕЙНЕР
       # Переменная окружения APP_PORT на хосте будет использована, если задана, иначе 8000.
       # Внутри контейнера приложение слушает на порту 8000 (как указано в Dockerfile CMD).
-      - "${APP_PORT:-8000}:8000" 
+      - "${APP_PORT:-{{cookiecutter.app_port_host}}}:{{cookiecutter.internal_app_port}}"
     env_file:
       - .env # Загружает переменные из .env файла в контейнер app
     environment:
@@ -46,11 +46,11 @@ services:
     environment:
       # Эти переменные должны совпадать с теми, что используются приложением в .env
       # или в AppSettings для подключения к БД.
-      - POSTGRES_USER=${DB_USER:-postgres}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
-      - POSTGRES_DB=${DB_NAME:-mydatabase}
+      - POSTGRES_USER=${DB_USER:-{{cookiecutter.db_user}}}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-{{cookiecutter.db_password}}}
+      - POSTGRES_DB=${DB_NAME:-{{cookiecutter.db_name}}}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-mydatabase}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-{{cookiecutter.db_user}}} -d ${DB_NAME:-{{cookiecutter.db_name}}}"]
       interval: 10s
       timeout: 5s
       retries: 5

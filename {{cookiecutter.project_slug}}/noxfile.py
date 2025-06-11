@@ -34,7 +34,7 @@ PYPROJECT_CONTENT: Dict[str, Any] = tomllib.loads(
 )
 
 PROJECT_NAME: str = PYPROJECT_CONTENT["project"]["name"]
-PYTHON_VERSIONS: List[str] = ["3.13", "3.12"]
+PYTHON_VERSIONS: List[str] = ["{{cookiecutter.python_version}}", "3.12"]
 SRC_DIR: str = "src"
 TESTS_DIR: str = "tests"
 DOCS_DIR: str = "docs"

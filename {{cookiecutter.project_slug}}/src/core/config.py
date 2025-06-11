@@ -9,16 +9,11 @@ BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
 DATA_DIR: Path = BASE_DIR / "data"
 
 
-def _get_log_path_and_create_dir() -> Path:
-    log_path: Path = BASE_DIR / "logs"
-    os.makedirs(log_path, exist_ok=True)
-    return log_path
-
-
 class LogSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="LOG_")
 
-    path: Path = Field(default_factory=_get_log_path_and_create_dir)
+    _ = os.makedirs(BASE_DIR / "{{cookiecutter.log_directory}}", exist_ok=True)
+    path: Path = BASE_DIR / "{{cookiecutter.log_directory}}"
     console_format: str = (
         "<blue>{time:YYYY-MM-DD HH:mm:ss.SSS}</blue> | "
         "<level>{level: <8}</level> | "
@@ -48,13 +43,13 @@ class DBSettings(BaseSettings):
         default="SQLITE", description="Database type: SQLITE or POSTGRESQL"
     )
 
-    host: str = "localhost"
-    port: int = 5432
-    user: Optional[str] = "postgres"
-    password: Optional[str] = "postgres"
-    name: Optional[str] = "mydatabase"
+    host: str = "{{cookiecutter.db_host}}"
+    port: int = int("{{cookiecutter.db_port}}")
+    user: Optional[str] = "{{cookiecutter.db_user}}"
+    password: Optional[str] = "{{cookiecutter.db_password}}"
+    name: Optional[str] = "{{cookiecutter.db_name}}"
 
-    sqlite_file: Path = Field(default_factory=lambda: DATA_DIR / "db" / "main.sqlite")
+    sqlite_file: Path = BASE_DIR / "{{cookiecutter.sqlite_db_path}}"
 
     database_url_override: Optional[str] = Field(default=None, alias="DATABASE_URL")
 
@@ -96,9 +91,10 @@ class DBSettings(BaseSettings):
             if isinstance(sqlite_path_val, Path):
                 sqlite_path = sqlite_path_val
             else:
-                sqlite_path = DATA_DIR / "db" / "main.sqlite"
+                # Ensure the directory for the SQLite file exists
+                sqlite_path = BASE_DIR / "{{cookiecutter.sqlite_db_path}}"
+                os.makedirs(sqlite_path.parent, exist_ok=True)
 
-            os.makedirs(sqlite_path.parent, exist_ok=True)
             return f"sqlite+aiosqlite:///{sqlite_path.resolve()}"
 
         raise ValueError(f"Unsupported database type: {db_type}")
@@ -116,7 +112,7 @@ class AppSettings(BaseSettings):
     db: DBSettings = Field(default_factory=DBSettings)
 
     app_host: str = Field(default="0.0.0.0", description="Host for Uvicorn")
-    app_port: int = Field(default=8000, description="Port for Uvicorn")
+    app_port: int = Field(default=int("{{cookiecutter.app_port_host}}"), description="Port for Uvicorn")
     app_reload: bool = Field(
         default=True, description="Enable/disable Uvicorn auto-reloading"
     )

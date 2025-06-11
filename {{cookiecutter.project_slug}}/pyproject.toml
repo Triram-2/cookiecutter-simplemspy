@@ -1,10 +1,10 @@
 # --- General ---
 [project]
-name = "name"
-version = "0.1.0"
-description = "description"
+name = "{{cookiecutter.python_package_name}}"
+version = "{{cookiecutter.project_version}}"
+description = "{{cookiecutter.project_description}}"
 readme = "README.md"
-requires-python = ">3.11"
+requires-python = ">={{cookiecutter.python_version}}"
 dependencies = [
     "fastapi>=0.115.12",
     "loguru>=0.7.3",
@@ -25,7 +25,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-package-dir = {"name" = "src"}
+package-dir = {"{{cookiecutter.python_package_name}}" = "src"}
 
 
 # --- Optional Dependencies for Development, Testing, etc. ---
@@ -85,12 +85,12 @@ dev = [
 
 # Группа "all", включающая все вышеперечисленные для удобной установки всего сразу
 all = [
-    "name[lint]",
-    "name[test]",
-    "name[profile]",
-    "name[audit]",
-    "name[loadtest]",
-    "name[dev]",
+    "{{cookiecutter.python_package_name}}[lint]",
+    "{{cookiecutter.python_package_name}}[test]",
+    "{{cookiecutter.python_package_name}}[profile]",
+    "{{cookiecutter.python_package_name}}[audit]",
+    "{{cookiecutter.python_package_name}}[loadtest]",
+    "{{cookiecutter.python_package_name}}[dev]",
 ]
 
 
@@ -104,7 +104,7 @@ package = true
 [tool.ruff]
 line-length = 88
 indent-width = 4
-target-version = "py313"
+target-version = "py{{cookiecutter.python_version.replace('.', '')}}"
 exclude = [
     ".git",
     "__pycache__",
@@ -178,7 +178,7 @@ skip-magic-trailing-comma = true # Убирать магическую запя�
 # --- pyright ---
 [tool.pyright]
 # 🔹 Основные настройки
-pythonVersion = "3.13" # Версия Python, для которой проверяется код
+pythonVersion = "{{cookiecutter.python_version}}" # Версия Python, для которой проверяется код
 pythonPlatform = "Linux" # Платформа: "Linux", "Windows" или "Darwin" (macOS)
 typeCheckingMode = "strict" # Режим проверки типов: "off", "basic", "strict"
 
@@ -291,7 +291,7 @@ profile-all = false
 name = "cz_conventional_commits"
 
 # Текущую версию Commitizen будет читать/писать из/в эти файлы:
-version = "0.1.0" # Начальная версия или версия последнего релиза
+version = "{{cookiecutter.project_version}}" # Начальная версия или версия последнего релиза
 version_files = [
     # "src/__init__.py:__version__", # Удалено
     "pyproject.toml:version"
