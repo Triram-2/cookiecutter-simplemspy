@@ -14,6 +14,7 @@ Requires-Dist: sqlalchemy[asyncio]>=2.0
 Requires-Dist: asyncpg>=0.29
 Requires-Dist: aiosqlite>=0.19
 Requires-Dist: httpx>=0.25.0
+Requires-Dist: inflection>=0.5.1
 Provides-Extra: lint
 Requires-Dist: ruff>=0.4.0; extra == "lint"
 Requires-Dist: pyright>=1.1.350; extra == "lint"

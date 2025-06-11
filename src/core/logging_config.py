@@ -10,13 +10,23 @@ import os
 from datetime import datetime
 from pathlib import Path
 from types import FrameType  # For typing frame objects
-from typing import Any, Callable, Dict, Optional, Union, TextIO, cast
-
-from loguru import (
-    logger as loguru_logger,
-    Logger,  # Use the public Logger type for return type hints
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Optional,
+    Union,
+    TextIO,
+    cast,
 )
+
+from loguru import logger as loguru_logger
+
+# Removed: from loguru._logger import Logger as LoguruLoggerType
 from .config import settings, AppSettings  # Import AppSettings for typing 'settings'
+
+
+# Removed _LoggerType TypeAlias and its TYPE_CHECKING block
 
 
 # --- Перехватчик стандартного логирования ---
@@ -90,7 +100,7 @@ setup_initial_logger()
 
 # --- Функция для получения настроенного логгера ---
 # Change return type to loguru.Logger (public type)
-def get_logger(name: str) -> Logger:
+def get_logger(name: str) -> Any:
     """
     Получает и настраивает логгер Loguru для указанного имени.
     Файловые обработчики (info, error) настраиваются для каждого имени.

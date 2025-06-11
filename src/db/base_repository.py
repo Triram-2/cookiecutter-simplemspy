@@ -7,7 +7,7 @@ import warnings
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel as PydanticBaseModel # Alias for clarity
+from pydantic import BaseModel as PydanticBaseModel  # Alias for clarity
 from sqlalchemy import select, func, exc as sa_exc
 from sqlalchemy.ext.asyncio import AsyncSession
 

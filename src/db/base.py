@@ -4,10 +4,9 @@
 Включает декларативную базу и опциональный миксин для временных меток.
 """
 
-import re
 import inflection  # Added for tableize
 from datetime import datetime  # Import datetime for Mapped[datetime]
-from typing import Any, Dict, Type  # Import necessary typing modules
+from typing import Dict, Type  # Import necessary typing modules
 
 from sqlalchemy import DateTime, func
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column
@@ -38,7 +37,7 @@ class _Base:
     # id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
 
     @declared_attr  # type: ignore[arg-type]
-    def __tablename__(cls: Type['_Base']) -> str:
+    def __tablename__(cls: Type["_Base"]) -> str:
         # Преобразует имя класса из CamelCase в snake_case для имени таблицы
         # The noqa: N805 for 'cls' might still be needed depending on linter rules for @declared_attr
         return inflection.tableize(cls.__name__)
