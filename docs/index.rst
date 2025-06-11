@@ -15,5 +15,5 @@ Indices and tables
 API Documentation
 =================
 
-.. automodule:: name
+.. automodule:: main
    :members:
