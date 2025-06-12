@@ -50,7 +50,7 @@ ENV PYTHONUNBUFFERED=1 \
     # Путь к файлу БД SQLite внутри контейнера (если используется)
     # Может быть переопределен через DB_SQLITE_FILE в .env
     APP_SQLITE_DB_PATH="/app/data/db/main.sqlite" \
-    PYTHONPATH="/opt/venv/lib/python{{cookiecutter.python_version}}/site-packages:$PYTHONPATH"
+    PYTHONPATH="/app/src:/opt/venv/lib/python{{cookiecutter.python_version}}/site-packages:$PYTHONPATH"
 
 # Создаем группу и пользователя приложения
 RUN groupadd -r appgroup && useradd -r -g appgroup -d /app -s /sbin/nologin -c "Application User" appuser
