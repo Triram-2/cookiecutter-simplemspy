@@ -104,6 +104,7 @@ def test(session: Session) -> None:
         "pytest",
         TESTS_DIR,
         *session.posargs,
+        env={"PYTHONPATH": SRC_DIR},
     )
 
     session.log(f"Проверка покрытия кода (должно быть >= {COVERAGE_FAIL_UNDER}%)...")

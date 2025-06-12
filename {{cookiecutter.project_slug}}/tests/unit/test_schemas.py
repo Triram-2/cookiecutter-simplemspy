@@ -10,7 +10,7 @@ from {{cookiecutter.python_package_name}}.schemas.common import (
     PaginationParams,
     PaginatedResponse,
 )
-import {{cookiecutter.python_package_name}}.schemas as schemas
+from {{cookiecutter.python_package_name}} import schemas
 
 
 def test_msg_schema():
