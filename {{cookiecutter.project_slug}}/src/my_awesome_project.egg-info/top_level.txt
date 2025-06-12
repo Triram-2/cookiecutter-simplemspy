@@ -1,7 +1,0 @@
-api
-core
-db
-models
-schemas
-services
-utils
