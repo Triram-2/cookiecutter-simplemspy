@@ -3,14 +3,14 @@ from datetime import datetime, timezone
 
 from pydantic import BaseModel, ValidationError
 
-from schemas.common import (
+from {{cookiecutter.python_package_name}}.schemas.common import (
     Msg,
     IDModel,
     TimestampModel,
     PaginationParams,
     PaginatedResponse,
 )
-import schemas
+import {{cookiecutter.python_package_name}}.schemas as schemas
 
 
 def test_msg_schema():
@@ -34,7 +34,7 @@ def test_id_model_schema():
 
 
 def test_timestamp_model_schema():
-    now = datetime.now(timezone.utc)  # noqa: UP017
+    now = datetime.now(timezone.utc)
     data = {"created_at": now, "updated_at": now}
     ts_instance = TimestampModel(**data)
     assert ts_instance.created_at == now

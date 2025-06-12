@@ -1,7 +1,7 @@
 from loguru import logger as loguru_logger
 import logging
 
-from core.logging_config import get_logger, setup_initial_logger, InterceptHandler
+from {{cookiecutter.python_package_name}}.core.logging_config import get_logger, setup_initial_logger, InterceptHandler
 
 
 def test_get_logger_returns_bound_logger():
