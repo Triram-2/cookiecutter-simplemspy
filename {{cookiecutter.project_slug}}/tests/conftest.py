@@ -17,7 +17,7 @@ os.environ["APP_ENV"] = "test"
 
 
 from {{cookiecutter.python_package_name}}.api import app as fastapi_app
-from core.config import settings
+from my_awesome_project.core.config import settings
 from db.base import Base
 from db.database import get_async_session
 
