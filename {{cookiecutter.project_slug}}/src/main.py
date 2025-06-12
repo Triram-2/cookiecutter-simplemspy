@@ -1,3 +1,12 @@
+import sys
+import os
+
+# Add the project root (parent directory of 'src') to sys.path
+# This allows 'from src...' imports to work when running main.py directly
+PROJECT_ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT_DIR not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT_DIR)
+
 """
 Main entry point for running the FastAPI application using Uvicorn.
 
