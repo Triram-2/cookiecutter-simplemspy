@@ -21,8 +21,8 @@ from `src.core.config.settings`. # Changed name.core.config to src.core.config
 
 import uvicorn
 
-from src.core.config import settings # Changed name.core.config to src.core.config
-from src.core.logging_config import get_logger # Changed name.core.logging_config to src.core.logging_config
+from my_awesome_project.core.config import settings # Changed name.core.config to src.core.config
+from my_awesome_project.core.logging_config import get_logger # Changed name.core.logging_config to src.core.logging_config
 
 log = get_logger(__name__)
 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     log.info("Press CTRL+C to stop the server.")
 
     uvicorn.run(
-        "src.api:app",  # Path to the FastAPI application object, Changed name.api:app to src.api:app
+        "my_awesome_project.api:app",  # Path to the FastAPI application object, Changed name.api:app to src.api:app
         host=settings.app_host,
         port=settings.app_port,
         reload=settings.app_reload,
