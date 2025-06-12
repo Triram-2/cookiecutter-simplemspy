@@ -20,7 +20,7 @@ API Documentation
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: {{cookiecutter.python_package_name}}.api.v1.health
+.. automodule:: {{cookiecutter.python_package_name}}.api.health
    :members:
    :undoc-members:
    :show-inheritance:
