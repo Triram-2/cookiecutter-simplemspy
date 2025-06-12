@@ -1,5 +1,5 @@
 Metadata-Version: 2.4
-Name: cookiecutter_project_slug
+Name: my_awesome_project
 Version: 0.1.0
 Summary: {{cookiecutter.project_description}}
 Requires-Python: >=3.10
@@ -51,12 +51,12 @@ Provides-Extra: dev
 Requires-Dist: nox>=2023.4.22; extra == "dev"
 Requires-Dist: commitizen>=3.12; extra == "dev"
 Provides-Extra: all
-Requires-Dist: cookiecutter_project_slug[lint]; extra == "all"
-Requires-Dist: cookiecutter_project_slug[test]; extra == "all"
-Requires-Dist: cookiecutter_project_slug[profile]; extra == "all"
-Requires-Dist: cookiecutter_project_slug[audit]; extra == "all"
-Requires-Dist: cookiecutter_project_slug[loadtest]; extra == "all"
-Requires-Dist: cookiecutter_project_slug[dev]; extra == "all"
+Requires-Dist: my_awesome_project[lint]; extra == "all"
+Requires-Dist: my_awesome_project[test]; extra == "all"
+Requires-Dist: my_awesome_project[profile]; extra == "all"
+Requires-Dist: my_awesome_project[audit]; extra == "all"
+Requires-Dist: my_awesome_project[loadtest]; extra == "all"
+Requires-Dist: my_awesome_project[dev]; extra == "all"
 
 # {{cookiecutter.project_name}}
 

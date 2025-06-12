@@ -7,13 +7,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
 DATA_DIR: Path = BASE_DIR / "data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)  # Ensure DATA_DIR exists
+(DATA_DIR / "db").mkdir(parents=True, exist_ok=True)  # Ensure DATA_DIR/db exists
 
 
 class LogSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="LOG_")
 
-    _ = os.makedirs(BASE_DIR / "{{cookiecutter.log_directory}}", exist_ok=True)
-    path: Path = BASE_DIR / "{{cookiecutter.log_directory}}"
+    _ = os.makedirs(BASE_DIR / "logs", exist_ok=True)
+    path: Path = BASE_DIR / "logs"
     console_format: str = (
         "<blue>{time:YYYY-MM-DD HH:mm:ss.SSS}</blue> | "
         "<level>{level: <8}</level> | "
@@ -49,7 +51,7 @@ class DBSettings(BaseSettings):
     password: Optional[str] = "{{cookiecutter.db_password}}"
     name: Optional[str] = "{{cookiecutter.db_name}}"
 
-    sqlite_file: Path = BASE_DIR / "{{cookiecutter.sqlite_db_path}}"
+    sqlite_file: Path = DATA_DIR / "db/main.sqlite" # Changed BASE_DIR to DATA_DIR and path
 
     database_url_override: Optional[str] = Field(default=None, alias="DATABASE_URL")
 
@@ -92,7 +94,7 @@ class DBSettings(BaseSettings):
                 sqlite_path = sqlite_path_val
             else:
                 # Ensure the directory for the SQLite file exists
-                sqlite_path = BASE_DIR / "{{cookiecutter.sqlite_db_path}}"
+                sqlite_path = DATA_DIR / "db/main.sqlite" # Changed BASE_DIR to DATA_DIR and path
                 os.makedirs(sqlite_path.parent, exist_ok=True)
 
             return f"sqlite+aiosqlite:///{sqlite_path.resolve()}"
@@ -111,7 +113,7 @@ class AppSettings(BaseSettings):
     log: LogSettings = Field(default_factory=LogSettings)
     db: DBSettings = Field(default_factory=DBSettings)
 
-    app_host: str = Field(default="127.0.0.1", description="Host for Uvicorn")
+    app_host: str = Field(default="0.0.0.0", description="Host for Uvicorn") # Changed default to 0.0.0.0
     app_port: int = Field(default=8000, description="Порт FastAPI приложения")
     app_reload: bool = Field(
         default=True, description="Enable/disable Uvicorn auto-reloading"
