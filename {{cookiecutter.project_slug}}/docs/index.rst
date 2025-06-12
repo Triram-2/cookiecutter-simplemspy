@@ -15,17 +15,17 @@ Indices and tables
 API Documentation
 =================
 
-.. automodule:: name.api.main
+.. automodule:: {{cookiecutter.python_package_name}}.api.main
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: name.api.v1.health
+.. automodule:: {{cookiecutter.python_package_name}}.api.v1.health
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: name.core.config
+.. automodule:: {{cookiecutter.python_package_name}}.core.config
    :members:
    :undoc-members:
    :show-inheritance:
