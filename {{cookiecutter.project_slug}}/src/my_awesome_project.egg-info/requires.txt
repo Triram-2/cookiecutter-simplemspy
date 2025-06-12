@@ -11,12 +11,12 @@ httpx>=0.25.0
 inflection>=0.5.1
 
 [all]
-cookiecutter_project_slug[lint]
-cookiecutter_project_slug[test]
-cookiecutter_project_slug[profile]
-cookiecutter_project_slug[audit]
-cookiecutter_project_slug[loadtest]
-cookiecutter_project_slug[dev]
+my_awesome_project[lint]
+my_awesome_project[test]
+my_awesome_project[profile]
+my_awesome_project[audit]
+my_awesome_project[loadtest]
+my_awesome_project[dev]
 
 [audit]
 pip-audit>=2.7.0
