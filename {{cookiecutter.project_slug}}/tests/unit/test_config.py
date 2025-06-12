@@ -1,6 +1,6 @@
 from pydantic import PostgresDsn
 
-from core.config import LogSettings, DBSettings, AppSettings, BASE_DIR, DATA_DIR
+from {{cookiecutter.python_package_name}}.core.config import LogSettings, DBSettings, AppSettings, BASE_DIR, DATA_DIR
 
 
 def test_log_settings_instantiation():
