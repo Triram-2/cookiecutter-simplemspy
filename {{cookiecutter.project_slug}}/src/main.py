@@ -21,8 +21,8 @@ from `src.core.config.settings`. # Changed name.core.config to src.core.config
 
 import uvicorn
 
-from my_awesome_project.core.config import settings # Changed name.core.config to src.core.config
-from my_awesome_project.core.logging_config import get_logger # Changed name.core.logging_config to src.core.logging_config
+from src.core.config import settings # Changed name.core.config to src.core.config
+from src.core.logging_config import get_logger # Changed name.core.logging_config to src.core.logging_config
 
 log = get_logger(__name__)
 
