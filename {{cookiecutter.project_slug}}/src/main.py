@@ -34,7 +34,7 @@ if __name__ == "__main__":
     log.info("Press CTRL+C to stop the server.")
 
     uvicorn.run(
-        "my_awesome_project.api:app",  # Path to the FastAPI application object, Changed name.api:app to src.api:app
+        "src.api:app",  # Path to the FastAPI application object, Changed name.api:app to src.api:app
         host=settings.app_host,
         port=settings.app_port,
         reload=settings.app_reload,
