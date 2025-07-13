@@ -7,6 +7,7 @@ from types import FrameType
 from typing import Any, Callable, Dict, Optional, Union, TextIO, cast
 
 from loguru import logger as loguru_logger
+from pythonjsonlogger import JsonFormatter
 
 from .config import settings, AppSettings
 
@@ -41,11 +42,24 @@ def setup_initial_logger() -> None:
 
     current_settings: AppSettings = settings
 
+    formatter = JsonFormatter()
+
+    def _format_record(record: Dict[str, Any]) -> str:
+        log_record = logging.LogRecord(
+            name=record.get("name", ""),
+            level=record["level"].no,
+            pathname=record["file"].path,
+            lineno=record["line"],
+            msg=record["message"],
+            args=(),
+            exc_info=record.get("exception"),
+        )
+        return formatter.format(log_record)
+
     loguru_logger.add(
         cast(TextIO, sys.stderr),
-        format=current_settings.log.console_format,
+        format=_format_record,
         level=current_settings.log.console_level.upper(),
-        colorize=True,
         enqueue=current_settings.log.enqueue,
         backtrace=current_settings.log.backtrace,
         diagnose=current_settings.log.diagnose,
