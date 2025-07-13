@@ -16,6 +16,10 @@ class RedisStream:
             stream_name, fields, maxlen=settings.redis.max_length
         )
 
+    async def ping(self) -> bool:
+        """Check if Redis connection is alive."""
+        return await self.redis.ping()
+
 
 TASKS_STREAM_NAME = settings.redis.stream_name
 

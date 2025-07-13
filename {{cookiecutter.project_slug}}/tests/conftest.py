@@ -22,6 +22,9 @@ class FakeRedis:
         self.streams[stream_name].append(fields)
         return str(len(self.streams[stream_name]))
 
+    async def ping(self) -> bool:
+        return True
+
 
 @pytest_asyncio.fixture(autouse=True)
 async def fake_redis(monkeypatch) -> AsyncGenerator[FakeRedis, None]:
