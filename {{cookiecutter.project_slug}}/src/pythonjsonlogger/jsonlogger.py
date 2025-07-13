@@ -1,6 +1,9 @@
+"""Custom JSON logging formatter for simplified output."""
+
 import json
 import logging
 from typing import Any, Dict
+
 
 class JsonFormatter(logging.Formatter):
     """Minimal JSON formatter used for testing."""

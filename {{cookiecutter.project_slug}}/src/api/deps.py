@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Dependency providers for the API layer."""
+
 from ..core.config import settings
 from ..repository.redis_repo import RedisRepository
 from ..services.tasks_service import TasksService

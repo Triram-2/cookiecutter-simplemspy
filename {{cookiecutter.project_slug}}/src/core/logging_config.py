@@ -1,3 +1,5 @@
+"""Logging configuration helpers using ``loguru``."""
+
 import sys
 import logging
 import os
@@ -73,7 +75,7 @@ def setup_initial_logger() -> None:
         payload = {
             "streams": [
                 {
-                    "labels": "{app=\"simplemspy\"}",
+                    "labels": '{app="simplemspy"}',
                     "values": [[str(timestamp), formatted]],
                 }
             ]

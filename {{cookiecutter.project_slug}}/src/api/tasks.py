@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Task creation endpoint definitions."""
+
 import json
 from html import escape
 from typing import Any, Dict
@@ -29,6 +31,15 @@ MAX_BODY_SIZE = settings.performance.max_payload_size
 
 
 def _sanitize(value: Any) -> Any:
+    """Escape potentially unsafe strings in payloads.
+
+    Args:
+        value: Arbitrary value to sanitize.
+
+    Returns:
+        The sanitized value.
+    """
+
     if isinstance(value, str):
         return escape(value)
     if isinstance(value, list):
@@ -39,15 +50,36 @@ def _sanitize(value: Any) -> Any:
 
 
 class TaskPayload(BaseModel):
+    """Payload for a single task request."""
+
     data: Any
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
 def get_router(service: TasksService | None = None) -> Router:
+    """Create router for task creation endpoint.
+
+    Args:
+        service: Service instance used to enqueue tasks. Defaults to
+            the global ``tasks_service``.
+
+    Returns:
+        Router with the ``/tasks`` route registered.
+    """
+
     service = service or tasks_service
     router = Router()
 
     async def create_task(request: Request) -> JSONResponse:
+        """Validate payload and enqueue task asynchronously.
+
+        Args:
+            request: Incoming HTTP request.
+
+        Returns:
+            JSONResponse indicating acceptance or validation error.
+        """
+
         with tracer.start_as_current_span("create_task"):
             body = await request.body()
             if len(body) > MAX_BODY_SIZE:
