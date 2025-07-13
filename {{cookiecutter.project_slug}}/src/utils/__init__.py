@@ -1,3 +1,5 @@
-# Utility package
-# Add general-purpose helper functions and utilities here.
-# Group related utilities into submodules if necessary.
+"""Utility helpers for the application."""
+
+from .redis_stream import redis_stream, TASKS_STREAM_NAME, FakeRedisStream
+
+__all__ = ["redis_stream", "TASKS_STREAM_NAME", "FakeRedisStream"]
