@@ -1,6 +1,4 @@
-# docker-compose.yml
 version: '3.9'
-
 services:
   app:
     build:
@@ -10,10 +8,39 @@ services:
       - "${APP_PORT:-{{cookiecutter.app_port_host}}}:{{cookiecutter.internal_app_port}}"
     env_file:
       - .env
-    environment:
-      # Дополнительные переменные окружения, если нужны
     volumes:
       - ./src:/app/src
+    depends_on:
+      - redis
+      - statsd
+      - jaeger
+      - loki
+    networks:
+      - app_network
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - app_network
+  statsd:
+    image: prom/statsd-exporter:latest
+    ports:
+      - "8125:8125/udp"
+    networks:
+      - app_network
+  jaeger:
+    image: jaegertracing/all-in-one:1.55
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+    networks:
+      - app_network
+  loki:
+    image: grafana/loki:2.9.4
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
     networks:
       - app_network
 
