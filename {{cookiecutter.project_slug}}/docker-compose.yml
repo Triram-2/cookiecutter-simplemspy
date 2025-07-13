@@ -7,61 +7,16 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      # Маппинг: ХОСТ:КОНТЕЙНЕР
-      # Переменная окружения APP_PORT на хосте будет использована, если задана, иначе 8000.
-      # Внутри контейнера приложение слушает на порту 8000 (как указано в Dockerfile CMD).
       - "${APP_PORT:-{{cookiecutter.app_port_host}}}:{{cookiecutter.internal_app_port}}"
     env_file:
-      - .env # Загружает переменные из .env файла в контейнер app
+      - .env
     environment:
-      # Можно переопределить или добавить переменные окружения здесь
-      # Например, если DB_HOST должен быть 'db' (имя сервиса PostgreSQL в Docker Compose)
-      - DB_HOST=db 
-      # - PYTHONUNBUFFERED=1 # Уже установлено в Dockerfile, но можно для явности
-      # - PYTHONDONTWRITEBYTECODE=1 # Уже установлено в Dockerfile
+      # Дополнительные переменные окружения, если нужны
     volumes:
-      # Монтирование исходного кода для разработки (изменения видны сразу)
-      # Для продакшена это обычно не используется; код копируется в образ.
-      # Этот блок можно закомментировать для "продакшн-подобной" сборки из docker-compose
-      # или вынести в docker-compose.override.yml
-      - ./src:/app/src 
-      # Монтирование директории для данных SQLite, если DB_TYPE=SQLITE
-      # Путь /app/data/db/main.sqlite должен совпадать с DB_SQLITE_FILE или APP_SQLITE_DB_PATH
-      # Убедитесь, что директория ./data/db существует на хосте или будет создана.
-      - ./data/db:/app/data/db 
-    depends_on:
-      db:
-        condition: service_healthy # Ожидать, пока сервис db не станет "здоровым"
+      - ./src:/app/src
     networks:
       - app_network
-
-  db:
-    image: postgres:16-alpine # Используем официальный образ PostgreSQL (можно выбрать другую версию)
-    ports:
-      # Маппинг порта PostgreSQL на хост (если нужен прямой доступ к БД с хоста)
-      # ${DB_PORT_HOST:-5432}:5432
-      - "5432:5432" # Для простоты пока оставим так, без переменной для хост-порта БД
-    volumes:
-      - postgres_data:/var/lib/postgresql/data # Сохранение данных PostgreSQL между перезапусками
-    environment:
-      # Эти переменные должны совпадать с теми, что используются приложением в .env
-      # или в AppSettings для подключения к БД.
-      - POSTGRES_USER=${DB_USER:-{{cookiecutter.db_user}}}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-{{cookiecutter.db_password}}}
-      - POSTGRES_DB=${DB_NAME:-{{cookiecutter.db_name}}}
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-{{cookiecutter.db_user}}} -d ${DB_NAME:-{{cookiecutter.db_name}}}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s # Дать время на инициализацию БД при первом запуске
-    restart: unless-stopped # Перезапускать, если не остановлен вручную
-    networks:
-      - app_network
-
-volumes:
-  postgres_data: # Именованный том для данных PostgreSQL
 
 networks:
   app_network:
-    driver: bridge # Стандартный bridge-драйвер для сети
+    driver: bridge
