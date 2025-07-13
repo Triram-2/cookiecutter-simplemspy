@@ -31,9 +31,11 @@ from src.core.logging_config import (
 log = get_logger(__name__)
 
 if __name__ == "__main__":
-    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+    if settings.performance.uvloop_enabled:
+        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     log.info(
-        f"Starting Uvicorn server on http://{settings.app_host}:{settings.app_port}"
+        f"Starting {settings.service.name} v{settings.service.version} on "
+        f"http://{settings.app_host}:{settings.app_port}"
     )
     log.info(f"Code auto-reloading: {'Enabled' if settings.app_reload else 'Disabled'}")
     log.info("Press CTRL+C to stop the server.")

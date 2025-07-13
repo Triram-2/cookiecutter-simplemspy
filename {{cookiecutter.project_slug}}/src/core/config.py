@@ -35,7 +35,8 @@ class LogSettings(BaseSettings):
     diagnose: bool = True
     rotation: str = "00:00"
     retention: str = "7 days"
-    loki_url: str = "http://localhost:3100/loki/api/v1/push"
+    # Endpoint where logs should be pushed for aggregation
+    loki_endpoint: str = "http://localhost:3100/loki/api/v1/push"
 
 
 class RedisSettings(BaseSettings):
@@ -60,6 +61,7 @@ class StatsDSettings(BaseSettings):
 
     host: str = "localhost"
     port: int = 8125
+    prefix: str = "microservice"
 
 
 class JaegerSettings(BaseSettings):
@@ -69,6 +71,41 @@ class JaegerSettings(BaseSettings):
 
     host: str = "localhost"
     port: int = 14268
+
+    endpoint: str = "http://localhost:14268/api/traces"
+    # Name of the service as shown in Jaeger
+    service_name: str = "{{cookiecutter.project_slug}}"
+
+
+class ServiceSettings(BaseSettings):
+    """General service information and network settings."""
+
+    model_config = SettingsConfigDict(env_prefix="SERVICE_")
+
+    # Service identifier used in logs and traces
+    name: str = "{{cookiecutter.project_slug}}"
+    # Application version reported on startup
+    version: str = "{{cookiecutter.project_version}}"
+    host: str = "0.0.0.0"
+    # Internal port the app listens on
+    port: int = {{cookiecutter.internal_app_port}}
+
+
+class PerformanceSettings(BaseSettings):
+    """Runtime performance and tuning parameters."""
+
+    # Enable high performance event loop
+    uvloop_enabled: bool = True
+    # Number of Uvicorn worker processes
+    worker_processes: str = "auto"
+    # Limit for concurrent background tasks
+    max_concurrent_tasks: int = 1000
+    # Individual task timeout in seconds
+    task_timeout: int = 30
+    # Maximum allowed request payload size in bytes
+    max_payload_size: int = 1_048_576
+    # Graceful shutdown timeout in seconds
+    shutdown_timeout: int = 30
 
 
 class AppSettings(BaseSettings):
@@ -83,6 +120,8 @@ class AppSettings(BaseSettings):
     redis: RedisSettings = Field(default_factory=RedisSettings)
     statsd: StatsDSettings = Field(default_factory=StatsDSettings)
     jaeger: JaegerSettings = Field(default_factory=JaegerSettings)
+    service: ServiceSettings = Field(default_factory=ServiceSettings)
+    performance: PerformanceSettings = Field(default_factory=PerformanceSettings)
 
     app_host: str = Field(
         default="0.0.0.0", description="Host for Uvicorn"

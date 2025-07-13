@@ -13,11 +13,12 @@ try:
     from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
     provider = TracerProvider(
-        resource=Resource.create({SERVICE_NAME: "simplemspy"})
+        resource=Resource.create({SERVICE_NAME: settings.jaeger.service_name})
     )
-    jaeger_exporter = JaegerExporter(
-        collector_endpoint=f"http://{settings.jaeger.host}:{settings.jaeger.port}/api/traces"
+    endpoint = settings.jaeger.endpoint or (
+        f"http://{settings.jaeger.host}:{settings.jaeger.port}/api/traces"
     )
+    jaeger_exporter = JaegerExporter(collector_endpoint=endpoint)
     provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
     trace.set_tracer_provider(provider)
     _otel_tracer = trace.get_tracer(__name__)
