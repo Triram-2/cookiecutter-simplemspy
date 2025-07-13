@@ -47,9 +47,6 @@ LABEL stage="runner"
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PATH="/opt/venv/bin:$PATH" \
-    # Путь к файлу БД SQLite внутри контейнера (если используется)
-    # Может быть переопределен через DB_SQLITE_FILE в .env
-    APP_SQLITE_DB_PATH="/app/data/db/main.sqlite" \
     PYTHONPATH="/app/src:/opt/venv/lib/python3.13/site-packages:$PYTHONPATH"
 
 # Создаем группу и пользователя приложения
@@ -64,10 +61,6 @@ COPY --from=builder --chown=appuser:appgroup /app/.venv /opt/venv
 # Копируем исходный код приложения
 # Убедимся, что .dockerignore настроен правильно, чтобы не копировать лишнее
 COPY --chown=appuser:appgroup ./src ./src
-
-# Создаем директорию для данных, если SQLite будет использоваться внутри контейнера
-# и устанавливаем права (пример)
-RUN mkdir -p /app/data/db && chown -R appuser:appgroup /app/data
 
 # Устанавливаем пользователя приложения
 USER appuser
