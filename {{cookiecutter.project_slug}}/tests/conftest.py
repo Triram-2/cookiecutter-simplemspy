@@ -10,6 +10,7 @@ from httpx import AsyncClient, ASGITransport
 os.environ["APP_ENV"] = "test"
 
 from {{cookiecutter.python_package_name}}.api import app as fastapi_app
+from {{cookiecutter.python_package_name}}.api import health, tasks
 from {{cookiecutter.python_package_name}} import utils
 from collections import defaultdict
 
@@ -29,7 +30,8 @@ class FakeRedis:
 @pytest_asyncio.fixture(autouse=True)
 async def fake_redis(monkeypatch) -> AsyncGenerator[FakeRedis, None]:
     fake = FakeRedis()
-    monkeypatch.setattr(utils, "redis_stream", fake)
+    monkeypatch.setattr(health, "redis_repo", fake)
+    monkeypatch.setattr(tasks.tasks_service, "repo", fake)
     yield fake
 
 
