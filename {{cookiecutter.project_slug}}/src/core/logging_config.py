@@ -4,10 +4,11 @@ import os
 from datetime import datetime
 from pathlib import Path
 from types import FrameType
-from typing import Any, Callable, Dict, Optional, Union, TextIO, cast
+from typing import Any, Callable, Dict, Union, TextIO, cast
 
 from loguru import logger as loguru_logger
 from pythonjsonlogger import JsonFormatter
+import httpx
 
 from .config import settings, AppSettings
 
@@ -20,7 +21,7 @@ class InterceptHandler(logging.Handler):
         except ValueError:
             level = record.levelno
 
-        frame: Optional[FrameType] = cast(Optional[FrameType], logging.currentframe())
+        frame: FrameType | None = cast(FrameType | None, logging.currentframe())
         depth: int = 2
         while frame and frame.f_code.co_filename == logging.__file__:
             frame = frame.f_back
@@ -64,6 +65,30 @@ def setup_initial_logger() -> None:
         backtrace=current_settings.log.backtrace,
         diagnose=current_settings.log.diagnose,
     )
+
+    def _send_to_loki(message: Any) -> None:
+        record = message.record
+        formatted = _format_record(record)
+        timestamp = int(record["time"].timestamp() * 1_000_000_000)
+        payload = {
+            "streams": [
+                {
+                    "labels": "{app=\"simplemspy\"}",
+                    "values": [[str(timestamp), formatted]],
+                }
+            ]
+        }
+        try:
+            httpx.post(current_settings.log.loki_url, json=payload)
+        except Exception:
+            pass
+
+    if current_settings.log.loki_url:
+        loguru_logger.add(
+            _send_to_loki,
+            format=_format_record,
+            level=current_settings.log.console_level.upper(),
+        )
 
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 

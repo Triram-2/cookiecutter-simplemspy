@@ -14,7 +14,7 @@ router = Router()
 async def health_check(request):
     """Return basic service health information."""
     with tracer.start_as_current_span("health_check"):
-        statsd_client.incr("requests.health")
+        await statsd_client.incr("requests.health")
 
         payload = {
             "status": "healthy",

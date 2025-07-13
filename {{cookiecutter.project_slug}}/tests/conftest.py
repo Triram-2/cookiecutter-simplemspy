@@ -30,6 +30,15 @@ async def fake_redis(monkeypatch) -> AsyncGenerator[FakeRedis, None]:
     yield fake
 
 
+@pytest_asyncio.fixture(autouse=True)
+async def stub_statsd(monkeypatch) -> AsyncGenerator[None, None]:
+    async def noop(_: bytes) -> None:
+        return None
+
+    monkeypatch.setattr(utils.statsd_client, "_send", noop)
+    yield
+
+
 @pytest.fixture(scope="session")
 def event_loop(request) -> Generator[asyncio.AbstractEventLoop, None, None]:
     loop = asyncio.get_event_loop_policy().new_event_loop()

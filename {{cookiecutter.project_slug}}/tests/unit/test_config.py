@@ -48,3 +48,15 @@ def test_redis_settings_env_override(monkeypatch):
     cfg = AppSettings()
     assert cfg.redis.url == "redis://example.com:6379/1"
 
+
+def test_statsd_defaults():
+    cfg = AppSettings()
+    assert cfg.statsd.host == "localhost"
+    assert cfg.statsd.port == 8125
+
+
+def test_jaeger_defaults():
+    cfg = AppSettings()
+    assert cfg.jaeger.host == "localhost"
+    assert cfg.jaeger.port == 14268
+

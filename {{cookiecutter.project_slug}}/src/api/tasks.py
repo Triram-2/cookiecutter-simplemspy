@@ -34,7 +34,7 @@ async def create_task(request: Request) -> JSONResponse:
             "trace_context": {"trace_id": "", "span_id": ""},
         }
         await redis_stream.xadd(TASKS_STREAM_NAME, message)
-        statsd_client.incr("requests.tasks")
+        await statsd_client.incr("requests.tasks")
         return JSONResponse({"status": "accepted"}, status_code=HTTP_202_ACCEPTED)
 
 
