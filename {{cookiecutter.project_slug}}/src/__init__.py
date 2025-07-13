@@ -1,6 +1,7 @@
-"""
-Root package of the application.
+"""Root package of the application."""
 
-This file makes the `src` directory a Python package.
-It can be kept empty or contain minimal package-level definitions.
-"""
+__all__ = ["__version__"]
+
+# Version of the generated service.  This constant is used in runtime
+# checks, e.g. the health endpoint.
+__version__: str = "0.1.0"
