@@ -46,7 +46,7 @@ important ones are:
 - `REDIS_URL` – Redis connection string
 - `STATSD_HOST` / `STATSD_PORT` – StatsD exporter address
 - `JAEGER_HOST` / `JAEGER_PORT` – Jaeger collector endpoint
-- `LOG_LOKI_URL` – Loki push endpoint for logs
+- `LOKI_ENDPOINT` – Loki push endpoint for logs
 
 The template ships with a `.env.example` file containing defaults.
 
@@ -65,7 +65,7 @@ them if necessary.
 
 Metrics are sent via a lightweight StatsD client defined in
 `src/utils/metrics.py`. When OpenTelemetry is available, traces are exported to
-Jaeger via `src/utils/tracing.py`. If `LOG_LOKI_URL` is set, structured logs are
+Jaeger via `src/utils/tracing.py`. If `LOKI_ENDPOINT` is set, structured logs are
 pushed to Loki.
 
 ## Graceful shutdown

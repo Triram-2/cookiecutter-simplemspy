@@ -79,11 +79,11 @@ def setup_initial_logger() -> None:
             ]
         }
         try:
-            httpx.post(current_settings.log.loki_url, json=payload)
+            httpx.post(current_settings.log.loki_endpoint, json=payload)
         except Exception:
             pass
 
-    if current_settings.log.loki_url:
+    if current_settings.log.loki_endpoint:
         loguru_logger.add(
             _send_to_loki,
             format=_format_record,

@@ -6,6 +6,7 @@ def test_log_settings_instantiation():
     assert log_settings.path == BASE_DIR / "logs"
     assert (BASE_DIR / "logs").exists()  # Check directory creation
     assert log_settings.console_level == "INFO"
+    assert log_settings.loki_endpoint.startswith("http")
 
 
 def test_log_settings_env_override(monkeypatch):
@@ -59,4 +60,26 @@ def test_jaeger_defaults():
     cfg = AppSettings()
     assert cfg.jaeger.host == "localhost"
     assert cfg.jaeger.port == 14268
+    assert cfg.jaeger.endpoint == "http://localhost:14268/api/traces"
+    assert cfg.jaeger.service_name == "{{cookiecutter.project_slug}}"
+
+
+def test_service_defaults():
+    cfg = AppSettings()
+    svc = cfg.service
+    assert svc.name == "{{cookiecutter.project_slug}}"
+    assert svc.version == "{{cookiecutter.project_version}}"
+    assert svc.host == "0.0.0.0"
+    assert svc.port == {{cookiecutter.internal_app_port}}
+
+
+def test_performance_defaults():
+    cfg = AppSettings()
+    perf = cfg.performance
+    assert perf.uvloop_enabled is True
+    assert perf.worker_processes == "auto"
+    assert perf.max_concurrent_tasks == 1000
+    assert perf.task_timeout == 30
+    assert perf.max_payload_size == 1_048_576
+    assert perf.shutdown_timeout == 30
 

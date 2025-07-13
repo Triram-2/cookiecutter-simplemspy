@@ -19,12 +19,13 @@ from .deps import get_tasks_service
 from ..services.tasks_service import TasksService
 from ..utils.metrics import statsd_client
 from ..utils.tracing import tracer
+from ..core.config import settings
 
 
 tasks_service: TasksService = get_tasks_service()
 
 
-MAX_BODY_SIZE = 1_048_576
+MAX_BODY_SIZE = settings.performance.max_payload_size
 
 
 def _sanitize(value: Any) -> Any:
