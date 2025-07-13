@@ -29,3 +29,28 @@ API Documentation
    :members:
    :undoc-members:
    :show-inheritance:
+
+.. automodule:: {{cookiecutter.python_package_name}}.api.tasks
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: {{cookiecutter.python_package_name}}.core.logging_config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: {{cookiecutter.python_package_name}}.utils.metrics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: {{cookiecutter.python_package_name}}.utils.redis_stream
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: {{cookiecutter.python_package_name}}.utils.tracing
+   :members:
+   :undoc-members:
+   :show-inheritance:
