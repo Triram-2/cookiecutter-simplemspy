@@ -1,5 +1,6 @@
 from loguru import logger as loguru_logger
 import logging
+import json
 
 from {{cookiecutter.python_package_name}}.core.logging_config import get_logger, setup_initial_logger, InterceptHandler
 
@@ -23,6 +24,15 @@ def test_setup_initial_logger_configures_levels_and_handler():
 def test_get_logger_with_empty_name():
     logger_instance = get_logger("")
     assert hasattr(logger_instance, "info")
+
+
+def test_logger_outputs_json(capsys):
+    setup_initial_logger()
+    loguru_logger.info("json message")
+    captured = capsys.readouterr().err.strip()
+    data = json.loads(captured)
+    assert data["message"] == "json message"
+    assert data["level"] == "INFO"
 
 
 # Note: Testing file creation/writing by get_logger is more complex and
