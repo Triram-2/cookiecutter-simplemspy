@@ -34,3 +34,17 @@ def test_app_settings_port_env(monkeypatch):
 def test_data_dir_creation():
     _ = AppSettings()  # Instantiation should trigger dir creation
     assert DATA_DIR.exists()
+
+
+def test_redis_settings_defaults():
+    settings = AppSettings()
+    redis = settings.redis
+    assert redis.url.startswith("redis://")
+    assert redis.stream_name == "tasks:stream"
+
+
+def test_redis_settings_env_override(monkeypatch):
+    monkeypatch.setenv("REDIS_URL", "redis://example.com:6379/1")
+    cfg = AppSettings()
+    assert cfg.redis.url == "redis://example.com:6379/1"
+

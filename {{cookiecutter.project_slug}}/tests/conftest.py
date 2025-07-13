@@ -10,6 +10,24 @@ from httpx import AsyncClient, ASGITransport
 os.environ["APP_ENV"] = "test"
 
 from {{cookiecutter.python_package_name}}.api import app as fastapi_app
+from {{cookiecutter.python_package_name}} import utils
+from collections import defaultdict
+
+
+class FakeRedis:
+    def __init__(self) -> None:
+        self.streams = defaultdict(list)
+
+    async def xadd(self, stream_name: str, fields: dict) -> str:
+        self.streams[stream_name].append(fields)
+        return str(len(self.streams[stream_name]))
+
+
+@pytest_asyncio.fixture(autouse=True)
+async def fake_redis(monkeypatch) -> AsyncGenerator[FakeRedis, None]:
+    fake = FakeRedis()
+    monkeypatch.setattr(utils, "redis_stream", fake)
+    yield fake
 
 
 @pytest.fixture(scope="session")
