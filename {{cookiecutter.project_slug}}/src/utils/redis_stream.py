@@ -1,21 +1,24 @@
-from collections import defaultdict
-from typing import Any, Dict, List, DefaultDict
+from typing import Any, Dict
+
+from redis.asyncio import Redis
+
+from ..core.config import settings
 
 
-class FakeRedisStream:
-    """In-memory Redis Streams emulator."""
+class RedisStream:
+    """Async wrapper around Redis streams."""
 
-    def __init__(self) -> None:
-        self.streams: DefaultDict[str, List[Dict[str, Any]]] = defaultdict(list)
+    def __init__(self, url: str) -> None:
+        self.redis = Redis.from_url(url, decode_responses=True)
 
     async def xadd(self, stream_name: str, fields: Dict[str, Any]) -> str:
-        """Add a message to the specified stream."""
-        self.streams[stream_name].append(fields)
-        return str(len(self.streams[stream_name]))
+        return await self.redis.xadd(
+            stream_name, fields, maxlen=settings.redis.max_length
+        )
 
 
-TASKS_STREAM_NAME = "tasks:stream"
+TASKS_STREAM_NAME = settings.redis.stream_name
 
-redis_stream = FakeRedisStream()
+redis_stream = RedisStream(settings.redis.url)
 
-__all__ = ["redis_stream", "TASKS_STREAM_NAME", "FakeRedisStream"]
+__all__ = ["redis_stream", "TASKS_STREAM_NAME", "RedisStream"]

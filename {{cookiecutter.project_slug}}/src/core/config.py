@@ -37,6 +37,19 @@ class LogSettings(BaseSettings):
     retention: str = "7 days"
 
 
+class RedisSettings(BaseSettings):
+    """Configuration for Redis connection and streams."""
+
+    model_config = SettingsConfigDict(env_prefix="REDIS_")
+
+    url: str = "redis://localhost:6379/0"
+    stream_name: str = "tasks:stream"
+    consumer_group: str = "processors"
+    consumer_name: str = f"{os.getenv('HOSTNAME', 'local')}:{os.getpid()}"
+    max_length: int = 100_000
+    retention_ms: int = 3_600_000
+
+
 class AppSettings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env", extra="ignore", env_prefix="APP_"
@@ -46,8 +59,11 @@ class AppSettings(BaseSettings):
     data_dir: Path = Field(default_factory=lambda: DATA_DIR)
 
     log: LogSettings = Field(default_factory=LogSettings)
+    redis: RedisSettings = Field(default_factory=RedisSettings)
 
-    app_host: str = Field(default="0.0.0.0", description="Host for Uvicorn") # Changed default to 0.0.0.0
+    app_host: str = Field(
+        default="0.0.0.0", description="Host for Uvicorn"
+    )  # Changed default to 0.0.0.0
     app_port: int = Field(default=8000, description="Порт FastAPI приложения")
     app_reload: bool = Field(
         default=True, description="Enable/disable Uvicorn auto-reloading"
