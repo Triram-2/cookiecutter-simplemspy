@@ -8,6 +8,12 @@ def test_log_settings_instantiation():
     assert log_settings.console_level == "INFO"
 
 
+def test_log_settings_env_override(monkeypatch):
+    monkeypatch.setenv("LOG_CONSOLE_LEVEL", "WARNING")
+    log_settings = LogSettings()
+    assert log_settings.console_level == "WARNING"
+
+
 
 
 def test_app_settings_instantiation(monkeypatch):
@@ -17,6 +23,12 @@ def test_app_settings_instantiation(monkeypatch):
     assert app_settings.app_env == "test"
     assert app_settings.log is not None
     assert app_settings.app_host == "0.0.0.0"
+
+
+def test_app_settings_port_env(monkeypatch):
+    monkeypatch.setenv("APP_APP_PORT", "1234")
+    settings_override = AppSettings()
+    assert settings_override.app_port == 1234
 
 
 def test_data_dir_creation():

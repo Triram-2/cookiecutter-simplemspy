@@ -39,7 +39,7 @@ SRC_DIR: str = "src"
 TESTS_DIR: str = "tests"
 DOCS_DIR: str = "docs"
 COVERAGE_FAIL_UNDER: int = (
-    40  # Минимальный процент покрытия для тестов ( временно снижено с 70 )
+    80  # Минимальный процент покрытия для тестов
 )
 os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 
