@@ -1,6 +1,9 @@
-from fastapi import FastAPI
+from starlette.applications import Starlette
+from starlette.routing import Router
+
 from .health import router as health_router
 
-app = FastAPI()
+router = Router()
+router.routes.extend(health_router.routes)
 
-app.include_router(health_router)
+app = Starlette(routes=router.routes)
