@@ -12,6 +12,7 @@ class AsyncStatsDClient:
         self.host = host
         self.port = port
         self.counters: DefaultDict[str, int] = defaultdict(int)
+        self.gauges: DefaultDict[str, float] = defaultdict(float)
 
     async def _send(self, message: bytes) -> None:
         loop = asyncio.get_running_loop()
@@ -30,8 +31,17 @@ class AsyncStatsDClient:
             # Metrics should never crash the app
             pass
 
+    async def gauge(self, metric: str, value: float) -> None:
+        self.gauges[metric] = value
+        msg = f"{metric}:{value}|g".encode()
+        try:
+            await self._send(msg)
+        except Exception:
+            pass
+
     def reset(self) -> None:
         self.counters.clear()
+        self.gauges.clear()
 
 
 statsd_client = AsyncStatsDClient(settings.statsd.host, settings.statsd.port)
