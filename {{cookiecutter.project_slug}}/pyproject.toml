@@ -6,7 +6,6 @@ description = "{{cookiecutter.project_description}}"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "fastapi>=0.115.12",
     "loguru>=0.7.3",
     # "nox>=2025.2.9", # Перемещено в dev
     "pydantic>=2.11.4",
@@ -37,7 +36,6 @@ lint = [
     "locust>=2.15",
     "tomli>=2.0.0",
     "nox>=2023.4.22",
-    "fastapi>=0.115.12",
     "pydantic>=2.11.4",
     "pydantic-settings>=2.9.1",
     "loguru>=0.7.3",
