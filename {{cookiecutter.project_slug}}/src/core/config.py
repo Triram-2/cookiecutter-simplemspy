@@ -49,6 +49,8 @@ class RedisSettings(BaseSettings):
     consumer_name: str = f"{os.getenv('HOSTNAME', 'local')}:{os.getpid()}"
     max_length: int = 100_000
     retention_ms: int = 3_600_000
+    breaker_fail_max: int = 3
+    breaker_reset_timeout: int = 30
 
 
 class StatsDSettings(BaseSettings):
