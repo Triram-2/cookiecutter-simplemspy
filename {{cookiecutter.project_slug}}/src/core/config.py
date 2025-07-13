@@ -35,6 +35,7 @@ class LogSettings(BaseSettings):
     diagnose: bool = True
     rotation: str = "00:00"
     retention: str = "7 days"
+    loki_url: str = "http://localhost:3100/loki/api/v1/push"
 
 
 class RedisSettings(BaseSettings):
@@ -50,6 +51,24 @@ class RedisSettings(BaseSettings):
     retention_ms: int = 3_600_000
 
 
+class StatsDSettings(BaseSettings):
+    """Configuration for StatsD metrics."""
+
+    model_config = SettingsConfigDict(env_prefix="STATSD_")
+
+    host: str = "localhost"
+    port: int = 8125
+
+
+class JaegerSettings(BaseSettings):
+    """Configuration for Jaeger tracing exporter."""
+
+    model_config = SettingsConfigDict(env_prefix="JAEGER_")
+
+    host: str = "localhost"
+    port: int = 14268
+
+
 class AppSettings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env", extra="ignore", env_prefix="APP_"
@@ -60,6 +79,8 @@ class AppSettings(BaseSettings):
 
     log: LogSettings = Field(default_factory=LogSettings)
     redis: RedisSettings = Field(default_factory=RedisSettings)
+    statsd: StatsDSettings = Field(default_factory=StatsDSettings)
+    jaeger: JaegerSettings = Field(default_factory=JaegerSettings)
 
     app_host: str = Field(
         default="0.0.0.0", description="Host for Uvicorn"
