@@ -5,6 +5,37 @@ Welcome to name's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+Configuration
+-------------
+
+The service reads settings from environment variables via ``pydantic``.
+The most important variables are ``APP_HOST``, ``APP_PORT``, ``APP_ENV`` and
+``REDIS_URL``. Metrics and tracing can be configured using ``STATSD_HOST``,
+``STATSD_PORT``, ``JAEGER_HOST``, ``JAEGER_PORT`` and ``LOG_LOKI_URL``. See
+``.env.example`` for defaults.
+
+Running with Docker Compose
+---------------------------
+
+Start all dependencies together with the application:
+
+.. code-block:: bash
+
+   docker-compose up -d
+
+Metrics and tracing
+-------------------
+
+Metrics are sent via ``utils.metrics`` to a StatsD exporter. Traces are exported
+to Jaeger when OpenTelemetry is available using ``utils.tracing``. Logs can be
+forwarded to Loki if ``LOG_LOKI_URL`` is set.
+
+Graceful shutdown
+-----------------
+
+``api.main`` registers a shutdown handler that closes Redis connections, resets
+the metrics client and clears stored spans to ensure clean exit.
+
 Indices and tables
 ==================
 
