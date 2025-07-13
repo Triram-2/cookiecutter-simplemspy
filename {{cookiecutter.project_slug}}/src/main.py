@@ -9,16 +9,12 @@ PROJECT_ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT_DIR not in sys.path:
     sys.path.insert(0, PROJECT_ROOT_DIR)
 
-"""
-Main entry point for running the FastAPI application using Uvicorn.
+"""Application entry point.
 
-This file can be used to run the application directly:
-  `python src/main.py`
-
-Or passed to Uvicorn for execution:
-  `uvicorn src.api:app --reload`  # Changed name.api:app to src.api:app
-This `main.py` provides a convenient way to launch with settings
-from `src.core.config.settings`. # Changed name.core.config to src.core.config
+This module launches the Starlette application via Uvicorn. It can be run
+directly with ``python src/main.py`` or provided to ``uvicorn`` using the
+``src.api:app`` path. Configuration is pulled from
+``src.core.config.settings``.
 """
 
 import uvicorn
@@ -41,7 +37,7 @@ if __name__ == "__main__":
     log.info("Press CTRL+C to stop the server.")
 
     uvicorn.run(
-        "src.api:app",  # Path to the FastAPI application object, Changed name.api:app to src.api:app
+        "src.api:app",  # Path to the Starlette application object
         host=settings.app_host,
         port=settings.app_port,
         reload=settings.app_reload,

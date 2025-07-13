@@ -1,3 +1,5 @@
+"""Starlette application setup and lifecycle handlers."""
+
 from starlette.applications import Starlette
 from starlette.routing import Router
 
@@ -19,11 +21,15 @@ app = Starlette(routes=router.routes)
 
 @app.on_event("startup")
 async def on_startup() -> None:
+    """Log startup message."""
+
     log.info("Application startup")
 
 
 @app.on_event("shutdown")
 async def on_shutdown() -> None:
+    """Clean up resources on shutdown."""
+
     await _close_repo(health.redis_repo)
     await _close_repo(tasks.tasks_service.repo)
     statsd_client.reset()
@@ -32,6 +38,8 @@ async def on_shutdown() -> None:
 
 
 async def _close_repo(repo) -> None:
+    """Attempt to gracefully close a repository."""
+
     redis_obj = getattr(repo, "redis", repo)
     close = getattr(redis_obj, "close", None)
     if close:

@@ -1,3 +1,5 @@
+"""Simple asynchronous StatsD client."""
+
 import asyncio
 from collections import defaultdict
 from typing import DefaultDict
@@ -9,12 +11,16 @@ class AsyncStatsDClient:
     """Very small async StatsD client using UDP."""
 
     def __init__(self, host: str, port: int) -> None:
+        """Initialize the client."""
+
         self.host = host
         self.port = port
         self.counters: DefaultDict[str, int] = defaultdict(int)
         self.gauges: DefaultDict[str, float] = defaultdict(float)
 
     async def _send(self, message: bytes) -> None:
+        """Send a raw UDP message."""
+
         loop = asyncio.get_running_loop()
         transport, _ = await loop.create_datagram_endpoint(
             lambda: asyncio.DatagramProtocol(), remote_addr=(self.host, self.port)
@@ -23,6 +29,8 @@ class AsyncStatsDClient:
         transport.close()
 
     async def incr(self, metric: str, value: int = 1) -> None:
+        """Increment a counter."""
+
         self.counters[metric] += value
         msg = f"{metric}:{value}|c".encode()
         try:
@@ -32,6 +40,8 @@ class AsyncStatsDClient:
             pass
 
     async def gauge(self, metric: str, value: float) -> None:
+        """Submit a gauge value."""
+
         self.gauges[metric] = value
         msg = f"{metric}:{value}|g".encode()
         try:
@@ -40,6 +50,8 @@ class AsyncStatsDClient:
             pass
 
     def reset(self) -> None:
+        """Clear stored metrics."""
+
         self.counters.clear()
         self.gauges.clear()
 

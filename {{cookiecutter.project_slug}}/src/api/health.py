@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Health check endpoint definitions."""
+
 from datetime import datetime, timezone
 from starlette.responses import JSONResponse
 from starlette.routing import Route, Router
@@ -16,11 +18,27 @@ redis_repo: RedisRepository = get_redis_repo()
 
 
 def get_router(repo: RedisRepository | None = None) -> Router:
+    """Create router with health endpoint.
+
+    Args:
+        repo: Custom repository instance. Defaults to global ``redis_repo``.
+
+    Returns:
+        Router with the ``/health`` route attached.
+    """
+
     repo = repo or redis_repo
     router = Router()
 
     async def health_check(request) -> JSONResponse:
-        """Return basic service health information."""
+        """Return basic service health information.
+
+        Args:
+            request: Incoming HTTP request.
+
+        Returns:
+            JSONResponse with health metadata.
+        """
         with tracer.start_as_current_span("health_check"):
             await statsd_client.incr("requests.health")
             try:
@@ -35,9 +53,7 @@ def get_router(repo: RedisRepository | None = None) -> Router:
                 "redis_connected": redis_ok,
                 "version": __version__,
             }
-            status_code = (
-                HTTP_200_OK if redis_ok else HTTP_503_SERVICE_UNAVAILABLE
-            )
+            status_code = HTTP_200_OK if redis_ok else HTTP_503_SERVICE_UNAVAILABLE
             return JSONResponse(payload, status_code=status_code)
 
     router.routes.append(Route("/health", health_check, methods=["GET"]))

@@ -1,3 +1,5 @@
+"""Thin wrapper around Redis Stream operations."""
+
 from typing import Any, Dict
 
 from redis.asyncio import Redis

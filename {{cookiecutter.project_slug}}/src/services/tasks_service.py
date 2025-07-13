@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Service providing task queueing and metric collection."""
+
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Tuple
 from uuid import uuid4
@@ -8,6 +10,7 @@ import psutil
 
 try:
     import GPUtil  # type: ignore
+
     GPU_AVAILABLE = True
 except Exception:  # pragma: no cover - optional dependency
     GPU_AVAILABLE = False
@@ -20,6 +23,8 @@ class TasksService:
     """Service handling task enqueueing and metrics reporting."""
 
     def __init__(self, repo: RedisRepository) -> None:
+        """Initialize the service with a repository instance."""
+
         self.repo = repo
         self.cpu_samples: List[float] = []
         self.mem_samples: List[float] = []
@@ -28,11 +33,13 @@ class TasksService:
 
     @staticmethod
     def _calculate_metrics(values: List[float]) -> Tuple[float, float, float]:
+        """Return average, min and max for provided values."""
+
         avg = sum(values) / len(values)
         return avg, min(values), max(values)
 
     async def enqueue_task(self, payload: Dict[str, Any]) -> str:
-        """Serialize and enqueue a task payload."""
+        """Serialize payload and push it to Redis."""
         message = {
             "task_id": str(uuid4()),
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -44,6 +51,8 @@ class TasksService:
         return result
 
     async def _record_usage(self) -> None:
+        """Record CPU, memory and GPU usage to StatsD."""
+
         cpu = psutil.cpu_percent()
         mem = psutil.virtual_memory().percent
         self.cpu_samples.append(cpu)
@@ -68,12 +77,8 @@ class TasksService:
                 avg_mem = sum(mems) / len(mems)
                 self.gpu_load_samples.append(avg_load)
                 self.gpu_mem_samples.append(avg_mem)
-                gl_avg, gl_min, gl_max = self._calculate_metrics(
-                    self.gpu_load_samples
-                )
-                gm_avg, gm_min, gm_max = self._calculate_metrics(
-                    self.gpu_mem_samples
-                )
+                gl_avg, gl_min, gl_max = self._calculate_metrics(self.gpu_load_samples)
+                gm_avg, gm_min, gm_max = self._calculate_metrics(self.gpu_mem_samples)
                 await statsd_client.gauge("gpu.load.avg", gl_avg)
                 await statsd_client.gauge("gpu.load.min", gl_min)
                 await statsd_client.gauge("gpu.load.max", gl_max)

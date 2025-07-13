@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Redis repository used for queue operations."""
+
 from datetime import timedelta
 from typing import Any, Dict, Optional
 
