@@ -20,3 +20,58 @@ async def test_enqueue_task_formats_and_stores_message() -> None:
     assert stored["payload"] == payload
     assert "task_id" in stored
     assert "timestamp" in stored
+
+
+def test_calculate_metrics() -> None:
+    avg, mn, mx = TasksService._calculate_metrics([1.0, 2.0, 3.0])
+    assert avg == 2.0
+    assert mn == 1.0
+    assert mx == 3.0
+
+
+@pytest.mark.asyncio
+async def test_should_report_average_min_max_metrics(monkeypatch) -> None:
+    cpu_values = iter([10.0, 30.0])
+    mem_values = iter([40.0, 50.0])
+
+    class Mem:
+        def __init__(self, percent: float) -> None:
+            self.percent = percent
+
+
+    monkeypatch.setattr(
+        "{{cookiecutter.python_package_name}}.services.tasks_service.psutil.cpu_percent",
+        lambda: next(cpu_values),
+    )
+    monkeypatch.setattr(
+        "{{cookiecutter.python_package_name}}.services.tasks_service.psutil.virtual_memory",
+        lambda: Mem(next(mem_values)),
+    )
+    monkeypatch.setattr(
+        "{{cookiecutter.python_package_name}}.services.tasks_service.GPU_AVAILABLE",
+        False,
+    )
+
+    gauges: dict[str, float] = {}
+
+    async def fake_gauge(metric: str, value: float) -> None:
+        gauges[metric] = value
+
+    monkeypatch.setattr(
+        "{{cookiecutter.python_package_name}}.services.tasks_service.statsd_client.gauge",
+        fake_gauge,
+    )
+
+    fake = FakeRedis()
+    repo = RedisRepository(client=fake)
+    service = TasksService(repo)
+
+    await service.enqueue_task({"data": 1})
+    await service.enqueue_task({"data": 2})
+
+    assert gauges["cpu.avg"] == 20.0
+    assert gauges["cpu.min"] == 10.0
+    assert gauges["cpu.max"] == 30.0
+    assert gauges["mem.avg"] == 45.0
+    assert gauges["mem.min"] == 40.0
+    assert gauges["mem.max"] == 50.0
