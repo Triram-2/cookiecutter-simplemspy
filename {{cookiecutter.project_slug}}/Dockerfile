@@ -1,7 +1,7 @@
 # Dockerfile
 
 # --- Стадия сборки зависимостей ---
-FROM python:{{cookiecutter.python_version}}-slim AS builder
+FROM python:3.13-slim AS builder
 
 LABEL stage="builder"
 
@@ -39,7 +39,7 @@ RUN uv sync --frozen
 # Добавил --frozen-lockfile для uv sync, чтобы он падал, если lock не соответствует toml.
 
 # --- Финальная стадия ---
-FROM python:{{cookiecutter.python_version}}-slim AS runner
+FROM python:3.13-slim AS runner
 
 LABEL stage="runner"
 
@@ -50,7 +50,7 @@ ENV PYTHONUNBUFFERED=1 \
     # Путь к файлу БД SQLite внутри контейнера (если используется)
     # Может быть переопределен через DB_SQLITE_FILE в .env
     APP_SQLITE_DB_PATH="/app/data/db/main.sqlite" \
-    PYTHONPATH="/app/src:/opt/venv/lib/python{{cookiecutter.python_version}}/site-packages:$PYTHONPATH"
+    PYTHONPATH="/app/src:/opt/venv/lib/python3.13/site-packages:$PYTHONPATH"
 
 # Создаем группу и пользователя приложения
 RUN groupadd -r appgroup && useradd -r -g appgroup -d /app -s /sbin/nologin -c "Application User" appuser

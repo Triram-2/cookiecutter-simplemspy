@@ -5,7 +5,7 @@
   "project_description": "A brief description of the project.",
   "author_name": "Your Name",
   "author_email": "you@example.com",
-  "python_version": "3.11",
+  "python_version": "3.13",
   "python_package_name": "{{cookiecutter.project_slug.lower().replace(' ', '_').replace('-', '_')}}",
   "db_type": ["POSTGRESQL", "SQLITE"],
   "db_name": "app_db",
