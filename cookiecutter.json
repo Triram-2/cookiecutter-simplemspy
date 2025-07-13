@@ -7,12 +7,6 @@
   "author_email": "you@example.com",
   "python_version": "3.13",
   "python_package_name": "{{cookiecutter.project_slug.lower().replace(' ', '_').replace('-', '_')}}",
-  "db_type": ["POSTGRESQL", "SQLITE"],
-  "db_name": "app_db",
-  "db_user": "app_user",
-  "db_password": "changeme",
-  "db_host": "db",
-  "db_port": "5432",
   "app_port_host": "8000",
   "internal_app_port": "8000",
   "docker_image_name": "{{cookiecutter.project_slug}}",
@@ -20,7 +14,6 @@
   "repo_name": "{{cookiecutter.project_slug}}",
   "copyright_year": "2024",
   "log_directory": "logs",
-  "sqlite_db_path": "data/db/main.sqlite",
   "_copy_without_render": [
     "*.html",
     "docs/_static/*"
