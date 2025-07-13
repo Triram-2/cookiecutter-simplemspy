@@ -1,4 +1,5 @@
 import asyncio
+import uvloop
 import os
 from typing import AsyncGenerator, Generator
 
@@ -46,6 +47,7 @@ async def stub_statsd(monkeypatch) -> AsyncGenerator[None, None]:
 
 @pytest.fixture(scope="session")
 def event_loop(request) -> Generator[asyncio.AbstractEventLoop, None, None]:
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()

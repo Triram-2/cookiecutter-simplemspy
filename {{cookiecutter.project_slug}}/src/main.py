@@ -1,5 +1,7 @@
 import sys
 import os
+import asyncio
+import uvloop
 
 # Add the project root (parent directory of 'src') to sys.path
 # This allows 'from src...' imports to work when running main.py directly
@@ -21,12 +23,15 @@ from `src.core.config.settings`. # Changed name.core.config to src.core.config
 
 import uvicorn
 
-from src.core.config import settings # Changed name.core.config to src.core.config
-from src.core.logging_config import get_logger # Changed name.core.logging_config to src.core.logging_config
+from src.core.config import settings  # Changed name.core.config to src.core.config
+from src.core.logging_config import (
+    get_logger,
+)  # Changed name.core.logging_config to src.core.logging_config
 
 log = get_logger(__name__)
 
 if __name__ == "__main__":
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     log.info(
         f"Starting Uvicorn server on http://{settings.app_host}:{settings.app_port}"
     )

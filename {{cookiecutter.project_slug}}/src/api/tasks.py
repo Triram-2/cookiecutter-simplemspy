@@ -4,6 +4,7 @@ import json
 from html import escape
 from typing import Any, Dict
 
+import asyncio
 from pydantic import BaseModel, Field, ValidationError
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -66,8 +67,8 @@ def get_router(service: TasksService | None = None) -> Router:
                     {"detail": exc.errors()}, status_code=HTTP_400_BAD_REQUEST
                 )
 
-            await service.enqueue_task(payload.model_dump())
-            await statsd_client.incr("requests.tasks")
+            asyncio.create_task(service.enqueue_task(payload.model_dump()))
+            asyncio.create_task(statsd_client.incr("requests.tasks"))
             return JSONResponse({"status": "accepted"}, status_code=HTTP_202_ACCEPTED)
 
     router.routes.append(Route("/tasks", create_task, methods=["POST"]))
