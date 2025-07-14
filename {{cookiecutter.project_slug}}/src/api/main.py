@@ -2,6 +2,9 @@
 
 from starlette.applications import Starlette
 from starlette.routing import Router
+from typing import Any
+
+from ..repository.redis_repo import RedisRepository
 
 from ..core.logging_config import get_logger
 from ..utils import statsd_client, tracer
@@ -35,7 +38,7 @@ async def on_shutdown() -> None:
     log.info("Application shutdown complete")
 
 
-async def _close_repo(repo) -> None:
+async def _close_repo(repo: RedisRepository | Any) -> None:
     """Attempt to gracefully close a repository."""
     redis_obj = getattr(repo, "redis", repo)
     close = getattr(redis_obj, "close", None)

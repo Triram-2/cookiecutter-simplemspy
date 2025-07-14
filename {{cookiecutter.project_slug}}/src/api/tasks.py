@@ -26,6 +26,9 @@ from ..core.config import settings
 
 tasks_service: TasksService = get_tasks_service()
 
+# Keep references to background tasks to prevent premature garbage collection.
+background_tasks: set[asyncio.Task[Any]] = set()
+
 
 MAX_BODY_SIZE = settings.performance.max_payload_size
 
@@ -100,12 +103,17 @@ def get_router(service: TasksService | None = None) -> Router:
                     {"detail": exc.errors()}, status_code=HTTP_400_BAD_REQUEST
                 )
 
-            _task_enqueue = asyncio.create_task(
+            task_enqueue = asyncio.create_task(
                 service.enqueue_task(payload.model_dump())
             )
-            _task_metric = asyncio.create_task(
+            background_tasks.add(task_enqueue)
+            task_enqueue.add_done_callback(background_tasks.discard)
+
+            task_metric = asyncio.create_task(
                 statsd_client.incr("requests.tasks")
             )
+            background_tasks.add(task_metric)
+            task_metric.add_done_callback(background_tasks.discard)
             return JSONResponse({"status": "accepted"}, status_code=HTTP_202_ACCEPTED)
 
     router.routes.append(Route("/tasks", create_task, methods=["POST"]))
