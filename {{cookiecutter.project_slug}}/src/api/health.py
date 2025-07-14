@@ -3,6 +3,7 @@ from __future__ import annotations
 """Health check endpoint definitions."""
 
 from datetime import datetime, timezone
+from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.routing import Route, Router
 from starlette.status import HTTP_200_OK, HTTP_503_SERVICE_UNAVAILABLE
@@ -30,7 +31,7 @@ def get_router(repo: RedisRepository | None = None) -> Router:
     repo = repo or redis_repo
     router = Router()
 
-    async def health_check(request) -> JSONResponse:
+    async def health_check(request: Request) -> JSONResponse:
         """
         Return basic service health information.
 
