@@ -31,7 +31,8 @@ MAX_BODY_SIZE = settings.performance.max_payload_size
 
 
 def _sanitize(value: Any) -> Any:
-    """Escape potentially unsafe strings in payloads.
+    """
+    Escape potentially unsafe strings in payloads.
 
     Args:
         value: Arbitrary value to sanitize.
@@ -39,7 +40,6 @@ def _sanitize(value: Any) -> Any:
     Returns:
         The sanitized value.
     """
-
     if isinstance(value, str):
         return escape(value)
     if isinstance(value, list):
@@ -57,7 +57,8 @@ class TaskPayload(BaseModel):
 
 
 def get_router(service: TasksService | None = None) -> Router:
-    """Create router for task creation endpoint.
+    """
+    Create router for task creation endpoint.
 
     Args:
         service: Service instance used to enqueue tasks. Defaults to
@@ -66,12 +67,12 @@ def get_router(service: TasksService | None = None) -> Router:
     Returns:
         Router with the ``/tasks`` route registered.
     """
-
     service = service or tasks_service
     router = Router()
 
     async def create_task(request: Request) -> JSONResponse:
-        """Validate payload and enqueue task asynchronously.
+        """
+        Validate payload and enqueue task asynchronously.
 
         Args:
             request: Incoming HTTP request.
@@ -79,7 +80,6 @@ def get_router(service: TasksService | None = None) -> Router:
         Returns:
             JSONResponse indicating acceptance or validation error.
         """
-
         with tracer.start_as_current_span("create_task"):
             body = await request.body()
             if len(body) > MAX_BODY_SIZE:
@@ -100,8 +100,12 @@ def get_router(service: TasksService | None = None) -> Router:
                     {"detail": exc.errors()}, status_code=HTTP_400_BAD_REQUEST
                 )
 
-            asyncio.create_task(service.enqueue_task(payload.model_dump()))
-            asyncio.create_task(statsd_client.incr("requests.tasks"))
+            _task_enqueue = asyncio.create_task(
+                service.enqueue_task(payload.model_dump())
+            )
+            _task_metric = asyncio.create_task(
+                statsd_client.incr("requests.tasks")
+            )
             return JSONResponse({"status": "accepted"}, status_code=HTTP_202_ACCEPTED)
 
     router.routes.append(Route("/tasks", create_task, methods=["POST"]))

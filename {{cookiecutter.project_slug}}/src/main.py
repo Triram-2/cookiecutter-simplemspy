@@ -1,13 +1,5 @@
-import sys
-import os
 import asyncio
 import uvloop
-
-# Add the project root (parent directory of 'src') to sys.path
-# This allows 'from src...' imports to work when running main.py directly
-PROJECT_ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if PROJECT_ROOT_DIR not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT_DIR)
 
 """Application entry point.
 
@@ -19,10 +11,8 @@ directly with ``python src/main.py`` or provided to ``uvicorn`` using the
 
 import uvicorn
 
-from src.core.config import settings  # Changed name.core.config to src.core.config
-from src.core.logging_config import (
-    get_logger,
-)  # Changed name.core.logging_config to src.core.logging_config
+from {{cookiecutter.python_package_name}}.core.config import settings
+from {{cookiecutter.python_package_name}}.core.logging_config import get_logger
 
 log = get_logger(__name__)
 
@@ -37,7 +27,7 @@ if __name__ == "__main__":
     log.info("Press CTRL+C to stop the server.")
 
     uvicorn.run(
-        "src.api:app",  # Path to the Starlette application object
+        "{{cookiecutter.python_package_name}}.api:app",  # Path to the Starlette application object
         host=settings.app_host,
         port=settings.app_port,
         reload=settings.app_reload,

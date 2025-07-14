@@ -3,7 +3,7 @@ from __future__ import annotations
 """Redis repository used for queue operations."""
 
 from datetime import timedelta
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 import aiobreaker
 
@@ -15,9 +15,7 @@ from ..core.config import settings
 class RedisRepository:
     """Wrapper around Redis operations used by the service."""
 
-    def __init__(
-        self, client: Optional[Redis] = None, url: str = settings.redis.url
-    ) -> None:
+    def __init__(self, client: Redis | None = None, url: str = settings.redis.url) -> None:
         self.redis = client or Redis.from_url(url, decode_responses=True)
         self.breaker = aiobreaker.CircuitBreaker(
             fail_max=settings.redis.breaker_fail_max,
