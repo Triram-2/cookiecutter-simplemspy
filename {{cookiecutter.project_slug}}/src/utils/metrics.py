@@ -9,6 +9,7 @@ from ..core.config import settings
 
 class AsyncStatsDClient:
     """Very small async StatsD client using UDP."""
+
     def __init__(self, host: str, port: int) -> None:
         """Initialize the client."""
         self.host = host

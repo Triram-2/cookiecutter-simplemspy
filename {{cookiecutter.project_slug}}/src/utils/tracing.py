@@ -1,11 +1,18 @@
 """Simplified tracing utilities with optional OpenTelemetry integration."""
+# pyright: reportMissingImports=false
 
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Generator, List
+from typing import Any, Generator, List, TYPE_CHECKING
 
 from ..core.config import settings
+
+if TYPE_CHECKING:
+    from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+    from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 try:
     from opentelemetry import trace
@@ -23,9 +30,12 @@ try:
     jaeger_exporter = JaegerExporter(collector_endpoint=endpoint)
     provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
     trace.set_tracer_provider(provider)
-    _otel_tracer = trace.get_tracer(__name__)
+    _otel_tracer: Any = trace.get_tracer(__name__)
     USE_OTEL = True
 except Exception:  # pragma: no cover - fallback when opentelemetry not installed
+    trace = None  # type: Any
+    JaegerExporter = TracerProvider = BatchSpanProcessor = None  # type: ignore
+    Resource = SERVICE_NAME = None  # type: ignore
     USE_OTEL = False
 
 
@@ -38,6 +48,7 @@ class Span:
 
 class DummyTracer:
     """Very small tracer storing spans in memory."""
+
     def __init__(self) -> None:
         self.spans: List[Span] = []
 
@@ -54,6 +65,7 @@ class DummyTracer:
 
 class OtelTracer(DummyTracer):
     """Wrapper around OpenTelemetry tracer that also stores spans."""
+
     def __init__(self) -> None:
         super().__init__()
 

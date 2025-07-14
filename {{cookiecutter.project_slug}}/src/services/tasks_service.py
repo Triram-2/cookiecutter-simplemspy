@@ -6,7 +6,12 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Tuple
 from uuid import uuid4
 
-import psutil
+try:
+    import psutil
+    PSUTIL_AVAILABLE = True
+except Exception:  # pragma: no cover - optional dependency
+    psutil = None  # type: ignore
+    PSUTIL_AVAILABLE = False
 
 try:
     import GPUtil  # type: ignore
@@ -50,8 +55,8 @@ class TasksService:
 
     async def _record_usage(self) -> None:
         """Record CPU, memory and GPU usage to StatsD."""
-        cpu = psutil.cpu_percent()
-        mem = psutil.virtual_memory().percent
+        cpu = psutil.cpu_percent() if PSUTIL_AVAILABLE else 0.0
+        mem = psutil.virtual_memory().percent if PSUTIL_AVAILABLE else 0.0
         self.cpu_samples.append(cpu)
         self.mem_samples.append(mem)
 
