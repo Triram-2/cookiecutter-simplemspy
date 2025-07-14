@@ -18,7 +18,8 @@ redis_repo: RedisRepository = get_redis_repo()
 
 
 def get_router(repo: RedisRepository | None = None) -> Router:
-    """Create router with health endpoint.
+    """
+    Create router with health endpoint.
 
     Args:
         repo: Custom repository instance. Defaults to global ``redis_repo``.
@@ -26,12 +27,12 @@ def get_router(repo: RedisRepository | None = None) -> Router:
     Returns:
         Router with the ``/health`` route attached.
     """
-
     repo = repo or redis_repo
     router = Router()
 
     async def health_check(request) -> JSONResponse:
-        """Return basic service health information.
+        """
+        Return basic service health information.
 
         Args:
             request: Incoming HTTP request.
@@ -62,4 +63,4 @@ def get_router(repo: RedisRepository | None = None) -> Router:
 
 router = get_router()
 
-__all__ = ["router", "get_router", "redis_repo"]
+__all__ = ["get_router", "redis_repo", "router"]

@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from typing import Optional, Literal
+from typing import Literal
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -31,7 +31,7 @@ class LogSettings(BaseSettings):
     console_level: str = "INFO"
     info_file_level: str = "INFO"
     error_file_level: str = "ERROR"
-    compression: Optional[str] = None
+    compression: str | None = None
     enqueue: bool = True
     backtrace: bool = True
     diagnose: bool = True

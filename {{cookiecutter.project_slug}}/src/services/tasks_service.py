@@ -24,7 +24,6 @@ class TasksService:
 
     def __init__(self, repo: RedisRepository) -> None:
         """Initialize the service with a repository instance."""
-
         self.repo = repo
         self.cpu_samples: List[float] = []
         self.mem_samples: List[float] = []
@@ -34,7 +33,6 @@ class TasksService:
     @staticmethod
     def _calculate_metrics(values: List[float]) -> Tuple[float, float, float]:
         """Return average, min and max for provided values."""
-
         avg = sum(values) / len(values)
         return avg, min(values), max(values)
 
@@ -52,7 +50,6 @@ class TasksService:
 
     async def _record_usage(self) -> None:
         """Record CPU, memory and GPU usage to StatsD."""
-
         cpu = psutil.cpu_percent()
         mem = psutil.virtual_memory().percent
         self.cpu_samples.append(cpu)

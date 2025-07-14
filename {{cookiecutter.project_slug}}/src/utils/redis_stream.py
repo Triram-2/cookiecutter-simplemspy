@@ -27,4 +27,4 @@ TASKS_STREAM_NAME = settings.redis.stream_name
 
 redis_stream = RedisStream(settings.redis.url)
 
-__all__ = ["redis_stream", "TASKS_STREAM_NAME", "RedisStream"]
+__all__ = ["RedisStream", "TASKS_STREAM_NAME", "redis_stream"]

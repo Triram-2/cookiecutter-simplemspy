@@ -7,7 +7,6 @@ import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from starlette.routing import Router
-from starlette.applications import Starlette
 
 # Ensure test environment
 os.environ["APP_ENV"] = "test"

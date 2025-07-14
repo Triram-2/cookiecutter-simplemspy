@@ -38,14 +38,12 @@ class Span:
 
 class DummyTracer:
     """Very small tracer storing spans in memory."""
-
     def __init__(self) -> None:
         self.spans: List[Span] = []
 
     @contextmanager
     def start_as_current_span(self, name: str) -> Generator[Span, None, None]:
         """Start and record a span."""
-
         span = Span(name=name, start=time.time())
         self.spans.append(span)
         try:
@@ -56,14 +54,12 @@ class DummyTracer:
 
 class OtelTracer(DummyTracer):
     """Wrapper around OpenTelemetry tracer that also stores spans."""
-
     def __init__(self) -> None:
         super().__init__()
 
     @contextmanager
     def start_as_current_span(self, name: str) -> Generator[Span, None, None]:
         """Start a span using OpenTelemetry."""
-
         start_time = time.time()
         with _otel_tracer.start_as_current_span(name):
             span = Span(name=name, start=start_time)
