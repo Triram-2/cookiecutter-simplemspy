@@ -3,13 +3,13 @@
 import sys
 import logging
 import os
+import json
 from datetime import datetime
 from pathlib import Path
 from types import FrameType
 from typing import Any, Callable, Dict, Union, TextIO, cast
 
 from loguru import logger as loguru_logger
-from pythonjsonlogger import JsonFormatter
 import httpx
 
 from .config import settings, AppSettings
@@ -45,23 +45,9 @@ def setup_initial_logger() -> None:
 
     current_settings: AppSettings = settings
 
-    formatter = JsonFormatter()
-
-    def _format_record(record: Dict[str, Any]) -> str:
-        log_record = logging.LogRecord(
-            name=record.get("name", ""),
-            level=record["level"].no,
-            pathname=record["file"].path,
-            lineno=record["line"],
-            msg=record["message"],
-            args=(),
-            exc_info=record.get("exception"),
-        )
-        return formatter.format(log_record)
-
     loguru_logger.add(
         cast(TextIO, sys.stderr),
-        format=_format_record,
+        serialize=True,
         level=current_settings.log.console_level.upper(),
         enqueue=current_settings.log.enqueue,
         backtrace=current_settings.log.backtrace,
@@ -70,7 +56,10 @@ def setup_initial_logger() -> None:
 
     def _send_to_loki(message: Any) -> None:
         record = message.record
-        formatted = _format_record(record)
+        formatted = json.dumps({
+            "message": record.get("message", ""),
+            "level": record["level"].name,
+        })
         timestamp = int(record["time"].timestamp() * 1_000_000_000)
         payload = {
             "streams": [
@@ -88,7 +77,6 @@ def setup_initial_logger() -> None:
     if current_settings.log.loki_endpoint:
         loguru_logger.add(
             _send_to_loki,
-            format=_format_record,
             level=current_settings.log.console_level.upper(),
         )
 

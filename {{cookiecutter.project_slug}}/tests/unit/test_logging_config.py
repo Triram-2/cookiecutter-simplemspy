@@ -29,10 +29,10 @@ def test_get_logger_with_empty_name():
 def test_logger_outputs_json(capsys):
     setup_initial_logger()
     loguru_logger.info("json message")
-    captured = capsys.readouterr().err.strip()
+    captured = capsys.readouterr().err.strip().splitlines()[-1]
     data = json.loads(captured)
-    assert data["message"] == "json message"
-    assert data["level"] == "INFO"
+    assert data["record"]["message"] == "json message"
+    assert data["record"]["level"]["name"] == "INFO"
 
 
 # Note: Testing file creation/writing by get_logger is more complex and
