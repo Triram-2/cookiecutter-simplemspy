@@ -14,6 +14,9 @@ dependencies = [
     "uvicorn>=0.34.2",
     "httpx>=0.25.0",
     "inflection>=0.5.1", # For string case conversions (e.g., table names)
+    "redis>=6.2.0",
+    "aiobreaker>=1.2.0",
+    "uvloop>=0.21.0",
 ]
 
 [build-system]
