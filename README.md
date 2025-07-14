@@ -33,7 +33,7 @@ The generated service exposes two endpoints:
 - `GET /health` – health information
 - `POST /tasks` – accepts a payload and stores a task in Redis Streams returning `202 Accepted`
 
-Additional helper scripts are located in the `scripts/` folder to automate systemd service creation.
+A helper script `scripts/setup.sh` installs prerequisites and creates the project's virtual environment.
 
 ## Configuration
 
