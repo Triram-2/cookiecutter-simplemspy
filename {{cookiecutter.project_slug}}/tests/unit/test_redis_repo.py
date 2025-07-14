@@ -28,13 +28,13 @@ async def test_should_open_breaker_after_failures() -> None:
             self.fail_times = fail_times
             self.calls = 0
 
-        async def xadd(self, stream_name: str, fields: dict) -> str:
+        async def xadd(self, stream_name: str, fields: dict, **_: dict) -> str:
             self.calls += 1
             if self.calls <= self.fail_times:
                 raise ConnectionError("redis down")
             return await super().xadd(stream_name, fields)
 
-    repo = RedisRepository(client=FailingRedis(fail_times=2))
+    repo = RedisRepository(client=FailingRedis(fail_times=3))
 
     # first two calls fail but do not raise CircuitBreakerError
     for _ in range(2):

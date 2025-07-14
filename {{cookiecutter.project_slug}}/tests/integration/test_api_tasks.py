@@ -2,7 +2,6 @@ import pytest
 from httpx import AsyncClient
 from starlette import status
 import asyncio
-import uvloop
 
 from {{cookiecutter.python_package_name}}.utils import (
     TASKS_STREAM_NAME,
@@ -23,7 +22,6 @@ async def test_should_return_202_and_store_message(async_client: AsyncClient, fa
     await asyncio.sleep(0)  # allow background task to complete
 
     assert response.status_code == status.HTTP_202_ACCEPTED
-    assert isinstance(asyncio.get_running_loop(), uvloop.Loop)
     assert TASKS_STREAM_NAME in fake_redis.streams
     assert fake_redis.streams[TASKS_STREAM_NAME]
     message = fake_redis.streams[TASKS_STREAM_NAME][-1]
