@@ -9,6 +9,8 @@
 
 * Standard Python src‑layout
 * `src/` – application code
+* `data/` - all data
+* `logs/` - all logs
 * `tests/` – unit & integration tests
 * `docs/` – documentation
 * `scripts/` – automation
