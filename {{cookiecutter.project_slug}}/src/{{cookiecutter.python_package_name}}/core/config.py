@@ -58,7 +58,9 @@ class LogSettings(BaseSettings):
     rotation: str = "00:00"
     retention: str = "7 days"
     # Endpoint where logs should be pushed for aggregation
-    loki_endpoint: str = "http://localhost:3100/loki/api/v1/push"
+    # When running inside Docker Compose use the service name
+    # rather than localhost so containers can reach Loki
+    loki_endpoint: str = "http://loki:3100/loki/api/v1/push"
 
 
 class RedisSettings(BaseSettings):
@@ -66,7 +68,8 @@ class RedisSettings(BaseSettings):
 
     model_config = SettingsConfigDict(env_prefix="REDIS_")
 
-    url: str = "redis://localhost:6379/0"
+    # Default to the Docker Compose service hostname
+    url: str = "redis://redis:6379/0"
     stream_name: str = "tasks:stream"
     consumer_group: str = "processors"
     consumer_name: str = f"{os.getenv('HOSTNAME', 'local')}:{os.getpid()}"
@@ -81,7 +84,8 @@ class StatsDSettings(BaseSettings):
 
     model_config = SettingsConfigDict(env_prefix="STATSD_")
 
-    host: str = "localhost"
+    # StatsD exporter hostname within Docker
+    host: str = "statsd"
     port: int = 8125
     prefix: str = "microservice"
 
@@ -91,10 +95,11 @@ class JaegerSettings(BaseSettings):
 
     model_config = SettingsConfigDict(env_prefix="JAEGER_")
 
-    host: str = "localhost"
+    # Jaeger all-in-one hostname within Docker
+    host: str = "jaeger"
     port: int = 14268
 
-    endpoint: str = "http://localhost:14268/api/traces"
+    endpoint: str = "http://jaeger:14268/api/traces"
     # Name of the service as shown in Jaeger
     service_name: str = "{{cookiecutter.project_slug}}"
 
