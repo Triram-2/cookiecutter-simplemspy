@@ -78,4 +78,4 @@ EXPOSE {{cookiecutter.internal_app_port}}
 # Для простоты, здесь можно захардкодить порт, на котором Uvicorn слушает внутри контейнера,
 # а маппинг на хостовой порт делать в docker-compose.yml.
 # Пусть Uvicorn внутри контейнера всегда слушает на 8000.
-CMD ["/opt/venv/bin/python", "-m", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "{{cookiecutter.internal_app_port}}"]
+CMD ["/opt/venv/bin/python", "-m", "uvicorn", "{{cookiecutter.python_package_name}}.api:app", "--host", "0.0.0.0", "--port", "{{cookiecutter.internal_app_port}}"]
