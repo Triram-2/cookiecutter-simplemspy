@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Tuple, cast
 from uuid import uuid4
 
+import json
 import psutil
 
 try:
@@ -44,8 +45,8 @@ class TasksService:
         message = {
             "task_id": str(uuid4()),
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "payload": payload,
-            "trace_context": {"trace_id": "", "span_id": ""},
+            "payload": json.dumps(payload),
+            "trace_context": json.dumps({"trace_id": "", "span_id": ""}),
         }
         result = await self.repo.add_to_stream(TASKS_STREAM_NAME, message)
         await self._record_usage()
