@@ -70,9 +70,9 @@ class RedisSettings(BaseSettings):
 
     # Default to the Docker Compose service hostname
     url: str = "redis://redis:6379/0"
-    stream_name: str = "tasks:stream"
-    consumer_group: str = "processors"
-    consumer_name: str = f"{os.getenv('HOSTNAME', 'local')}:{os.getpid()}"
+    stream_name: str = "{{cookiecutter.redis_stream_name}}"
+    consumer_group: str = "{{cookiecutter.redis_consumer_group}}"
+    consumer_name: str = "{{cookiecutter.redis_consumer_name}}"
     max_length: int = 100_000
     retention_ms: int = 3_600_000
     breaker_fail_max: int = 3
