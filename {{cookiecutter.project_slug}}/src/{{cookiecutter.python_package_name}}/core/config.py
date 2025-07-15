@@ -7,7 +7,7 @@ from typing import Literal
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
+BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent.parent
 DATA_DIR: Path = BASE_DIR / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)  # Ensure DATA_DIR exists
 
