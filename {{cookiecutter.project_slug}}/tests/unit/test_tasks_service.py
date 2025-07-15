@@ -1,3 +1,4 @@
+import json
 import pytest
 
 from {{cookiecutter.python_package_name}}.repository.redis_repo import RedisRepository
@@ -17,7 +18,7 @@ async def test_enqueue_task_formats_and_stores_message() -> None:
 
     assert TASKS_STREAM_NAME in fake.streams
     stored = fake.streams[TASKS_STREAM_NAME][0]
-    assert stored["payload"] == payload
+    assert json.loads(stored["payload"]) == payload
     assert "task_id" in stored
     assert "timestamp" in stored
 
