@@ -3,7 +3,7 @@ from __future__ import annotations
 """Service providing task queueing and metric collection."""
 
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, cast
 from uuid import uuid4
 
 import psutil
@@ -66,10 +66,10 @@ class TasksService:
         await statsd_client.gauge("mem.max", mem_max)
 
         if GPU_AVAILABLE and GPUtil is not None:
-            gpus = GPUtil.getGPUs()
+            gpus = cast(List[Any], GPUtil.getGPUs())  # pyright: ignore[reportUnknownMemberType]
             if gpus:
-                loads = [g.load * 100 for g in gpus]
-                mems = [g.memoryUtil * 100 for g in gpus]
+                loads = [float(getattr(g, "load", 0)) * 100 for g in gpus]
+                mems = [float(getattr(g, "memoryUtil", 0)) * 100 for g in gpus]
                 avg_load = sum(loads) / len(loads)
                 avg_mem = sum(mems) / len(mems)
                 self.gpu_load_samples.append(avg_load)

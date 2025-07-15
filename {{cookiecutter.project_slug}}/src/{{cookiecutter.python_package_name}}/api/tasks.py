@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import json
 from html import escape
-from typing import Any, Dict, Mapping, Sequence
+from typing import Any, Dict, Mapping, Sequence, cast
 
 import asyncio
-from pydantic import BaseModel, Field, ValidationError
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-from starlette.routing import Route, Router
+from pydantic import BaseModel, Field, ValidationError  # pyright: ignore[reportMissingImports]
+from starlette.requests import Request  # pyright: ignore[reportMissingImports]
+from starlette.responses import JSONResponse  # pyright: ignore[reportMissingImports]
+from starlette.routing import Route, Router  # pyright: ignore[reportMissingImports]
 from starlette.status import (
     HTTP_202_ACCEPTED,
     HTTP_400_BAD_REQUEST,
@@ -46,10 +46,10 @@ def _sanitize(value: Any) -> Any:
     if isinstance(value, str):
         return escape(value)
     if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
-        seq: Sequence[Any] = value
+        seq = cast(Sequence[Any], value)
         return [_sanitize(v) for v in seq]
     if isinstance(value, Mapping):
-        mapping: Mapping[Any, Any] = value
+        mapping = cast(Mapping[Any, Any], value)
         return {str(k): _sanitize(v) for k, v in mapping.items()}
     return value
 
@@ -111,9 +111,7 @@ def get_router(service: TasksService | None = None) -> Router:
             background_tasks.add(task_enqueue)
             task_enqueue.add_done_callback(background_tasks.discard)
 
-            task_metric = asyncio.create_task(
-                statsd_client.incr("requests.tasks")
-            )
+            task_metric = asyncio.create_task(statsd_client.incr("requests.tasks"))
             background_tasks.add(task_metric)
             task_metric.add_done_callback(background_tasks.discard)
             return JSONResponse({"status": "accepted"}, status_code=HTTP_202_ACCEPTED)
