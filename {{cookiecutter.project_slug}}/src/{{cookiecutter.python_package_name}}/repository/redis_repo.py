@@ -6,7 +6,7 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import Any, Dict, cast
 
-import aiobreaker
+from ..utils import CircuitBreaker, CircuitBreakerError
 
 from redis.asyncio import Redis
 
@@ -21,7 +21,7 @@ class RedisRepository:
     ) -> None:
         # Redis.from_url may lack type hints in some versions
         self.redis = client or Redis.from_url(url, decode_responses=True)  # pyright: ignore[reportUnknownMemberType]
-        self.breaker: aiobreaker.CircuitBreaker = aiobreaker.CircuitBreaker(
+        self.breaker: CircuitBreaker = CircuitBreaker(
             fail_max=settings.redis.breaker_fail_max,
             timeout_duration=timedelta(seconds=settings.redis.breaker_reset_timeout),
         )
