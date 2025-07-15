@@ -52,15 +52,15 @@ def test_redis_settings_env_override(monkeypatch):
 
 def test_statsd_defaults():
     cfg = AppSettings()
-    assert cfg.statsd.host == "localhost"
+    assert cfg.statsd.host == "statsd"
     assert cfg.statsd.port == 8125
 
 
 def test_jaeger_defaults():
     cfg = AppSettings()
-    assert cfg.jaeger.host == "localhost"
+    assert cfg.jaeger.host == "jaeger"
     assert cfg.jaeger.port == 14268
-    assert cfg.jaeger.endpoint == "http://localhost:14268/api/traces"
+    assert cfg.jaeger.endpoint == "http://jaeger:14268/api/traces"
     assert cfg.jaeger.service_name == "{{cookiecutter.project_slug}}"
 
 
