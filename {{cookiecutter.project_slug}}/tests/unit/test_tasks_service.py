@@ -29,6 +29,13 @@ def test_calculate_metrics() -> None:
     assert mx == 3.0
 
 
+def test_calculate_metrics_empty_list() -> None:
+    avg, mn, mx = TasksService._calculate_metrics([])
+    assert avg == 0.0
+    assert mn == 0.0
+    assert mx == 0.0
+
+
 @pytest.mark.asyncio
 async def test_should_report_average_min_max_metrics(monkeypatch) -> None:
     cpu_values = iter([10.0, 30.0])
