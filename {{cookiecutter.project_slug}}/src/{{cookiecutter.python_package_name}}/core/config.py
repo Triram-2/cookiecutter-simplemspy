@@ -1,6 +1,7 @@
 """Application configuration models and settings loader."""
 
 import os
+import tempfile
 from pathlib import Path
 from typing import Literal
 
@@ -8,8 +9,16 @@ from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent.parent
-DATA_DIR: Path = BASE_DIR / "data"
-DATA_DIR.mkdir(parents=True, exist_ok=True)  # Ensure DATA_DIR exists
+# The path used for runtime data files.  The default is `<project>/data`,
+# but it can be overridden with the ``DATA_DIR`` environment variable.
+DATA_DIR: Path = Path(os.getenv("DATA_DIR", str(BASE_DIR / "data")))
+try:
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+except PermissionError:
+    # Fall back to a directory that is always writable inside the container
+    fallback = Path(tempfile.gettempdir()) / "{{cookiecutter.project_slug}}_data"
+    fallback.mkdir(parents=True, exist_ok=True)
+    DATA_DIR = fallback
 
 
 class LogSettings(BaseSettings):
