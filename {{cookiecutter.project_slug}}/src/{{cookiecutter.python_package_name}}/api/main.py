@@ -33,6 +33,7 @@ async def on_shutdown() -> None:
     """Clean up resources on shutdown."""
     await _close_repo(health.redis_repo)
     await _close_repo(tasks.tasks_service.repo)
+    await statsd_client.close()
     statsd_client.reset()
     tracer.spans.clear()
     log.info("Application shutdown complete")

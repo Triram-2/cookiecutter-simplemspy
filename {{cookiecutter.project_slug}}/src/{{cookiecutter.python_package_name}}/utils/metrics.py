@@ -16,15 +16,26 @@ class AsyncStatsDClient:
         self.port = port
         self.counters: DefaultDict[str, int] = defaultdict(int)
         self.gauges: DefaultDict[str, float] = defaultdict(float)
+        self._transport: asyncio.DatagramTransport | None = None
+
+    async def _ensure_transport(self) -> None:
+        if self._transport is None:
+            loop = asyncio.get_running_loop()
+            self._transport, _ = await loop.create_datagram_endpoint(
+                lambda: asyncio.DatagramProtocol(), remote_addr=(self.host, self.port)
+            )
 
     async def _send(self, message: bytes) -> None:
         """Send a raw UDP message."""
-        loop = asyncio.get_running_loop()
-        transport, _ = await loop.create_datagram_endpoint(
-            lambda: asyncio.DatagramProtocol(), remote_addr=(self.host, self.port)
-        )
-        transport.sendto(message)
-        transport.close()
+        await self._ensure_transport()
+        assert self._transport is not None
+        self._transport.sendto(message)
+
+    async def close(self) -> None:
+        """Close the underlying transport if open."""
+        if self._transport is not None:
+            self._transport.close()
+            self._transport = None
 
     async def incr(self, metric: str, value: int = 1) -> None:
         """Increment a counter."""

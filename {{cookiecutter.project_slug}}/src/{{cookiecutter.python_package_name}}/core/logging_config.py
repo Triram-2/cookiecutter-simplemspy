@@ -56,10 +56,9 @@ def setup_initial_logger() -> None:
 
     def _send_to_loki(message: Any) -> None:
         record = message.record
-        formatted = json.dumps({
-            "message": record.get("message", ""),
-            "level": record["level"].name,
-        })
+        formatted = json.dumps(
+            {"message": record.get("message", ""), "level": record["level"].name}
+        )
         timestamp = int(record["time"].timestamp() * 1_000_000_000)
         payload = {
             "streams": [
@@ -76,8 +75,7 @@ def setup_initial_logger() -> None:
 
     if current_settings.log.loki_endpoint:
         loguru_logger.add(
-            _send_to_loki,
-            level=current_settings.log.console_level.upper(),
+            _send_to_loki, level=current_settings.log.console_level.upper()
         )
 
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
