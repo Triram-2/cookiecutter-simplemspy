@@ -69,7 +69,11 @@ class TasksService:
         await statsd_client.gauge("mem.max", mem_max)
 
         if GPU_AVAILABLE and GPUtil is not None:
-            gpus = cast(List[Any], GPUtil.getGPUs())  # pyright: ignore[reportUnknownMemberType]
+            try:
+                gpus = cast(List[Any], GPUtil.getGPUs())  # pyright: ignore[reportUnknownMemberType]
+            except Exception:
+                gpus = []
+
             if gpus:
                 loads = [float(getattr(g, "load", 0)) * 100 for g in gpus]
                 mems = [float(getattr(g, "memoryUtil", 0)) * 100 for g in gpus]
