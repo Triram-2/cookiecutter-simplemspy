@@ -26,7 +26,7 @@ This repository provides a cookiecutter template for creating a small high-perfo
    ```
 6. Start the development server:
    ```bash
-   uv run src/main.py
+   uv run src/{{cookiecutter.python_package_name}}/main.py
    ```
 
 The generated service exposes two endpoints:

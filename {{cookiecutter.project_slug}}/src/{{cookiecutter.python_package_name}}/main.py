@@ -4,9 +4,9 @@ import uvloop
 """Application entry point.
 
 This module launches the Starlette application via Uvicorn. It can be run
-directly with ``python src/main.py`` or provided to ``uvicorn`` using the
-``src.api:app`` path. Configuration is pulled from
-``src.core.config.settings``.
+directly with ``python src/{{cookiecutter.python_package_name}}/main.py`` or provided to ``uvicorn`` using the
+``{{cookiecutter.python_package_name}}.api:app`` path. Configuration is pulled from
+``{{cookiecutter.python_package_name}}.core.config.settings``.
 """
 
 import uvicorn

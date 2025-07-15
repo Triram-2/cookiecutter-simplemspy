@@ -151,7 +151,7 @@ def profile(session: Session) -> None:
 
     session.log("Запуск Scalene...")
     try:
-        session.run("scalene", "src/main.py", *session.posargs)
+        session.run("scalene", f"src/{PROJECT_NAME}/main.py", *session.posargs)
 
         # Assuming PYPROJECT_CONTENT structure is valid and keys exist for simplicity
         # A more robust approach would involve checking key existence
