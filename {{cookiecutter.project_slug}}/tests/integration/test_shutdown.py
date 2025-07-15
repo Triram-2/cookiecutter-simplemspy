@@ -33,4 +33,5 @@ async def test_should_flush_and_close_on_shutdown(monkeypatch) -> None:
 
     assert fake.closed and fake.waited
     assert statsd_client.counters == {}
+    assert statsd_client._transport is None
     assert tracer.spans == []
