@@ -58,8 +58,9 @@ Launch the service together with Redis, StatsD, Jaeger and Loki:
 docker-compose up -d
 ```
 
-The compose file relies on the environment variables listed above, so adjust
-them if necessary.
+Containers use `restart: unless-stopped` so they will automatically start on
+host reboot. The compose file relies on the environment variables listed above,
+so adjust them if necessary.
 
 ## Metrics and tracing
 

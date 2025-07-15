@@ -22,6 +22,9 @@ Start all dependencies together with the application:
 
    docker-compose up -d
 
+Services use ``restart: unless-stopped`` so they will automatically start on
+host reboot.
+
 Metrics and tracing
 -------------------
 
