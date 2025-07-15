@@ -882,7 +882,7 @@ wheels = [
 ]
 
 [[package]]
-name = "name"
+name = "{{cookiecutter.python_package_name}}"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
@@ -941,12 +941,12 @@ requires-dist = [
     { name = "hypothesis", marker = "extra == 'test'", specifier = ">=6.50" },
     { name = "locust", marker = "extra == 'loadtest'", specifier = ">=2.15" },
     { name = "loguru", specifier = ">=0.7.3" },
-    { name = "name", extras = ["audit"], marker = "extra == 'all'" },
-    { name = "name", extras = ["dev"], marker = "extra == 'all'" },
-    { name = "name", extras = ["lint"], marker = "extra == 'all'" },
-    { name = "name", extras = ["loadtest"], marker = "extra == 'all'" },
-    { name = "name", extras = ["profile"], marker = "extra == 'all'" },
-    { name = "name", extras = ["test"], marker = "extra == 'all'" },
+    { name = "{{cookiecutter.python_package_name}}", extras = ["audit"], marker = "extra == 'all'" },
+    { name = "{{cookiecutter.python_package_name}}", extras = ["dev"], marker = "extra == 'all'" },
+    { name = "{{cookiecutter.python_package_name}}", extras = ["lint"], marker = "extra == 'all'" },
+    { name = "{{cookiecutter.python_package_name}}", extras = ["loadtest"], marker = "extra == 'all'" },
+    { name = "{{cookiecutter.python_package_name}}", extras = ["profile"], marker = "extra == 'all'" },
+    { name = "{{cookiecutter.python_package_name}}", extras = ["test"], marker = "extra == 'all'" },
     { name = "nox", marker = "extra == 'dev'", specifier = ">=2023.4.22" },
     { name = "pip-audit", marker = "extra == 'audit'", specifier = ">=2.7.0" },
     { name = "pip-audit", marker = "extra == 'test'", specifier = ">=2.7.0" },
