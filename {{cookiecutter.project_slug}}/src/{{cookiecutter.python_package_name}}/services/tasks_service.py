@@ -33,6 +33,9 @@ class TasksService:
     @staticmethod
     def _calculate_metrics(values: List[float]) -> Tuple[float, float, float]:
         """Return average, min and max for provided values."""
+        if not values:
+            return 0.0, 0.0, 0.0
+
         avg = sum(values) / len(values)
         return avg, min(values), max(values)
 
