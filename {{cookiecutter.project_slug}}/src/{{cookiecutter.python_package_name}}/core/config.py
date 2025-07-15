@@ -20,12 +20,23 @@ except PermissionError:
     fallback.mkdir(parents=True, exist_ok=True)
     DATA_DIR = fallback
 
+# Determine where logs should be stored. Default to ``DATA_DIR / 'logs'`` so
+# that log files reside next to other runtime data. If the directory is not
+# writable, fall back to a temporary folder that is guaranteed to be available.
+LOG_DIR: Path = Path(os.getenv("LOG_DIR", str(DATA_DIR / "logs")))
+try:
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+except PermissionError:
+    fallback_logs = Path(tempfile.gettempdir()) / "{{cookiecutter.project_slug}}_logs"
+    fallback_logs.mkdir(parents=True, exist_ok=True)
+    LOG_DIR = fallback_logs
+
 
 class LogSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="LOG_")
 
-    _ = os.makedirs(BASE_DIR / "logs", exist_ok=True)
-    path: Path = BASE_DIR / "logs"
+    # Use the pre-created ``LOG_DIR`` as the default log directory.
+    path: Path = LOG_DIR
     console_format: str = (
         "<blue>{time:YYYY-MM-DD HH:mm:ss.SSS}</blue> | "
         "<level>{level: <8}</level> | "
