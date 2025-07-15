@@ -13,7 +13,7 @@ class HelloWorldUser(HttpUser):
     wait_time: Callable[['HelloWorldUser'], Union[float, int]] = between(1, 5) # type: ignore
 
     # Type hint for host, matching Optional[str] from the User base class.
-    host: Optional[str] = "http://localhost:8080" # Example host
+    host: Optional[str] = "http://localhost:8000"  # Default application port
 
     @task
     def hello_world(self) -> None:
