@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    restart: unless-stopped
     ports:
       - "${APP_PORT:-{{cookiecutter.app_port_host}}}:{{cookiecutter.internal_app_port}}"
     env_file:
@@ -21,12 +22,14 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    restart: unless-stopped
     networks:
       - app_network
   statsd:
     image: prom/statsd-exporter:latest
     ports:
       - "8125:8125/udp"
+    restart: unless-stopped
     networks:
       - app_network
   jaeger:
@@ -34,6 +37,7 @@ services:
     ports:
       - "16686:16686"
       - "14268:14268"
+    restart: unless-stopped
     networks:
       - app_network
   loki:
@@ -41,6 +45,7 @@ services:
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
     networks:
       - app_network
 
