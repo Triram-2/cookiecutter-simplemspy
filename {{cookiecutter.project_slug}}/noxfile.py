@@ -201,6 +201,42 @@ def build(session: Session) -> None:
 
 
 @nox.session(python=False)
+def compose_rebuild(session: Session) -> None:
+    """Полностью пересобирает окружение Docker Compose."""
+
+    image_name: str = "{{cookiecutter.project_slug}}-app"
+
+    session.log("Остановка и очистка старых контейнеров...")
+    session.run(
+        "docker",
+        "compose",
+        "down",
+        "--volumes",
+        "--remove-orphans",
+        external=True,
+    )
+
+    session.log(f"Удаление старого образа {image_name}...")
+    session.run("docker", "rmi", image_name, external=True, success_codes=[0, 1])
+
+    session.log("Очистка кэша сборки Docker...")
+    session.run("docker", "builder", "prune", "-a", external=True)
+
+    session.log("Пересборка образов без кэша...")
+    session.run(
+        "docker",
+        "compose",
+        "build",
+        "--no-cache",
+        "--pull",
+        external=True,
+    )
+
+    session.log("Запуск контейнеров...")
+    session.run("docker", "compose", "up", external=True)
+
+
+@nox.session(python=False)
 def clean(session: Session) -> None:
     """Удаляет временные файлы и папки сборки/тестирования."""
     session.log("Очистка...")
