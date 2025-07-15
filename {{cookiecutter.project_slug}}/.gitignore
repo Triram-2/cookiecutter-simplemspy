@@ -237,6 +237,7 @@ project.assets.json
 # Логи, Кеш, Временные файлы / Logs, Cache, Temporary Files
 # ============================================================================
 logs/
+!logs/.gitkeep
 cache/
 *.log
 npm-debug.log*
@@ -336,6 +337,7 @@ pytestdebug.log
 /uploads/
 /media/
 /data/
+!/data/.gitkeep
 
 # --- Профилирование (Scalene и др.) ---
 *.prof            # Общий формат файлов профилирования
