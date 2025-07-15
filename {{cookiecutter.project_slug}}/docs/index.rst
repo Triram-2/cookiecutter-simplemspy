@@ -1,5 +1,5 @@
-Welcome to name's documentation!
-==================================
+Welcome to {{cookiecutter.project_name}}'s documentation!
+{{ '=' * ('Welcome to ' ~ cookiecutter.project_name ~ "'s documentation!" | length) }}
 
 .. toctree::
    :maxdepth: 2

@@ -16,6 +16,7 @@ dependencies = [
     "inflection>=0.5.1", # For string case conversions (e.g., table names)
     "redis>=6.2.0",
     "aiobreaker>=1.2.0",
+    "psutil>=7.0.0",
     "uvloop>=0.21.0",
 ]
 
