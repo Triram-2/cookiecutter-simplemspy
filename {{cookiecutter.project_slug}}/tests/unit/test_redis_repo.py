@@ -1,6 +1,8 @@
 import pytest
 
-import aiobreaker
+from {{cookiecutter.python_package_name}}.utils.circuitbreaker import (
+    CircuitBreakerError,
+)
 
 from {{cookiecutter.python_package_name}}.repository.redis_repo import (
     RedisRepository,
@@ -42,5 +44,5 @@ async def test_should_open_breaker_after_failures() -> None:
             await repo.add_to_stream("s", {"foo": "bar"})
 
     # third call should trip the breaker
-    with pytest.raises(aiobreaker.CircuitBreakerError):
+    with pytest.raises(CircuitBreakerError):
         await repo.add_to_stream("s", {"foo": "bar"})
