@@ -16,6 +16,15 @@ Run linters and tests:
 nox -s ci-3.12 ci-3.13
 ```
 
+### Running with Docker Compose
+
+Copy the provided example environment file and start the stack:
+
+```bash
+cp .env.example .env
+nox -s compose_rebuild
+```
+
 Start the application for development:
 
 ```bash

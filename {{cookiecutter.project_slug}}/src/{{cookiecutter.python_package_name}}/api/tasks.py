@@ -22,12 +22,22 @@ from ..services.tasks_service import TasksService
 from ..utils.metrics import statsd_client
 from ..utils.tracing import tracer
 from ..core.config import settings
+from ..core.logging_config import get_logger
+
+log = get_logger(__name__)
 
 
 tasks_service: TasksService = get_tasks_service()
 
 # Keep references to background tasks to prevent premature garbage collection.
 background_tasks: set[asyncio.Task[Any]] = set()
+
+
+def _log_task_result(task: asyncio.Task[Any]) -> None:
+    try:
+        task.result()
+    except Exception as exc:  # pragma: no cover - background task errors
+        log.error("Background task failed", exc_info=exc)
 
 
 MAX_BODY_SIZE = settings.performance.max_payload_size
@@ -110,10 +120,12 @@ def get_router(service: TasksService | None = None) -> Router:
             )
             background_tasks.add(task_enqueue)
             task_enqueue.add_done_callback(background_tasks.discard)
+            task_enqueue.add_done_callback(_log_task_result)
 
             task_metric = asyncio.create_task(statsd_client.incr("requests.tasks"))
             background_tasks.add(task_metric)
             task_metric.add_done_callback(background_tasks.discard)
+            task_metric.add_done_callback(_log_task_result)
             return JSONResponse({"status": "accepted"}, status_code=HTTP_202_ACCEPTED)
 
     router.routes.append(Route("/tasks", create_task, methods=["POST"]))

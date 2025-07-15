@@ -17,7 +17,10 @@ except Exception:  # pragma: no cover - optional dependency
 GPU_AVAILABLE: bool = GPUtil is not None
 
 from ..repository.redis_repo import RedisRepository
+from ..core.logging_config import get_logger
 from ..utils import TASKS_STREAM_NAME, statsd_client
+
+log = get_logger(__name__)
 
 
 class TasksService:
@@ -48,7 +51,11 @@ class TasksService:
             "payload": json.dumps(payload),
             "trace_context": json.dumps({"trace_id": "", "span_id": ""}),
         }
-        result = await self.repo.add_to_stream(TASKS_STREAM_NAME, message)
+        try:
+            result = await self.repo.add_to_stream(TASKS_STREAM_NAME, message)
+        except Exception as exc:  # pragma: no cover - network errors
+            log.error("Failed to enqueue task", exc_info=exc)
+            return ""
         await self._record_usage()
         return result
 
