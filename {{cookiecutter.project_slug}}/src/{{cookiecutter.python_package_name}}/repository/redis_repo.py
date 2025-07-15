@@ -1,4 +1,5 @@
 from __future__ import annotations
+# pyright: reportUnknownMemberType=false, reportUnknownVariableType=false, reportArgumentType=false
 
 """Redis repository used for queue operations."""
 
@@ -15,27 +16,26 @@ from ..core.config import settings
 class RedisRepository:
     """Wrapper around Redis operations used by the service."""
 
-    def __init__(self, client: Redis | None = None, url: str = settings.redis.url) -> None:
+    def __init__(
+        self, client: Redis | None = None, url: str = settings.redis.url
+    ) -> None:
         # Redis.from_url may lack type hints in some versions
         self.redis = client or Redis.from_url(url, decode_responses=True)  # pyright: ignore[reportUnknownMemberType]
-        self.breaker: aiobreaker.CircuitBreaker[Any] = aiobreaker.CircuitBreaker(
+        self.breaker: aiobreaker.CircuitBreaker = aiobreaker.CircuitBreaker(
             fail_max=settings.redis.breaker_fail_max,
             timeout_duration=timedelta(seconds=settings.redis.breaker_reset_timeout),
         )
 
     async def add_to_stream(self, stream_name: str, message: Dict[str, Any]) -> str:
         """Add a message to a Redis Stream."""
-        result = await self.breaker.call_async(
-            self.redis.xadd,
-            stream_name,
-            message,
-            maxlen=settings.redis.max_length,
-        )
+        result: Any = await self.breaker.call_async(
+            self.redis.xadd, stream_name, message, maxlen=settings.redis.max_length
+        )  # pyright: ignore[reportUnknownMemberType,reportUnknownArgumentType]
         return cast(str, result)
 
     async def ping(self) -> bool:
         """Check Redis connectivity."""
-        result = await self.breaker.call_async(self.redis.ping)
+        result: Any = await self.breaker.call_async(self.redis.ping)  # pyright: ignore[reportUnknownMemberType]
         return cast(bool, result)
 
 

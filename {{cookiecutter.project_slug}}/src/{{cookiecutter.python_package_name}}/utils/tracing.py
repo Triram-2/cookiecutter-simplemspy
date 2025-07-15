@@ -1,14 +1,15 @@
 """Simplified tracing utilities with optional OpenTelemetry integration."""
 
+# pyright: reportMissingImports=false, reportUnknownMemberType=false, reportUnknownVariableType=false
+
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Generator, List
+from typing import TYPE_CHECKING, Generator, List, Any
 
 from ..core.config import settings
 
 if TYPE_CHECKING:  # pragma: no cover - optional dependency typing
-    from opentelemetry import trace  # noqa: F401
     from opentelemetry.exporter.jaeger.thrift import JaegerExporter
     from opentelemetry.sdk.resources import Resource
     from opentelemetry.sdk.trace import TracerProvider
@@ -30,10 +31,10 @@ try:
     jaeger_exporter = JaegerExporter(collector_endpoint=endpoint)
     provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
     ot_trace.set_tracer_provider(provider)
-    _otel_tracer = ot_trace.get_tracer(__name__)
-    USE_OTEL = True
+    _otel_tracer: Any = ot_trace.get_tracer(__name__)
+    use_otel = True
 except Exception:  # pragma: no cover - fallback when opentelemetry not installed
-    USE_OTEL = False
+    use_otel = False
 
 
 @dataclass
@@ -80,7 +81,7 @@ class OtelTracer(DummyTracer):
 
 
 def _get_tracer() -> DummyTracer:
-    if USE_OTEL:
+    if use_otel:
         return OtelTracer()
     return DummyTracer()
 
