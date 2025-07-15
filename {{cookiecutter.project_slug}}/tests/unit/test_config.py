@@ -41,7 +41,9 @@ def test_redis_settings_defaults():
     settings = AppSettings()
     redis = settings.redis
     assert redis.url.startswith("redis://")
-    assert redis.stream_name == "tasks:stream"
+    assert redis.stream_name == "{{cookiecutter.redis_stream_name}}"
+    assert redis.consumer_group == "{{cookiecutter.redis_consumer_group}}"
+    assert redis.consumer_name == "{{cookiecutter.redis_consumer_name}}"
 
 
 def test_redis_settings_env_override(monkeypatch):
