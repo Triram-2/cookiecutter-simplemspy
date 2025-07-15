@@ -3,12 +3,19 @@
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Generator, List
+from typing import TYPE_CHECKING, Generator, List
 
 from ..core.config import settings
 
+if TYPE_CHECKING:  # pragma: no cover - optional dependency typing
+    from opentelemetry import trace  # noqa: F401
+    from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+    from opentelemetry.sdk.resources import Resource
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
 try:
-    from opentelemetry import trace
+    from opentelemetry import trace as ot_trace
     from opentelemetry.exporter.jaeger.thrift import JaegerExporter
     from opentelemetry.sdk.resources import SERVICE_NAME, Resource
     from opentelemetry.sdk.trace import TracerProvider
@@ -22,8 +29,8 @@ try:
     )
     jaeger_exporter = JaegerExporter(collector_endpoint=endpoint)
     provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))
-    trace.set_tracer_provider(provider)
-    _otel_tracer = trace.get_tracer(__name__)
+    ot_trace.set_tracer_provider(provider)
+    _otel_tracer = ot_trace.get_tracer(__name__)
     USE_OTEL = True
 except Exception:  # pragma: no cover - fallback when opentelemetry not installed
     USE_OTEL = False
@@ -38,6 +45,7 @@ class Span:
 
 class DummyTracer:
     """Very small tracer storing spans in memory."""
+
     def __init__(self) -> None:
         self.spans: List[Span] = []
 
@@ -54,6 +62,7 @@ class DummyTracer:
 
 class OtelTracer(DummyTracer):
     """Wrapper around OpenTelemetry tracer that also stores spans."""
+
     def __init__(self) -> None:
         super().__init__()
 

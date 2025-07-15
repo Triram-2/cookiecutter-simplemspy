@@ -10,10 +10,10 @@ import psutil
 
 try:
     import GPUtil  # type: ignore
-
-    GPU_AVAILABLE = True
 except Exception:  # pragma: no cover - optional dependency
-    GPU_AVAILABLE = False
+    GPUtil = None  # type: ignore[assignment]
+
+GPU_AVAILABLE: bool = GPUtil is not None
 
 from ..repository.redis_repo import RedisRepository
 from ..utils import TASKS_STREAM_NAME, statsd_client
@@ -65,7 +65,7 @@ class TasksService:
         await statsd_client.gauge("mem.min", mem_min)
         await statsd_client.gauge("mem.max", mem_max)
 
-        if GPU_AVAILABLE:
+        if GPU_AVAILABLE and GPUtil is not None:
             gpus = GPUtil.getGPUs()
             if gpus:
                 loads = [g.load * 100 for g in gpus]

@@ -22,13 +22,13 @@ log = get_logger(__name__)
 app = Starlette(routes=router.routes)
 
 
-@app.on_event("startup")
+@app.on_event("startup")  # pyright: ignore[reportUnknownMemberType,reportUntypedFunctionDecorator]
 async def on_startup() -> None:
     """Log startup message."""
     log.info("Application startup")
 
 
-@app.on_event("shutdown")
+@app.on_event("shutdown")  # pyright: ignore[reportUnknownMemberType,reportUntypedFunctionDecorator]
 async def on_shutdown() -> None:
     """Clean up resources on shutdown."""
     await _close_repo(health.redis_repo)

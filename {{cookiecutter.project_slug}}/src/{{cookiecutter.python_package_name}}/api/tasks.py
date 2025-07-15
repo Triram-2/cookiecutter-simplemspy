@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from html import escape
-from typing import Any, Dict
+from typing import Any, Dict, Mapping, Sequence
 
 import asyncio
 from pydantic import BaseModel, Field, ValidationError
@@ -45,10 +45,12 @@ def _sanitize(value: Any) -> Any:
     """
     if isinstance(value, str):
         return escape(value)
-    if isinstance(value, list):
-        return [_sanitize(v) for v in value]
-    if isinstance(value, dict):
-        return {k: _sanitize(v) for k, v in value.items()}
+    if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
+        seq: Sequence[Any] = value
+        return [_sanitize(v) for v in seq]
+    if isinstance(value, Mapping):
+        mapping: Mapping[Any, Any] = value
+        return {str(k): _sanitize(v) for k, v in mapping.items()}
     return value
 
 

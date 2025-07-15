@@ -13,7 +13,7 @@
 * `docs/` – documentation
 * `scripts/` – automation
 * `additional/` – additional utilities
-* Entry point: `src/main.py`
+* Entry point: `src/{{cookiecutter.python_package_name}}/main.py`
 
 ### 1.2 Стандарты кодирования
 
@@ -94,7 +94,7 @@
 ### 1.13 Команды и скрипты
 
 * Full list commands nox: `nox -l`
-* Dev: `uv run src/main.py`
+* Dev: `uv run src/{{cookiecutter.python_package_name}}/main.py`
 * Test: `nox -s test-3.12 test-3.13`
 * Lint: `nox -s lint-3.12 lint-3.13`
 * Full CI: `nox -s ci-3.12 ci-3.13`
@@ -583,7 +583,7 @@ SHUTDOWN_TIMEOUT=30
 5. `uv sync` – установите зависимости
 6. `docker-compose up -d` – запустите Redis
 7. `uv run pytest` – убедитесь, что тесты проходят
-8. `uv run src/main.py` – запустите сервис
+8. `uv run src/{{cookiecutter.python_package_name}}/main.py` – запустите сервис
 
 ### 3.2 Архитектурные принципы
 

@@ -17,7 +17,7 @@ Description={{cookiecutter.project_name}} Daemon
 After=network.target
 
 [Service]
-ExecStart=/root/{{cookiecutter.project_slug}}/.venv/bin/python /root/{{cookiecutter.project_slug}}/src/main.py
+ExecStart=/root/{{cookiecutter.project_slug}}/.venv/bin/python /root/{{cookiecutter.project_slug}}/src/{{cookiecutter.python_package_name}}/main.py
 WorkingDirectory=/root/{{cookiecutter.project_slug}}/
 Restart=always
 StandardOutput=append:/root/{{cookiecutter.project_slug}}/logs/stdout
