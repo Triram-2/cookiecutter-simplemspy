@@ -81,10 +81,14 @@ def setup_initial_logger() -> None:
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 
 
-setup_initial_logger()
+# Exported helpers
+__all__ = ["InterceptHandler", "setup_initial_logger", "get_logger"]
 
 
 def get_logger(name: str) -> Any:
+    if not loguru_logger._core.handlers:  # type: ignore[attr-defined]
+        setup_initial_logger()
+
     if not name:
         # Consider raising an error or returning a pre-configured 'unnamed' logger
         return loguru_logger.bind(name="unnamed_logger_error")
