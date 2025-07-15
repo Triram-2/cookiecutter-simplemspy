@@ -35,6 +35,8 @@ COPY ./ ./
 # Если uv.lock существует, uv sync его использует. Иначе, он может попытаться разрешить зависимости из pyproject.toml.
 # Предполагаем, что uv.lock будет сгенерирован и будет основным источником.
 RUN uv sync --frozen
+# Install the project itself to ensure dependencies from ``pyproject.toml`` are included
+RUN uv pip install -e .
 # Добавил --no-dev для уменьшения образа, если это поддерживается uv sync или pip install для проекта.
 # Добавил --frozen-lockfile для uv sync, чтобы он падал, если lock не соответствует toml.
 
