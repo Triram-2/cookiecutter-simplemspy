@@ -55,21 +55,26 @@ def setup_initial_logger() -> None:
     )
 
     def _send_to_loki(message: Any) -> None:
+        """Forward log records to a Grafana Loki instance."""
         record = message.record
         formatted = json.dumps(
-            {"message": record.get("message", ""), "level": record["level"].name}
+            {
+                "message": record.get("message", ""),
+                "level": record["level"].name,
+                "logger": record["extra"].get("name", ""),
+            }
         )
         timestamp = int(record["time"].timestamp() * 1_000_000_000)
         payload = {
             "streams": [
                 {
-                    "labels": '{app="simplemspy"}',
+                    "stream": {"app": current_settings.service.name},
                     "values": [[str(timestamp), formatted]],
                 }
             ]
         }
         try:
-            httpx.post(current_settings.log.loki_endpoint, json=payload)
+            httpx.post(current_settings.log.loki_endpoint, json=payload, timeout=1)
         except Exception:
             pass
 
