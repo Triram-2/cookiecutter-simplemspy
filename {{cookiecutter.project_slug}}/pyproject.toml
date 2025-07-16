@@ -6,20 +6,20 @@ description = "{{cookiecutter.project_description}}"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "loguru>=0.7.3",
+    "loguru",
     # "nox>=2025.2.9", # Перемещено в dev
-    "pydantic>=2.11.4",
-    "pydantic-settings>=2.9.1",
-    "starlette>=0.46.2",
-    "uvicorn>=0.34.2",
-    "httpx>=0.25.0",
-    "inflection>=0.5.1", # For string case conversions (e.g., table names)
-    "redis>=6.2.0",
-    "aiobreaker>=1.2.0",
-    "psutil>=7.0.0",
-    "uvloop>=0.21.0",
-    "opentelemetry-sdk>=1.23.0",
-    "opentelemetry-exporter-jaeger>=1.23.0",
+    "pydantic",
+    "pydantic-settings",
+    "starlette",
+    "uvicorn",
+    "httpx",
+    "inflection", # For string case conversions (e.g., table names)
+    "redis",
+    "aiobreaker",
+    "psutil",
+    "uvloop>",
+    "opentelemetry-sdk",
+    "opentelemetry-exporter-jaeger",
 ]
 
 [build-system]
