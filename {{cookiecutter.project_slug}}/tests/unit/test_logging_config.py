@@ -1,8 +1,28 @@
 from loguru import logger as loguru_logger
 import logging
 import json
+from typing import Any
 
 from {{cookiecutter.python_package_name}}.core.logging_config import get_logger, setup_initial_logger, InterceptHandler
+from {{cookiecutter.python_package_name}}.core import config
+
+
+def test_should_post_logs_to_loki(monkeypatch):
+    posted: dict[str, Any] = {}
+
+    def fake_post(url: str, *, json: Any) -> None:  # type: ignore[override]
+        posted["url"] = url
+        posted["json"] = json
+
+    monkeypatch.setattr(config.settings.log, "loki_endpoint", "http://loki:3100/loki/api/v1/push")
+    monkeypatch.setattr("httpx.post", fake_post)
+
+    setup_initial_logger()
+    logger = get_logger("loki_test")
+    logger.info("hello")
+
+    assert posted["url"].endswith("/loki/api/v1/push")
+    assert posted["json"]["streams"][0]["stream"]["app"] == config.settings.service.name
 
 
 def test_get_logger_returns_bound_logger():
