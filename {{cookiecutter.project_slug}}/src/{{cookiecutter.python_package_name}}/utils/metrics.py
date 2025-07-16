@@ -10,13 +10,25 @@ from ..core.config import settings
 class AsyncStatsDClient:
     """Very small async StatsD client using UDP."""
 
-    def __init__(self, host: str, port: int) -> None:
-        """Initialize the client."""
+    def __init__(self, host: str, port: int, prefix: str = "") -> None:
+        """
+        Initialize the client.
+
+        Args:
+            host: StatsD server hostname.
+            port: StatsD server port.
+            prefix: Optional prefix applied to all metric names.
+        """
         self.host = host
         self.port = port
+        self.prefix = prefix.rstrip(".") if prefix else ""
         self.counters: DefaultDict[str, int] = defaultdict(int)
         self.gauges: DefaultDict[str, float] = defaultdict(float)
         self._transport: asyncio.DatagramTransport | None = None
+
+    def _format_name(self, metric: str) -> str:
+        """Return metric name with prefix if configured."""
+        return f"{self.prefix}.{metric}" if self.prefix else metric
 
     async def _ensure_transport(self) -> None:
         if self._transport is None:
@@ -40,7 +52,8 @@ class AsyncStatsDClient:
     async def incr(self, metric: str, value: int = 1) -> None:
         """Increment a counter."""
         self.counters[metric] += value
-        msg = f"{metric}:{value}|c".encode()
+        msg_metric = self._format_name(metric)
+        msg = f"{msg_metric}:{value}|c".encode()
         try:
             await self._send(msg)
         except Exception:
@@ -50,7 +63,8 @@ class AsyncStatsDClient:
     async def gauge(self, metric: str, value: float) -> None:
         """Submit a gauge value."""
         self.gauges[metric] = value
-        msg = f"{metric}:{value}|g".encode()
+        msg_metric = self._format_name(metric)
+        msg = f"{msg_metric}:{value}|g".encode()
         try:
             await self._send(msg)
         except Exception:
@@ -62,6 +76,8 @@ class AsyncStatsDClient:
         self.gauges.clear()
 
 
-statsd_client = AsyncStatsDClient(settings.statsd.host, settings.statsd.port)
+statsd_client = AsyncStatsDClient(
+    settings.statsd.host, settings.statsd.port, prefix=settings.statsd.prefix
+)
 
 __all__ = ["AsyncStatsDClient", "statsd_client"]
