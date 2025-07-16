@@ -17,7 +17,7 @@ dependencies = [
     "redis",
     "aiobreaker",
     "psutil",
-    "uvloop>",
+    "uvloop",
     "opentelemetry-sdk",
     "opentelemetry-exporter-jaeger",
 ]
