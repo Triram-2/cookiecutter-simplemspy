@@ -12,6 +12,8 @@ from typing import Any, Callable, Dict, Union, TextIO, cast
 from loguru import logger as loguru_logger
 import httpx
 
+_logger_initialized = False
+
 from .config import settings, AppSettings
 
 
@@ -35,6 +37,7 @@ class InterceptHandler(logging.Handler):
 
 
 def setup_initial_logger() -> None:
+    global _logger_initialized
     loguru_logger.remove()
 
     loguru_logger.level("DEBUG", color="<bold><white>")
@@ -86,6 +89,7 @@ def setup_initial_logger() -> None:
         )
 
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+    _logger_initialized = True
 
 
 # Exported helpers
@@ -93,7 +97,7 @@ __all__ = ["InterceptHandler", "setup_initial_logger", "get_logger"]
 
 
 def get_logger(name: str) -> Any:
-    if not loguru_logger._core.handlers:  # type: ignore[attr-defined]
+    if not _logger_initialized:
         setup_initial_logger()
 
     if not name:
