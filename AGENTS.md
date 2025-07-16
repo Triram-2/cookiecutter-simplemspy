@@ -437,7 +437,7 @@ SHUTDOWN_TIMEOUT=30
 
 * **Spans:** HTTP request, task processing, Redis operations
 * **Correlation:** Trace-id в заголовках HTTP
-* **Sampling:** 100% для критичных операций
+* **Sampling:** 100% для **ВСЕХ** операций
 
 ##### Специфичные трейсы темплейта
 
