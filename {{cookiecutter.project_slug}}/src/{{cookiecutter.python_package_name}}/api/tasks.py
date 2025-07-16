@@ -21,6 +21,7 @@ from .deps import get_tasks_service
 from ..services.tasks_service import TasksService
 from ..utils.metrics import statsd_client
 from ..utils.tracing import tracer
+from ..utils import TASKS_ENDPOINT_PATH
 from ..core.config import settings
 from ..core.logging_config import get_logger
 
@@ -80,7 +81,7 @@ def get_router(service: TasksService | None = None) -> Router:
             the global ``tasks_service``.
 
     Returns:
-        Router with the ``/tasks`` route registered.
+        Router with the ``TASKS_ENDPOINT_PATH`` route registered.
     """
     service = service or tasks_service
     router = Router()
@@ -128,7 +129,9 @@ def get_router(service: TasksService | None = None) -> Router:
             task_metric.add_done_callback(_log_task_result)
             return JSONResponse({"status": "accepted"}, status_code=HTTP_202_ACCEPTED)
 
-    router.routes.append(Route("/tasks", create_task, methods=["POST"]))
+    router.routes.append(
+        Route(TASKS_ENDPOINT_PATH, create_task, methods=["POST"])
+    )
     return router
 
 

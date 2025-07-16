@@ -31,7 +31,7 @@ This repository provides a cookiecutter template for creating a small high-perfo
 
 The generated service exposes two endpoints:
 - `GET /health` – health information
-- `POST /tasks` – accepts a payload and stores a task in Redis Streams returning `202 Accepted`
+- `POST {{cookiecutter.tasks_endpoint_path}}` – accepts a payload and stores a task in Redis Streams returning `202 Accepted`
 
 Additional helper scripts are located in the `scripts/` folder to automate systemd service creation.
 

@@ -5,6 +5,7 @@ import asyncio
 import json
 
 from {{cookiecutter.python_package_name}}.utils import (
+    TASKS_ENDPOINT_PATH,
     TASKS_STREAM_NAME,
     statsd_client,
     tracer,
@@ -19,7 +20,7 @@ async def test_should_return_202_and_store_message(async_client: AsyncClient, fa
     tracer.spans.clear()
     payload = {"data": "hello", "metadata": {"foo": "bar"}}
 
-    response = await async_client.post("/tasks", json=payload)
+    response = await async_client.post(TASKS_ENDPOINT_PATH, json=payload)
     await asyncio.sleep(0)  # allow background task to complete
 
     assert response.status_code == status.HTTP_202_ACCEPTED
@@ -32,7 +33,7 @@ async def test_should_return_202_and_store_message(async_client: AsyncClient, fa
 
 
 async def test_should_return_400_when_payload_invalid(async_client: AsyncClient):
-    response = await async_client.post("/tasks", json={"foo": "bar"})
+    response = await async_client.post(TASKS_ENDPOINT_PATH, json={"foo": "bar"})
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
@@ -40,7 +41,7 @@ async def test_should_return_400_when_payload_invalid(async_client: AsyncClient)
 async def test_should_return_413_when_payload_too_large(async_client: AsyncClient):
     big_data = "x" * (1024 * 1024 + 1)
     response = await async_client.post(
-        "/tasks",
+        TASKS_ENDPOINT_PATH,
         json={"data": big_data, "metadata": {}},
     )
 
