@@ -55,7 +55,7 @@ def test_redis_settings_env_override(monkeypatch):
 def test_statsd_defaults():
     cfg = AppSettings()
     assert cfg.statsd.host == "statsd"
-    assert cfg.statsd.port == 8125
+    assert cfg.statsd.port == 9125
 
 
 def test_jaeger_defaults():
