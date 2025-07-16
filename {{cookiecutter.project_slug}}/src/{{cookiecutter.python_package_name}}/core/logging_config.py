@@ -17,6 +17,11 @@ _logger_initialized = False
 from .config import settings, AppSettings
 
 
+loguru_logger.disable("httpx")      # убираем httpx из Loguru совсем
+logging.getLogger("httpx").handlers = [logging.NullHandler()]
+logging.getLogger("httpx").propagate = False
+
+
 class InterceptHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:
         level: Union[str, int]
@@ -88,6 +93,18 @@ def setup_initial_logger() -> None:
 
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
     _logger_initialized = True
+
+    def _patch_uvicorn_loggers() -> None:
+        """
+        Заставить uvicorn.* логгеры ходить через root,
+        где уже стоит InterceptHandler.
+        """
+        for name in ("uvicorn", "uvicorn.access", "uvicorn.error"):
+            logger = logging.getLogger(name)
+            logger.handlers = []  # убираем внутренний StreamHandler
+            logger.propagate = True  # разрешаем «пузыриться» наверх
+
+    _patch_uvicorn_loggers()
 
 
 # Exported helpers
