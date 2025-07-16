@@ -45,6 +45,11 @@ services:
       - app_network
   loki:
     image: grafana/loki:2.9.4
+    user: root
+    command: -config.file=/etc/loki/loki.yaml
+    volumes:
+      - ./loki-data:/loki               # постоянное хранилище
+      - ./loki.yaml:/etc/loki/loki.yaml # свой конфиг
     ports:
       - "3100:3100"
     restart: unless-stopped

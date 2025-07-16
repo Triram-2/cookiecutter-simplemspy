@@ -1,0 +1,39 @@
+# /etc/loki/loki.yaml
+auth_enabled: false            # один tenant, без токенов
+
+server:
+  http_listen_address: 0.0.0.0 # слушаем и v4, и v6
+  http_listen_port: 3100
+  grpc_listen_address: 0.0.0.0
+  grpc_listen_port: 9095
+  log_level: info
+
+common:
+  path_prefix: /loki            # каталог с данными
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory           # «single‑binary» режим
+
+storage_config:
+  boltdb_shipper:
+    active_index_directory: /loki/index
+    cache_location: /loki/cache
+    shared_store: filesystem
+  filesystem:
+    directory: /loki/chunks
+
+schema_config:
+  configs:
+  - from: 2020-10-24            # дата < первого лога
+    store: boltdb-shipper
+    object_store: filesystem
+    schema: v11                 # актуально для 2.9.x
+    index:
+      prefix: index_
+      period: 24h
+
+limits_config:
+  retention_period: 168h        # 7 дней
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h
