@@ -8,6 +8,7 @@ from ..repository.redis_repo import RedisRepository
 
 from ..core.logging_config import get_logger
 from ..utils import statsd_client, tracer
+from ..utils.tracing import shutdown_tracer
 from . import health, tasks
 
 from .health import router as health_router
@@ -36,6 +37,7 @@ async def on_shutdown() -> None:
     await statsd_client.close()
     statsd_client.reset()
     tracer.spans.clear()
+    shutdown_tracer()
     log.info("Application shutdown complete")
 
 
