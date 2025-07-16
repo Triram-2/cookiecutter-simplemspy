@@ -86,7 +86,7 @@ class StatsDSettings(BaseSettings):
 
     # StatsD exporter hostname within Docker
     host: str = "statsd"
-    port: int = 8125
+    port: int = 9125
     prefix: str = "microservice"
 
 
