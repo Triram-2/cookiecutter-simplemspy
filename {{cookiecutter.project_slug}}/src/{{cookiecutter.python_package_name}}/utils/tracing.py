@@ -33,7 +33,12 @@ try:
     ot_trace.set_tracer_provider(provider)
     _otel_tracer: Any = ot_trace.get_tracer(__name__)
     use_otel = True
-except Exception:  # pragma: no cover - fallback when opentelemetry not installed
+except Exception:
+    # If OpenTelemetry initialization fails, fall back to a dummy tracer and
+    # log the reason to stderr so that tracing issues are visible in logs.
+    import sys
+
+    print("OpenTelemetry disabled", file=sys.stderr)
     use_otel = False
 
 
@@ -88,4 +93,13 @@ def _get_tracer() -> DummyTracer:
 
 tracer = _get_tracer()
 
-__all__ = ["DummyTracer", "Span", "tracer"]
+
+def shutdown_tracer() -> None:
+    """Flush pending spans and shutdown the provider."""
+    if use_otel:
+        try:
+            ot_trace.get_tracer_provider().shutdown()  # type: ignore[attr-defined]
+        except Exception:
+            pass
+
+__all__ = ["DummyTracer", "Span", "tracer", "shutdown_tracer"]
