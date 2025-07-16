@@ -5,6 +5,7 @@ from collections import defaultdict
 from typing import DefaultDict
 
 from ..core.config import settings
+from .tracing import tracer
 
 
 class AsyncStatsDClient:
@@ -32,43 +33,49 @@ class AsyncStatsDClient:
 
     async def _ensure_transport(self) -> None:
         if self._transport is None:
-            loop = asyncio.get_running_loop()
-            self._transport, _ = await loop.create_datagram_endpoint(
-                lambda: asyncio.DatagramProtocol(), remote_addr=(self.host, self.port)
-            )
+            with tracer.start_as_current_span("statsd_ensure_transport"):
+                loop = asyncio.get_running_loop()
+                self._transport, _ = await loop.create_datagram_endpoint(
+                    lambda: asyncio.DatagramProtocol(),
+                    remote_addr=(self.host, self.port),
+                )
 
     async def _send(self, message: bytes) -> None:
         """Send a raw UDP message."""
-        await self._ensure_transport()
-        assert self._transport is not None
-        self._transport.sendto(message)
+        with tracer.start_as_current_span("statsd_send"):
+            await self._ensure_transport()
+            assert self._transport is not None
+            self._transport.sendto(message)
 
     async def close(self) -> None:
         """Close the underlying transport if open."""
         if self._transport is not None:
-            self._transport.close()
-            self._transport = None
+            with tracer.start_as_current_span("statsd_close"):
+                self._transport.close()
+                self._transport = None
 
     async def incr(self, metric: str, value: int = 1) -> None:
         """Increment a counter."""
-        self.counters[metric] += value
-        msg_metric = self._format_name(metric)
-        msg = f"{msg_metric}:{value}|c".encode()
-        try:
-            await self._send(msg)
-        except Exception:
-            # Metrics should never crash the app
-            pass
+        with tracer.start_as_current_span("statsd_incr"):
+            self.counters[metric] += value
+            msg_metric = self._format_name(metric)
+            msg = f"{msg_metric}:{value}|c".encode()
+            try:
+                await self._send(msg)
+            except Exception:
+                # Metrics should never crash the app
+                pass
 
     async def gauge(self, metric: str, value: float) -> None:
         """Submit a gauge value."""
-        self.gauges[metric] = value
-        msg_metric = self._format_name(metric)
-        msg = f"{msg_metric}:{value}|g".encode()
-        try:
-            await self._send(msg)
-        except Exception:
-            pass
+        with tracer.start_as_current_span("statsd_gauge"):
+            self.gauges[metric] = value
+            msg_metric = self._format_name(metric)
+            msg = f"{msg_metric}:{value}|g".encode()
+            try:
+                await self._send(msg)
+            except Exception:
+                pass
 
     def reset(self) -> None:
         """Clear stored metrics."""
