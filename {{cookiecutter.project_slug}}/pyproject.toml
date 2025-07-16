@@ -20,6 +20,7 @@ dependencies = [
     "uvloop",
     "opentelemetry-sdk",
     "opentelemetry-exporter-jaeger",
+    "deprecated",
 ]
 
 [build-system]
