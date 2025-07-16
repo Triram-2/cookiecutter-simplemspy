@@ -56,6 +56,7 @@ def test_statsd_defaults():
     cfg = AppSettings()
     assert cfg.statsd.host == "statsd"
     assert cfg.statsd.port == 9125
+    assert cfg.statsd.prefix == "{{cookiecutter.project_slug}}"
 
 
 def test_jaeger_defaults():
