@@ -18,6 +18,8 @@ dependencies = [
     "aiobreaker>=1.2.0",
     "psutil>=7.0.0",
     "uvloop>=0.21.0",
+    "opentelemetry-sdk>=1.23.0",
+    "opentelemetry-exporter-jaeger>=1.23.0",
 ]
 
 [build-system]
