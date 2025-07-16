@@ -7,14 +7,14 @@ from .tracing import tracer
 from .circuitbreaker import CircuitBreaker, CircuitBreakerError
 
 __all__ = [
-    "TASKS_STREAM_NAME",
-    "RedisStream",
-    "redis_stream",
-    "TASKS_ENDPOINT_PATH",
-    "statsd_client",
-    "tracer",
     "CircuitBreaker",
     "CircuitBreakerError",
+    "RedisStream",
+    "TASKS_ENDPOINT_PATH",
+    "TASKS_STREAM_NAME",
+    "redis_stream",
+    "statsd_client",
+    "tracer",
 ]
 
 TASKS_ENDPOINT_PATH = settings.service.tasks_endpoint

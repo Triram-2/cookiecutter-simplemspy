@@ -38,15 +38,13 @@ PYTHON_VERSIONS: List[str] = ["3.12", "3.13"]
 SRC_DIR: str = "src"
 TESTS_DIR: str = "tests"
 DOCS_DIR: str = "docs"
-COVERAGE_FAIL_UNDER: int = (
-    80  # Минимальный процент покрытия для тестов
-)
+COVERAGE_FAIL_UNDER: int = 80  # Минимальный процент покрытия для тестов
 os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 
 
 # --- Вспомогательные функции ---
 def install_project_with_deps(session: Session, *groups: str) -> None:
-    """Устанавливает проект и его зависимости из указанных групп используя uv pip install.""" # Docstring updated
+    """Устанавливает проект и его зависимости из указанных групп используя uv pip install."""  # Docstring updated
     install_args: List[str] = (
         ["-e", f".[{','.join(groups)}]"] if groups else ["-e", "."]
     )
@@ -203,17 +201,11 @@ def build(session: Session) -> None:
 @nox.session(python=False)
 def compose_rebuild(session: Session) -> None:
     """Полностью пересобирает окружение Docker Compose."""
-
     image_name: str = "{{cookiecutter.project_slug}}-app"
 
     session.log("Остановка и очистка старых контейнеров...")
     session.run(
-        "docker",
-        "compose",
-        "down",
-        "--volumes",
-        "--remove-orphans",
-        external=True,
+        "docker", "compose", "down", "--volumes", "--remove-orphans", external=True
     )
 
     session.log(f"Удаление старого образа {image_name}...")
@@ -223,14 +215,7 @@ def compose_rebuild(session: Session) -> None:
     session.run("docker", "builder", "prune", "-a", external=True)
 
     session.log("Пересборка образов без кэша...")
-    session.run(
-        "docker",
-        "compose",
-        "build",
-        "--no-cache",
-        "--pull",
-        external=True,
-    )
+    session.run("docker", "compose", "build", "--no-cache", "--pull", external=True)
 
     session.log("Запуск контейнеров...")
     session.run("docker", "compose", "up", external=True)

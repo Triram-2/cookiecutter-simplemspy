@@ -23,7 +23,9 @@ async def test_should_add_to_stream_and_ping() -> None:
     assert await repo.ping()
     assert [s.name for s in tracer.spans] == [
         "redis_add_to_stream",
+        "circuitbreaker_call",
         "redis_ping",
+        "circuitbreaker_call",
     ]
 
 

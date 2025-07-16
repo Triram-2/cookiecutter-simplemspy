@@ -6,7 +6,7 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import Any, Dict, cast
 
-from ..utils import CircuitBreaker, CircuitBreakerError, tracer
+from ..utils import CircuitBreaker, tracer
 
 from redis.asyncio import Redis
 
@@ -30,19 +30,14 @@ class RedisRepository:
         """Add a message to a Redis Stream."""
         with tracer.start_as_current_span("redis_add_to_stream"):
             result: Any = await self.breaker.call_async(
-                self.redis.xadd,
-                stream_name,
-                message,
-                maxlen=settings.redis.max_length,
+                self.redis.xadd, stream_name, message, maxlen=settings.redis.max_length
             )  # pyright: ignore[reportUnknownMemberType,reportUnknownArgumentType]
             return cast(str, result)
 
     async def ping(self) -> bool:
         """Check Redis connectivity."""
         with tracer.start_as_current_span("redis_ping"):
-            result: Any = await self.breaker.call_async(
-                self.redis.ping
-            )  # pyright: ignore[reportUnknownMemberType]
+            result: Any = await self.breaker.call_async(self.redis.ping)  # pyright: ignore[reportUnknownMemberType]
             return cast(bool, result)
 
 

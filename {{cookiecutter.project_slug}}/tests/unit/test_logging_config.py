@@ -10,7 +10,7 @@ from {{cookiecutter.python_package_name}}.core import config
 def test_should_post_logs_to_loki(monkeypatch):
     posted: dict[str, Any] = {}
 
-    def fake_post(url: str, *, json: Any) -> None:  # type: ignore[override]
+    def fake_post(url: str, *, json: Any, **_: Any) -> None:  # type: ignore[override]
         posted["url"] = url
         posted["json"] = json
 
@@ -46,7 +46,8 @@ def test_get_logger_with_empty_name():
     assert hasattr(logger_instance, "info")
 
 
-def test_logger_outputs_json(capsys):
+def test_logger_outputs_json(monkeypatch, capsys):
+    monkeypatch.setattr(config.settings.log, "loki_endpoint", "")
     setup_initial_logger()
     loguru_logger.info("json message")
     captured = capsys.readouterr().err.strip().splitlines()[-1]
