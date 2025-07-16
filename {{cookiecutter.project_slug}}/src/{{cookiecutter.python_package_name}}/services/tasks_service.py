@@ -18,7 +18,7 @@ GPU_AVAILABLE: bool = GPUtil is not None
 
 from ..repository.redis_repo import RedisRepository
 from ..core.logging_config import get_logger
-from ..utils import TASKS_STREAM_NAME, statsd_client
+from ..utils import TASKS_STREAM_NAME, statsd_client, tracer
 
 log = get_logger(__name__)
 
@@ -37,44 +37,47 @@ class TasksService:
     @staticmethod
     def _calculate_metrics(values: List[float]) -> Tuple[float, float, float]:
         """Return average, min and max for provided values."""
-        if not values:
-            return 0.0, 0.0, 0.0
+        with tracer.start_as_current_span("calculate_metrics"):
+            if not values:
+                return 0.0, 0.0, 0.0
 
-        avg = sum(values) / len(values)
-        return avg, min(values), max(values)
+            avg = sum(values) / len(values)
+            return avg, min(values), max(values)
 
     async def enqueue_task(self, payload: Dict[str, Any]) -> str:
         """Serialize payload and push it to Redis."""
-        message = {
-            "task_id": str(uuid4()),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "payload": json.dumps(payload),
-            "trace_context": json.dumps({"trace_id": "", "span_id": ""}),
-        }
-        try:
-            result = await self.repo.add_to_stream(TASKS_STREAM_NAME, message)
-        except Exception as exc:  # pragma: no cover - network errors
-            log.error("Failed to enqueue task", exc_info=exc)
-            return ""
-        await self._record_usage()
-        return result
+        with tracer.start_as_current_span("enqueue_task"):
+            message = {
+                "task_id": str(uuid4()),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "payload": json.dumps(payload),
+                "trace_context": json.dumps({"trace_id": "", "span_id": ""}),
+            }
+            try:
+                result = await self.repo.add_to_stream(TASKS_STREAM_NAME, message)
+            except Exception as exc:  # pragma: no cover - network errors
+                log.error("Failed to enqueue task", exc_info=exc)
+                return ""
+            await self._record_usage()
+            return result
 
     async def _record_usage(self) -> None:
         """Record CPU, memory and GPU usage to StatsD."""
-        cpu = psutil.cpu_percent()
-        mem = psutil.virtual_memory().percent
-        self.cpu_samples.append(cpu)
-        self.mem_samples.append(mem)
+        with tracer.start_as_current_span("record_usage"):
+            cpu = psutil.cpu_percent()
+            mem = psutil.virtual_memory().percent
+            self.cpu_samples.append(cpu)
+            self.mem_samples.append(mem)
 
-        cpu_avg, cpu_min, cpu_max = self._calculate_metrics(self.cpu_samples)
-        mem_avg, mem_min, mem_max = self._calculate_metrics(self.mem_samples)
+            cpu_avg, cpu_min, cpu_max = self._calculate_metrics(self.cpu_samples)
+            mem_avg, mem_min, mem_max = self._calculate_metrics(self.mem_samples)
 
-        await statsd_client.gauge("cpu.avg", cpu_avg)
-        await statsd_client.gauge("cpu.min", cpu_min)
-        await statsd_client.gauge("cpu.max", cpu_max)
-        await statsd_client.gauge("mem.avg", mem_avg)
-        await statsd_client.gauge("mem.min", mem_min)
-        await statsd_client.gauge("mem.max", mem_max)
+            await statsd_client.gauge("cpu.avg", cpu_avg)
+            await statsd_client.gauge("cpu.min", cpu_min)
+            await statsd_client.gauge("cpu.max", cpu_max)
+            await statsd_client.gauge("mem.avg", mem_avg)
+            await statsd_client.gauge("mem.min", mem_min)
+            await statsd_client.gauge("mem.max", mem_max)
 
         if GPU_AVAILABLE and GPUtil is not None:
             try:

@@ -29,7 +29,7 @@ async def test_should_return_202_and_store_message(async_client: AsyncClient, fa
     message = fake_redis.streams[TASKS_STREAM_NAME][-1]
     assert json.loads(message["payload"]) == payload
     assert statsd_client.counters["requests.tasks"] == 1
-    assert tracer.spans and tracer.spans[-1].name == "create_task"
+    assert tracer.spans and tracer.spans[0].name == "create_task"
 
 
 async def test_should_return_400_when_payload_invalid(async_client: AsyncClient):

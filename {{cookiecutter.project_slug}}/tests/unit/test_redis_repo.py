@@ -7,6 +7,7 @@ from {{cookiecutter.python_package_name}}.utils.circuitbreaker import (
 from {{cookiecutter.python_package_name}}.repository.redis_repo import (
     RedisRepository,
 )
+from {{cookiecutter.python_package_name}}.utils import tracer
 from tests.conftest import FakeRedis
 
 
@@ -14,12 +15,16 @@ from tests.conftest import FakeRedis
 async def test_should_add_to_stream_and_ping() -> None:
     fake = FakeRedis()
     repo = RedisRepository(client=fake)
-
+    tracer.spans.clear()
     await repo.add_to_stream("mystream", {"foo": "bar"})
 
     assert "mystream" in fake.streams
     assert fake.streams["mystream"][0]["foo"] == "bar"
     assert await repo.ping()
+    assert [s.name for s in tracer.spans] == [
+        "redis_add_to_stream",
+        "redis_ping",
+    ]
 
 
 @pytest.mark.asyncio
@@ -39,6 +44,7 @@ async def test_should_open_breaker_after_failures() -> None:
     repo = RedisRepository(client=FailingRedis(fail_times=3))
 
     # first two calls fail but do not raise CircuitBreakerError
+    tracer.spans.clear()
     for _ in range(2):
         with pytest.raises(ConnectionError):
             await repo.add_to_stream("s", {"foo": "bar"})
@@ -46,3 +52,4 @@ async def test_should_open_breaker_after_failures() -> None:
     # third call should trip the breaker
     with pytest.raises(CircuitBreakerError):
         await repo.add_to_stream("s", {"foo": "bar"})
+    assert tracer.spans[-1].name == "circuitbreaker_call"
