@@ -102,4 +102,5 @@ def shutdown_tracer() -> None:
         except Exception:
             pass
 
-__all__ = ["DummyTracer", "Span", "tracer", "shutdown_tracer"]
+
+__all__ = ["DummyTracer", "Span", "shutdown_tracer", "tracer"]

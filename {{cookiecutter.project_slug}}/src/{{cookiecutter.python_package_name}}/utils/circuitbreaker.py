@@ -22,7 +22,7 @@ class CircuitBreaker:
         self.fail_max = fail_max
         self.timeout_duration = timeout_duration
         self._failure_count = 0
-        self._opened_until: Optional[datetime] = None
+        self._opened_until: datetime | None = None
 
     async def call_async(
         self, func: Callable[..., Awaitable[T]], *args: object, **kwargs: object
@@ -33,17 +33,17 @@ class CircuitBreaker:
 
             try:
                 result = await func(*args, **kwargs)
-            except Exception:
+            except Exception as exc:
                 self._failure_count += 1
                 if self._failure_count >= self.fail_max:
                     self._opened_until = datetime.now() + self.timeout_duration
                     self._failure_count = 0
-                    raise CircuitBreakerError("circuit breaker is open")
+                    raise CircuitBreakerError("circuit breaker is open") from exc
                 raise
             else:
                 self._failure_count = 0
                 self._opened_until = None
                 return result
 
-__all__ = ["CircuitBreaker", "CircuitBreakerError"]
 
+__all__ = ["CircuitBreaker", "CircuitBreakerError"]

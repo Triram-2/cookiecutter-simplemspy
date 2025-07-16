@@ -3,7 +3,7 @@
 from .core.config import settings
 from .core.logging_config import get_logger
 
-__all__ = ["__version__", "settings", "get_logger"]
+__all__ = ["__version__", "get_logger", "settings"]
 
 log = get_logger(__name__)
 

@@ -1,4 +1,3 @@
-import asyncio
 import pytest
 
 from {{cookiecutter.python_package_name}}.utils.metrics import AsyncStatsDClient
@@ -10,7 +9,8 @@ async def test_should_apply_prefix_to_metric_name() -> None:
     messages: list[bytes] = []
 
     async def capture(self, message: bytes) -> None:
-        messages.append(message)
+        with tracer.start_as_current_span("statsd_send"):
+            messages.append(message)
 
     client = AsyncStatsDClient("localhost", 8125, prefix="pref")
     client._send = capture.__get__(client, AsyncStatsDClient)

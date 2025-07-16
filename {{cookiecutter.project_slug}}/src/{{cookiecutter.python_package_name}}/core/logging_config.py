@@ -17,7 +17,7 @@ _logger_initialized = False
 from .config import settings, AppSettings
 
 
-loguru_logger.disable("httpx")      # убираем httpx из Loguru совсем
+loguru_logger.disable("httpx")  # убираем httpx из Loguru совсем
 logging.getLogger("httpx").handlers = [logging.NullHandler()]
 logging.getLogger("httpx").propagate = False
 
@@ -42,7 +42,6 @@ class InterceptHandler(logging.Handler):
 
 
 def setup_initial_logger() -> None:
-    global _logger_initialized
     loguru_logger.remove()
 
     loguru_logger.level("DEBUG", color="<bold><white>")
@@ -92,7 +91,7 @@ def setup_initial_logger() -> None:
         )
 
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
-    _logger_initialized = True
+    globals()["_logger_initialized"] = True
 
     def _patch_uvicorn_loggers() -> None:
         """
@@ -108,7 +107,7 @@ def setup_initial_logger() -> None:
 
 
 # Exported helpers
-__all__ = ["InterceptHandler", "setup_initial_logger", "get_logger"]
+__all__ = ["InterceptHandler", "get_logger", "setup_initial_logger"]
 
 
 def get_logger(name: str) -> Any:

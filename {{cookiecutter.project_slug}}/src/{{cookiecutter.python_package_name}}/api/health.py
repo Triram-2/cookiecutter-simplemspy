@@ -2,7 +2,7 @@ from __future__ import annotations
 
 """Health check endpoint definitions."""
 
-from datetime import datetime, timezone
+from datetime import datetime
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.routing import Route, Router
@@ -51,7 +51,7 @@ def get_router(repo: RedisRepository | None = None) -> Router:
 
             payload = {
                 "status": "healthy" if redis_ok else "unhealthy",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(datetime.UTC).isoformat(),
                 "redis_connected": redis_ok,
                 "version": __version__,
             }

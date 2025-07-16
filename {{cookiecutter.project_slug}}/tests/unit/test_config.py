@@ -1,4 +1,4 @@
-from {{cookiecutter.python_package_name}}.core.config import LogSettings, AppSettings, BASE_DIR, DATA_DIR
+from {{cookiecutter.python_package_name}}.core.config import LogSettings, AppSettings, DATA_DIR
 
 
 def test_log_settings_instantiation():

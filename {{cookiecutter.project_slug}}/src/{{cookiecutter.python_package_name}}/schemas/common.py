@@ -46,7 +46,7 @@ class PaginationParams(BaseModel):
     )
 
 
-class PaginatedResponse(BaseModel, Generic[T]):
+class PaginatedResponse[T](BaseModel):
     """Generic schema for paginated API responses."""
 
     items: List[T] = Field(..., description="List of items on the current page")
