@@ -87,7 +87,7 @@ class StatsDSettings(BaseSettings):
     # StatsD exporter hostname within Docker
     host: str = "statsd"
     port: int = 9125
-    prefix: str = "microservice"
+    prefix: str = "{{cookiecutter.project_slug}}"
 
 
 class JaegerSettings(BaseSettings):
