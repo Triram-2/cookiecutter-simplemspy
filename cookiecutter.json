@@ -17,6 +17,7 @@
   "redis_stream_name": "tasks:stream",
   "redis_consumer_group": "processors",
   "redis_consumer_name": "worker",
+  "tasks_endpoint_path": "/tasks",
   "_copy_without_render": [
     "*.html",
     "docs/_static/*"

@@ -116,6 +116,8 @@ class ServiceSettings(BaseSettings):
     host: str = "0.0.0.0"
     # Internal port the app listens on
     port: int = {{cookiecutter.internal_app_port}}
+    # Path for task creation endpoint
+    tasks_endpoint: str = "{{cookiecutter.tasks_endpoint_path}}"
 
 
 class PerformanceSettings(BaseSettings):
