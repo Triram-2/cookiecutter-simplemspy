@@ -54,8 +54,6 @@ def setup_initial_logger() -> None:
         diagnose=current_settings.log.diagnose,
     )
 
-    http_client = httpx.Client(timeout=5)
-
     def _send_to_loki(message: Any) -> None:
         """Forward log records to a Grafana Loki instance."""
         record = message.record
@@ -76,7 +74,7 @@ def setup_initial_logger() -> None:
             ]
         }
         try:
-            http_client.post(current_settings.log.loki_endpoint, json=payload)
+            httpx.post(current_settings.log.loki_endpoint, json=payload, timeout=5)
         except Exception as exc:  # pragma: no cover - network errors
             print(f"Loki logging failed: {exc}", file=sys.stderr)
 
