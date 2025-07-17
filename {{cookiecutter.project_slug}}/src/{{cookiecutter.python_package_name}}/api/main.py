@@ -12,7 +12,11 @@ from ..utils.tracing import shutdown_tracer
 from . import health, tasks
 
 from .health import router as health_router
-from .tasks import router as tasks_router
+from .tasks import (
+    router as tasks_router,
+    start_task_processor,
+    stop_task_processor,
+)
 
 router = Router()
 router.routes.extend(health_router.routes)
@@ -28,6 +32,7 @@ async def on_startup() -> None:
     """Log startup message."""
     with tracer.start_as_current_span("запуск"):
         log.info("Application startup")
+        await start_task_processor()
 
 
 @app.on_event("shutdown")  # pyright: ignore[reportUnknownMemberType,reportUntypedFunctionDecorator]
@@ -36,6 +41,7 @@ async def on_shutdown() -> None:
     with tracer.start_as_current_span("остановка"):
         await _close_repo(health.redis_repo)
         await _close_repo(tasks.tasks_service.repo)
+        await stop_task_processor()
         await statsd_client.close()
         statsd_client.reset()
         tracer.spans.clear()
