@@ -13,7 +13,6 @@ import uvicorn
 
 from {{cookiecutter.python_package_name}}.core.config import settings
 from {{cookiecutter.python_package_name}}.core.logging_config import get_logger
-from {{cookiecutter.python_package_name}}.utils.tracing import tracer
 
 log = get_logger(__name__)
 
@@ -27,10 +26,9 @@ if __name__ == "__main__":
     log.info(f"Code auto-reloading: {'Enabled' if settings.app_reload else 'Disabled'}")
     log.info("Press CTRL+C to stop the server.")
 
-    with tracer.start_as_current_span("главная"):
-        uvicorn.run(
-            "{{cookiecutter.python_package_name}}.api:app",
-            host=settings.app_host,
-            port=settings.app_port,
-            reload=settings.app_reload,
-        )
+    uvicorn.run(
+        "{{cookiecutter.python_package_name}}.api:app",
+        host=settings.app_host,
+        port=settings.app_port,
+        reload=settings.app_reload,
+    )
