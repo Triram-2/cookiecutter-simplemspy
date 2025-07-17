@@ -63,7 +63,6 @@ class AsyncStatsDClient:
             try:
                 await self._send(msg)
             except Exception:
-                # Metrics should never crash the app
                 pass
 
     async def gauge(self, metric: str, value: float) -> None:

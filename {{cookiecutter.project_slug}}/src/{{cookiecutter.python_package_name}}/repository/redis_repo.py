@@ -19,7 +19,6 @@ class RedisRepository:
     def __init__(
         self, client: Redis | None = None, url: str = settings.redis.url
     ) -> None:
-        # Redis.from_url may lack type hints in some versions
         self.redis = client or Redis.from_url(url, decode_responses=True)  # pyright: ignore[reportUnknownMemberType]
         self.breaker: CircuitBreaker = CircuitBreaker(
             fail_max=settings.redis.breaker_fail_max,

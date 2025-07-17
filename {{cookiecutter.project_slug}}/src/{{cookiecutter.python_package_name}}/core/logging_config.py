@@ -17,7 +17,7 @@ _logger_initialized = False
 from .config import settings, AppSettings
 
 
-loguru_logger.disable("httpx")  # убираем httpx из Loguru совсем
+loguru_logger.disable("httpx")
 logging.getLogger("httpx").handlers = [logging.NullHandler()]
 logging.getLogger("httpx").propagate = False
 
@@ -100,13 +100,12 @@ def setup_initial_logger() -> None:
         """
         for name in ("uvicorn", "uvicorn.access", "uvicorn.error"):
             logger = logging.getLogger(name)
-            logger.handlers = []  # убираем внутренний StreamHandler
-            logger.propagate = True  # разрешаем «пузыриться» наверх
+            logger.handlers = []
+            logger.propagate = True
 
     _patch_uvicorn_loggers()
 
 
-# Exported helpers
 __all__ = ["InterceptHandler", "get_logger", "setup_initial_logger"]
 
 
@@ -115,7 +114,6 @@ def get_logger(name: str) -> Any:
         setup_initial_logger()
 
     if not name:
-        # Consider raising an error or returning a pre-configured 'unnamed' logger
         return loguru_logger.bind(name="unnamed_logger_error")
 
     current_settings: AppSettings = settings
@@ -177,7 +175,6 @@ def get_logger(name: str) -> Any:
             **error_log_args,
         )
     except Exception:
-        # Optionally, log to stderr here if critical, or handle silently
         pass
 
     def info_filter_func(record: Dict[str, Any]) -> bool:
@@ -204,7 +201,6 @@ def get_logger(name: str) -> Any:
             **info_log_args,
         )
     except Exception:
-        # Optionally, log to stderr here if critical, or handle silently
         pass
 
     return loguru_logger.bind(name=name)
