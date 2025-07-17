@@ -280,7 +280,7 @@ def locust(session: Session) -> None:
         )
         session.log(
             "Пример команды, если locustfile.py существует: "
-            "locust -f locustfile.py --host=http://localhost:{{cookiecutter.app_port_host}}"
+            f"locust -f locustfile.py --host=http://localhost:{{cookiecutter.app_port_host}}"
         )
         return
 
