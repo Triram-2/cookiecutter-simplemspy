@@ -52,7 +52,7 @@ class LogSettings(BaseSettings):
     info_file_level: str = "INFO"
     error_file_level: str = "ERROR"
     compression: str | None = None
-    enqueue: bool = True
+    enqueue: bool = False
     backtrace: bool = True
     diagnose: bool = True
     rotation: str = "00:00"

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Generic, List, TypeVar, ClassVar
+from typing import List, TypeVar, ClassVar
 
 from pydantic import BaseModel, Field, ConfigDict
 
