@@ -2,7 +2,7 @@ from __future__ import annotations
 
 """Service providing task queueing and metric collection."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any, Dict, List, Tuple, cast
 from uuid import uuid4
 

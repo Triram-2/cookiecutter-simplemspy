@@ -3,7 +3,7 @@ from __future__ import annotations
 """Simple asynchronous circuit breaker implementation."""
 
 from datetime import datetime, timedelta
-from typing import Awaitable, Callable, Optional, TypeVar
+from typing import Awaitable, Callable, TypeVar
 
 from .tracing import tracer
 

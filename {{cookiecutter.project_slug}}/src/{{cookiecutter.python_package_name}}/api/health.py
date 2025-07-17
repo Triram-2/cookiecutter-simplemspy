@@ -2,7 +2,7 @@ from __future__ import annotations
 
 """Health check endpoint definitions."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.routing import Route, Router
