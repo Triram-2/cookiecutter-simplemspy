@@ -1,9 +1,15 @@
 import json
+from collections import defaultdict
+
 import pytest
 
 from {{cookiecutter.python_package_name}}.repository.redis_repo import RedisRepository
 from {{cookiecutter.python_package_name}}.services.tasks_service import TasksService
-from {{cookiecutter.python_package_name}}.utils import TASKS_STREAM_NAME, tracer
+from {{cookiecutter.python_package_name}}.utils import (
+    TASKS_STREAM_NAME,
+    DEAD_LETTER_STREAM_NAME,
+    tracer,
+)
 from tests.conftest import FakeRedis
 
 
@@ -91,3 +97,56 @@ async def test_should_report_average_min_max_metrics(monkeypatch) -> None:
     assert gauges["mem.min"] == 40.0
     assert gauges["mem.max"] == 50.0
     assert [s.name for s in tracer.spans].count("постановка_задачи") == 2
+
+
+class FailingRepo:
+    def __init__(self, fail_times: int) -> None:
+        self.fail_times = fail_times
+        self.calls = 0
+        self.streams: dict[str, list[dict]] = defaultdict(list)
+
+    async def add_to_stream(self, stream_name: str, message: dict) -> str:
+        self.calls += 1
+        if self.calls <= self.fail_times:
+            raise ConnectionError("down")
+        self.streams[stream_name].append(message)
+        return str(len(self.streams[stream_name]))
+
+
+@pytest.mark.asyncio
+async def test_should_retry_before_success(monkeypatch) -> None:
+    repo = FailingRepo(fail_times=2)
+    service = TasksService(repo)  # type: ignore[arg-type]
+
+    sleeps: list[float] = []
+
+    async def fake_sleep(delay: float) -> None:
+        sleeps.append(delay)
+
+    monkeypatch.setattr(
+        "{{cookiecutter.python_package_name}}.services.tasks_service.asyncio.sleep",
+        fake_sleep,
+    )
+
+    await service.enqueue_task({"data": 1})
+
+    assert repo.calls == 3
+    assert repo.streams[TASKS_STREAM_NAME]
+    assert sleeps == [1, 2]
+
+
+@pytest.mark.asyncio
+async def test_should_send_to_dead_letter_after_retries(monkeypatch) -> None:
+    repo = FailingRepo(fail_times=3)
+    service = TasksService(repo)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(
+        "{{cookiecutter.python_package_name}}.services.tasks_service.asyncio.sleep",
+        lambda *_: None,
+    )
+
+    await service.enqueue_task({"data": 2})
+
+    assert repo.calls == 4
+    assert not repo.streams.get(TASKS_STREAM_NAME)
+    assert repo.streams[DEAD_LETTER_STREAM_NAME]

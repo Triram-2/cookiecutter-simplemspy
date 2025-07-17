@@ -16,9 +16,16 @@ except Exception:  # pragma: no cover - optional dependency
 
 GPU_AVAILABLE: bool = GPUtil is not None
 
+import asyncio
+
 from ..repository.redis_repo import RedisRepository
 from ..core.logging_config import get_logger
-from ..utils import TASKS_STREAM_NAME, statsd_client, tracer
+from ..utils import (
+    TASKS_STREAM_NAME,
+    DEAD_LETTER_STREAM_NAME,
+    statsd_client,
+    tracer,
+)
 
 log = get_logger(__name__)
 
@@ -53,13 +60,35 @@ class TasksService:
                 "payload": json.dumps(payload),
                 "trace_context": json.dumps({"trace_id": "", "span_id": ""}),
             }
-            try:
-                result = await self.repo.add_to_stream(TASKS_STREAM_NAME, message)
-            except Exception as exc:  # pragma: no cover - network errors
-                log.error("Failed to enqueue task", exc_info=exc)
-                return ""
-            await self._record_usage()
-            return result
+            attempts = 0
+            while attempts < 3:
+                try:
+                    result = await self.repo.add_to_stream(
+                        TASKS_STREAM_NAME, message
+                    )
+                except Exception as exc:  # pragma: no cover - network errors
+                    attempts += 1
+                    log.error(
+                        "Failed to enqueue task (attempt %s)",
+                        attempts,
+                        exc_info=exc,
+                    )
+                    if attempts >= 3:
+                        try:
+                            await self.repo.add_to_stream(
+                                DEAD_LETTER_STREAM_NAME, message
+                            )
+                        except Exception as dead_exc:  # pragma: no cover - network errors
+                            log.error(
+                                "Failed to enqueue to dead-letter", exc_info=dead_exc
+                            )
+                        return ""
+                    await asyncio.sleep(2 ** (attempts - 1))
+                    continue
+                else:
+                    await self._record_usage()
+                    return result
+
 
     async def _record_usage(self) -> None:
         """Record CPU, memory and GPU usage to StatsD."""

@@ -31,7 +31,13 @@ class RedisStream:
 
 
 TASKS_STREAM_NAME = settings.redis.stream_name
+DEAD_LETTER_STREAM_NAME = f"{settings.redis.stream_name}:dlq"
 
 redis_stream = RedisStream(settings.redis.url)
 
-__all__ = ["TASKS_STREAM_NAME", "RedisStream", "redis_stream"]
+__all__ = [
+    "TASKS_STREAM_NAME",
+    "DEAD_LETTER_STREAM_NAME",
+    "RedisStream",
+    "redis_stream",
+]
