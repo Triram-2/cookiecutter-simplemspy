@@ -90,6 +90,10 @@ class FakeRedis:
     async def xlen(self, stream_name: str) -> int:
         return len(self.streams[stream_name])
 
+    async def length(self, stream_name: str) -> int:
+        """Return current length of the specified stream."""
+        return await self.xlen(stream_name)
+
 
 @pytest_asyncio.fixture(autouse=True)
 async def fake_redis(monkeypatch) -> AsyncGenerator[FakeRedis, None]:
