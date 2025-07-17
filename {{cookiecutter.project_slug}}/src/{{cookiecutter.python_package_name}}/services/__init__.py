@@ -1,6 +1,6 @@
 """Service layer containing business logic classes."""
 
-from .tasks_service import TasksService
 from .task_processor import TaskProcessor
+from .tasks_service import TasksService
 
-__all__ = ["TasksService", "TaskProcessor"]
+__all__ = ["TaskProcessor", "TasksService"]
