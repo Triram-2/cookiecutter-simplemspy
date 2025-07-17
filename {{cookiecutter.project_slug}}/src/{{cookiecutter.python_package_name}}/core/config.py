@@ -177,7 +177,7 @@ class AppSettings(BaseSettings):
         default="0.0.0.0", description="Host for Uvicorn"
     )  # Changed default to 0.0.0.0
     app_port: int = Field(
-        default={{cookiecutter.internal_app_port}},
+        default={{cookiecutter.app_port_host}},
         description="Порт Starlette приложения",
     )
     app_reload: bool = Field(

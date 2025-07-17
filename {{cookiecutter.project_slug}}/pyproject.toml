@@ -1,7 +1,7 @@
 # --- General ---
 [project]
 name = "{{cookiecutter.python_package_name}}"
-version = "0.1.0"
+version = "{{cookiecutter.project_version}}"
 description = "{{cookiecutter.project_description}}"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -278,7 +278,7 @@ profile-all = false
 name = "cz_conventional_commits"
 
 # Текущую версию Commitizen будет читать/писать из/в эти файлы:
-version = "0.1.0" # Начальная версия или версия последнего релиза
+version = "{{cookiecutter.project_version}}" # Начальная версия или версия последнего релиза
 version_files = [
     # "src/__init__.py:__version__", # Удалено
     "pyproject.toml:version"

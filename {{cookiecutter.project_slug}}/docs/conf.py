@@ -9,7 +9,7 @@
 project = "{{cookiecutter.project_name}}"
 project_copyright = "{{cookiecutter.copyright_year}}, {{cookiecutter.author_name}}"
 author = "{{cookiecutter.author_name}}"
-release = "0.1.0"
+release = "{{cookiecutter.project_version}}"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
