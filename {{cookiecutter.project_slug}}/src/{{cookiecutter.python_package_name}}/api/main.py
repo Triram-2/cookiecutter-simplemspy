@@ -32,21 +32,22 @@ async def on_startup() -> None:
     """Log startup message."""
     with tracer.start_as_current_span("запуск"):
         log.info("Application startup")
-        await start_task_processor()
+    await start_task_processor()
 
 
 @app.on_event("shutdown")  # pyright: ignore[reportUnknownMemberType,reportUntypedFunctionDecorator]
 async def on_shutdown() -> None:
     """Clean up resources on shutdown."""
     with tracer.start_as_current_span("остановка"):
-        await _close_repo(health.redis_repo)
-        await _close_repo(tasks.tasks_service.repo)
-        await stop_task_processor()
-        await statsd_client.close()
-        statsd_client.reset()
-        tracer.spans.clear()
-        shutdown_tracer()
-        log.info("Application shutdown complete")
+        log.info("Application shutdown")
+    await _close_repo(health.redis_repo)
+    await _close_repo(tasks.tasks_service.repo)
+    await stop_task_processor()
+    await statsd_client.close()
+    statsd_client.reset()
+    tracer.spans.clear()
+    shutdown_tracer()
+    log.info("Application shutdown complete")
 
 
 async def _close_repo(repo: RedisRepository | Any) -> None:
