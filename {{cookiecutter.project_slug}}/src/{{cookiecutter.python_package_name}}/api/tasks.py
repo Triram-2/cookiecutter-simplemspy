@@ -19,6 +19,7 @@ from starlette.status import (
 
 from .deps import get_tasks_service
 from ..services.tasks_service import TasksService
+from ..services.task_processor import TaskProcessor
 from ..utils.metrics import statsd_client
 from ..utils.tracing import tracer
 from ..utils import TASKS_ENDPOINT_PATH
@@ -29,6 +30,7 @@ log = get_logger(__name__)
 
 
 tasks_service: TasksService = get_tasks_service()
+task_processor: TaskProcessor | None = None
 
 background_tasks: set[asyncio.Task[Any]] = set()
 
@@ -41,6 +43,22 @@ def _log_task_result(task: asyncio.Task[Any]) -> None:
 
 
 MAX_BODY_SIZE = settings.performance.max_payload_size
+
+
+async def start_task_processor() -> None:
+    """Start background task processor."""
+    global task_processor
+    if task_processor is None:
+        task_processor = TaskProcessor(tasks_service.repo)
+    await task_processor.start()
+
+
+async def stop_task_processor() -> None:
+    """Stop background task processor."""
+    global task_processor
+    if task_processor is not None:
+        await task_processor.stop()
+        task_processor = None
 
 
 def _sanitize(value: Any) -> Any:
@@ -138,4 +156,12 @@ def get_router(service: TasksService | None = None) -> Router:
 
 router = get_router()
 
-__all__ = ["TaskPayload", "get_router", "router", "tasks_service"]
+__all__ = [
+    "TaskPayload",
+    "get_router",
+    "router",
+    "tasks_service",
+    "task_processor",
+    "start_task_processor",
+    "stop_task_processor",
+]
