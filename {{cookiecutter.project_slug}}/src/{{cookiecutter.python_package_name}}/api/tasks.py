@@ -54,7 +54,7 @@ def _sanitize(value: Any) -> Any:
     Returns:
         The sanitized value.
     """
-    with tracer.start_as_current_span("sanitize"):
+    with tracer.start_as_current_span("очистка"):
         if isinstance(value, str):
             return escape(value)
         if isinstance(value, Sequence) and not isinstance(
@@ -87,7 +87,7 @@ def get_router(service: TasksService | None = None) -> Router:
         Router with the ``TASKS_ENDPOINT_PATH`` route registered.
     """
     service = service or tasks_service
-    with tracer.start_as_current_span("get_router"):
+    with tracer.start_as_current_span("получение_роутера"):
         router = Router()
 
     async def create_task(request: Request) -> JSONResponse:
@@ -100,7 +100,7 @@ def get_router(service: TasksService | None = None) -> Router:
         Returns:
             JSONResponse indicating acceptance or validation error.
         """
-        with tracer.start_as_current_span("create_task"):
+        with tracer.start_as_current_span("создание_задачи"):
             body = await request.body()
             if len(body) > MAX_BODY_SIZE:
                 return JSONResponse(

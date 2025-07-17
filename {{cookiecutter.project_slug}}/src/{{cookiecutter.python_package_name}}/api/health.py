@@ -41,7 +41,7 @@ def get_router(repo: RedisRepository | None = None) -> Router:
         Returns:
             JSONResponse with health metadata.
         """
-        with tracer.start_as_current_span("health_check"):
+        with tracer.start_as_current_span("проверка_здоровья"):
             await statsd_client.incr("requests.health")
             try:
                 await repo.ping()

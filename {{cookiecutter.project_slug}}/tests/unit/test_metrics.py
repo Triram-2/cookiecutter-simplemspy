@@ -9,7 +9,7 @@ async def test_should_apply_prefix_to_metric_name() -> None:
     messages: list[bytes] = []
 
     async def capture(self, message: bytes) -> None:
-        with tracer.start_as_current_span("statsd_send"):
+        with tracer.start_as_current_span("statsd_отправка"):
             messages.append(message)
 
     client = AsyncStatsDClient("localhost", 8125, prefix="pref")
@@ -21,8 +21,8 @@ async def test_should_apply_prefix_to_metric_name() -> None:
     assert messages[0].startswith(b"pref.my.metric:2|c")
     assert messages[1].startswith(b"pref.another:1.5|g")
     assert [s.name for s in tracer.spans] == [
-        "statsd_incr",
-        "statsd_send",
-        "statsd_gauge",
-        "statsd_send",
+        "statsd_инкремент",
+        "statsd_отправка",
+        "statsd_измерение",
+        "statsd_отправка",
     ]

@@ -26,14 +26,14 @@ app = Starlette(routes=router.routes)
 @app.on_event("startup")  # pyright: ignore[reportUnknownMemberType,reportUntypedFunctionDecorator]
 async def on_startup() -> None:
     """Log startup message."""
-    with tracer.start_as_current_span("startup"):
+    with tracer.start_as_current_span("запуск"):
         log.info("Application startup")
 
 
 @app.on_event("shutdown")  # pyright: ignore[reportUnknownMemberType,reportUntypedFunctionDecorator]
 async def on_shutdown() -> None:
     """Clean up resources on shutdown."""
-    with tracer.start_as_current_span("shutdown"):
+    with tracer.start_as_current_span("остановка"):
         await _close_repo(health.redis_repo)
         await _close_repo(tasks.tasks_service.repo)
         await statsd_client.close()
@@ -45,7 +45,7 @@ async def on_shutdown() -> None:
 
 async def _close_repo(repo: RedisRepository | Any) -> None:
     """Attempt to gracefully close a repository."""
-    with tracer.start_as_current_span("close_repo"):
+    with tracer.start_as_current_span("закрытие_репозитория"):
         redis_obj = getattr(repo, "redis", repo)
         close = getattr(redis_obj, "close", None)
         if close:

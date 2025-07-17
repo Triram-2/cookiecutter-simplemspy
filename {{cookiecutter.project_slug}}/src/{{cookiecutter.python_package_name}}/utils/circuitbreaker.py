@@ -27,7 +27,7 @@ class CircuitBreaker:
     async def call_async(
         self, func: Callable[..., Awaitable[T]], *args: object, **kwargs: object
     ) -> T:
-        with tracer.start_as_current_span("circuitbreaker_call"):
+        with tracer.start_as_current_span("вызов_предохранителя"):
             if self._opened_until and datetime.now() < self._opened_until:
                 raise CircuitBreakerError("circuit breaker is open")
 

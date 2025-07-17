@@ -27,7 +27,7 @@ if __name__ == "__main__":
     log.info(f"Code auto-reloading: {'Enabled' if settings.app_reload else 'Disabled'}")
     log.info("Press CTRL+C to stop the server.")
 
-    with tracer.start_as_current_span("main"):
+    with tracer.start_as_current_span("главная"):
         uvicorn.run(
             "{{cookiecutter.python_package_name}}.api:app",  # Path to the Starlette application object
             host=settings.app_host,

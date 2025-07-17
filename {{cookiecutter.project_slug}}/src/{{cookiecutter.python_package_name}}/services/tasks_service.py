@@ -37,7 +37,7 @@ class TasksService:
     @staticmethod
     def _calculate_metrics(values: List[float]) -> Tuple[float, float, float]:
         """Return average, min and max for provided values."""
-        with tracer.start_as_current_span("calculate_metrics"):
+        with tracer.start_as_current_span("расчет_метрик"):
             if not values:
                 return 0.0, 0.0, 0.0
 
@@ -46,7 +46,7 @@ class TasksService:
 
     async def enqueue_task(self, payload: Dict[str, Any]) -> str:
         """Serialize payload and push it to Redis."""
-        with tracer.start_as_current_span("enqueue_task"):
+        with tracer.start_as_current_span("постановка_задачи"):
             message = {
                 "task_id": str(uuid4()),
                 "timestamp": datetime.now(UTC).isoformat(),
@@ -63,7 +63,7 @@ class TasksService:
 
     async def _record_usage(self) -> None:
         """Record CPU, memory and GPU usage to StatsD."""
-        with tracer.start_as_current_span("record_usage"):
+        with tracer.start_as_current_span("запись_использования"):
             cpu = psutil.cpu_percent()
             mem = psutil.virtual_memory().percent
             self.cpu_samples.append(cpu)

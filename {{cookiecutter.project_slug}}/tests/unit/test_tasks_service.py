@@ -22,7 +22,7 @@ async def test_enqueue_task_formats_and_stores_message() -> None:
     assert json.loads(stored["payload"]) == payload
     assert "task_id" in stored
     assert "timestamp" in stored
-    assert tracer.spans and tracer.spans[0].name == "enqueue_task"
+    assert tracer.spans and tracer.spans[0].name == "постановка_задачи"
 
 
 def test_calculate_metrics() -> None:
@@ -31,7 +31,7 @@ def test_calculate_metrics() -> None:
     assert avg == 2.0
     assert mn == 1.0
     assert mx == 3.0
-    assert tracer.spans and tracer.spans[0].name == "calculate_metrics"
+    assert tracer.spans and tracer.spans[0].name == "расчет_метрик"
 
 
 def test_calculate_metrics_empty_list() -> None:
@@ -40,7 +40,7 @@ def test_calculate_metrics_empty_list() -> None:
     assert avg == 0.0
     assert mn == 0.0
     assert mx == 0.0
-    assert tracer.spans and tracer.spans[0].name == "calculate_metrics"
+    assert tracer.spans and tracer.spans[0].name == "расчет_метрик"
 
 
 @pytest.mark.asyncio
@@ -90,4 +90,4 @@ async def test_should_report_average_min_max_metrics(monkeypatch) -> None:
     assert gauges["mem.avg"] == 45.0
     assert gauges["mem.min"] == 40.0
     assert gauges["mem.max"] == 50.0
-    assert [s.name for s in tracer.spans].count("enqueue_task") == 2
+    assert [s.name for s in tracer.spans].count("постановка_задачи") == 2

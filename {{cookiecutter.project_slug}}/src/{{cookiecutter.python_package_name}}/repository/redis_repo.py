@@ -28,7 +28,7 @@ class RedisRepository:
 
     async def add_to_stream(self, stream_name: str, message: Dict[str, Any]) -> str:
         """Add a message to a Redis Stream."""
-        with tracer.start_as_current_span("redis_add_to_stream"):
+        with tracer.start_as_current_span("добавление_в_redis_стрим"):
             result: Any = await self.breaker.call_async(
                 cast(Callable[..., Awaitable[Any]], self.redis.xadd),
                 stream_name,
@@ -39,7 +39,7 @@ class RedisRepository:
 
     async def ping(self) -> bool:
         """Check Redis connectivity."""
-        with tracer.start_as_current_span("redis_ping"):
+        with tracer.start_as_current_span("пинг_redis"):
             result: Any = await self.breaker.call_async(
                 cast(Callable[..., Awaitable[Any]], self.redis.ping)
             )
