@@ -54,15 +54,18 @@ def _sanitize(value: Any) -> Any:
     Returns:
         The sanitized value.
     """
-    if isinstance(value, str):
-        return escape(value)
-    if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
-        seq = cast(Sequence[Any], value)
-        return [_sanitize(v) for v in seq]
-    if isinstance(value, Mapping):
-        mapping = cast(Mapping[Any, Any], value)
-        return {str(k): _sanitize(v) for k, v in mapping.items()}
-    return value
+    with tracer.start_as_current_span("sanitize"):
+        if isinstance(value, str):
+            return escape(value)
+        if isinstance(value, Sequence) and not isinstance(
+            value, str | bytes | bytearray
+        ):
+            seq = cast(Sequence[Any], value)
+            return [_sanitize(v) for v in seq]
+        if isinstance(value, Mapping):
+            mapping = cast(Mapping[Any, Any], value)
+            return {str(k): _sanitize(v) for k, v in mapping.items()}
+        return value
 
 
 class TaskPayload(BaseModel):
@@ -84,7 +87,8 @@ def get_router(service: TasksService | None = None) -> Router:
         Router with the ``TASKS_ENDPOINT_PATH`` route registered.
     """
     service = service or tasks_service
-    router = Router()
+    with tracer.start_as_current_span("get_router"):
+        router = Router()
 
     async def create_task(request: Request) -> JSONResponse:
         """
@@ -129,9 +133,7 @@ def get_router(service: TasksService | None = None) -> Router:
             task_metric.add_done_callback(_log_task_result)
             return JSONResponse({"status": "accepted"}, status_code=HTTP_202_ACCEPTED)
 
-    router.routes.append(
-        Route(TASKS_ENDPOINT_PATH, create_task, methods=["POST"])
-    )
+    router.routes.append(Route(TASKS_ENDPOINT_PATH, create_task, methods=["POST"]))
     return router
 
 

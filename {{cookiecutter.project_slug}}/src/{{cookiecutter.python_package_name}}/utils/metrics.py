@@ -79,8 +79,9 @@ class AsyncStatsDClient:
 
     def reset(self) -> None:
         """Clear stored metrics."""
-        self.counters.clear()
-        self.gauges.clear()
+        with tracer.start_as_current_span("statsd_reset"):
+            self.counters.clear()
+            self.gauges.clear()
 
 
 statsd_client = AsyncStatsDClient(
