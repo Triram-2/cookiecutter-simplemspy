@@ -14,6 +14,7 @@ os.environ["APP_APP_ENV"] = "test"
 
 from {{cookiecutter.python_package_name}}.api import app as fastapi_app
 from {{cookiecutter.python_package_name}}.api import health, tasks, main as api_main
+from {{cookiecutter.python_package_name}}.middleware import MetricsMiddleware
 from {{cookiecutter.python_package_name}} import utils
 from {{cookiecutter.python_package_name}}.core.config import settings
 from collections import defaultdict
@@ -86,6 +87,9 @@ class FakeRedis:
     async def xack(self, stream_name: str, group_name: str, message_id: str) -> int:
         return 1
 
+    async def xlen(self, stream_name: str) -> int:
+        return len(self.streams[stream_name])
+
 
 @pytest_asyncio.fixture(autouse=True)
 async def fake_redis(monkeypatch) -> AsyncGenerator[FakeRedis, None]:
@@ -97,6 +101,10 @@ async def fake_redis(monkeypatch) -> AsyncGenerator[FakeRedis, None]:
     api_main.router.routes.extend(health.router.routes)
     api_main.router.routes.extend(tasks.router.routes)
     fastapi_app.router.routes = list(api_main.router.routes)
+    for mw in fastapi_app.user_middleware:
+        if mw.cls is MetricsMiddleware:
+            mw.options["repo"] = fake
+    fastapi_app.middleware_stack = fastapi_app.build_middleware_stack()
     yield fake
 
 

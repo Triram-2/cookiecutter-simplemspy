@@ -91,5 +91,13 @@ class RedisRepository:
             )
             return cast(int, result)
 
+    async def length(self, stream_name: str) -> int:
+        """Return the length of a Redis Stream."""
+        with tracer.start_as_current_span("длина_стрима"):
+            result: Any = await self.breaker.call_async(
+                cast(Callable[..., Awaitable[Any]], self.redis.xlen), stream_name
+            )
+            return cast(int, result)
+
 
 __all__ = ["RedisRepository"]
