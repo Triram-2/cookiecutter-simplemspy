@@ -8,15 +8,12 @@ from ..repository.redis_repo import RedisRepository
 
 from ..core.logging_config import get_logger
 from ..utils import statsd_client, tracer
+from ..middleware import MetricsMiddleware
 from ..utils.tracing import shutdown_tracer
 from . import health, tasks
 
 from .health import router as health_router
-from .tasks import (
-    router as tasks_router,
-    start_task_processor,
-    stop_task_processor,
-)
+from .tasks import router as tasks_router, start_task_processor, stop_task_processor
 
 router = Router()
 router.routes.extend(health_router.routes)
@@ -25,6 +22,7 @@ router.routes.extend(tasks_router.routes)
 log = get_logger(__name__)
 
 app = Starlette(routes=router.routes)
+app.add_middleware(MetricsMiddleware, repo=tasks.tasks_service.repo)
 
 
 @app.on_event("startup")  # pyright: ignore[reportUnknownMemberType,reportUntypedFunctionDecorator]
