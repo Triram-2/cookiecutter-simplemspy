@@ -4,7 +4,7 @@ from __future__ import annotations
 """Redis repository used for queue operations."""
 
 from datetime import timedelta
-from typing import Any, Dict, cast
+from typing import Any, Awaitable, Callable, Dict, cast
 
 from ..utils import CircuitBreaker, tracer
 
@@ -30,14 +30,19 @@ class RedisRepository:
         """Add a message to a Redis Stream."""
         with tracer.start_as_current_span("redis_add_to_stream"):
             result: Any = await self.breaker.call_async(
-                self.redis.xadd, stream_name, message, maxlen=settings.redis.max_length
-            )  # pyright: ignore[reportUnknownMemberType,reportUnknownArgumentType]
+                cast(Callable[..., Awaitable[Any]], self.redis.xadd),
+                stream_name,
+                message,
+                maxlen=settings.redis.max_length,
+            )
             return cast(str, result)
 
     async def ping(self) -> bool:
         """Check Redis connectivity."""
         with tracer.start_as_current_span("redis_ping"):
-            result: Any = await self.breaker.call_async(self.redis.ping)  # pyright: ignore[reportUnknownMemberType]
+            result: Any = await self.breaker.call_async(
+                cast(Callable[..., Awaitable[Any]], self.redis.ping)
+            )
             return cast(bool, result)
 
 

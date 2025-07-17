@@ -9,27 +9,43 @@ from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent.parent
+
+
 # The path used for runtime data files.  The default is `<project>/data`,
 # but it can be overridden with the ``DATA_DIR`` environment variable.
-DATA_DIR: Path = Path(os.getenv("DATA_DIR", str(BASE_DIR / "data")))
-try:
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-except PermissionError:
-    # Fall back to a directory that is always writable inside the container
-    fallback = Path(tempfile.gettempdir()) / "{{cookiecutter.project_slug}}_data"
-    fallback.mkdir(parents=True, exist_ok=True)
-    DATA_DIR = fallback
+def _init_data_dir() -> Path:
+    """Return a writable directory for runtime data."""
+    data_dir = Path(os.getenv("DATA_DIR", str(BASE_DIR / "data")))
+    try:
+        data_dir.mkdir(parents=True, exist_ok=True)
+    except PermissionError:
+        fallback = Path(tempfile.gettempdir()) / "{{cookiecutter.project_slug}}_data"
+        fallback.mkdir(parents=True, exist_ok=True)
+        data_dir = fallback
+    return data_dir
+
+
+DATA_DIR: Path = _init_data_dir()
+
 
 # Determine where logs should be stored. Default to ``DATA_DIR / 'logs'`` so
 # that log files reside next to other runtime data. If the directory is not
 # writable, fall back to a temporary folder that is guaranteed to be available.
-LOG_DIR: Path = Path(os.getenv("LOG_DIR", str(DATA_DIR / "logs")))
-try:
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-except PermissionError:
-    fallback_logs = Path(tempfile.gettempdir()) / "{{cookiecutter.project_slug}}_logs"
-    fallback_logs.mkdir(parents=True, exist_ok=True)
-    LOG_DIR = fallback_logs
+def _init_log_dir(data_dir: Path) -> Path:
+    """Return a writable directory for log files."""
+    log_dir = Path(os.getenv("LOG_DIR", str(data_dir / "logs")))
+    try:
+        log_dir.mkdir(parents=True, exist_ok=True)
+    except PermissionError:
+        fallback_logs = (
+            Path(tempfile.gettempdir()) / "{{cookiecutter.project_slug}}_logs"
+        )
+        fallback_logs.mkdir(parents=True, exist_ok=True)
+        log_dir = fallback_logs
+    return log_dir
+
+
+LOG_DIR: Path = _init_log_dir(DATA_DIR)
 
 
 class LogSettings(BaseSettings):
