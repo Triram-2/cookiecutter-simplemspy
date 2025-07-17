@@ -103,7 +103,10 @@ async def fake_redis(monkeypatch) -> AsyncGenerator[FakeRedis, None]:
     fastapi_app.router.routes = list(api_main.router.routes)
     for mw in fastapi_app.user_middleware:
         if mw.cls is MetricsMiddleware:
-            mw.options["repo"] = fake
+            if hasattr(mw, "options"):
+                mw.options["repo"] = fake
+            else:
+                mw.kwargs["repo"] = fake
     fastapi_app.middleware_stack = fastapi_app.build_middleware_stack()
     yield fake
 
