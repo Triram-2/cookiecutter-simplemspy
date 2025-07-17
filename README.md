@@ -1,76 +1,69 @@
 # Cookiecutter Simple MSPy
 
-This repository provides a cookiecutter template for creating a small high-performance Python microservice.
+Cookiecutter template for building extremely fast Python microservices. The generated project uses **Starlette** with **Uvicorn** and processes tasks asynchronously through Redis Streams. Monitoring is available via StatsD, Jaeger and Grafana Loki.
+
+## Features
+
+- Sub-millisecond REST API returning `202 Accepted`
+- Fire-and-forget task queue based on Redis Streams
+- Docker Compose stack for local development
+- Nox sessions for linting, tests, docs and builds
 
 ## Quick start
 
-1. Install [cookiecutter](https://cookiecutter.readthedocs.io/):
+1. Install cookiecutter:
    ```bash
-   pip install --user cookiecutter
+   pip install cookiecutter
    ```
 2. Generate a project from this template:
    ```bash
    cookiecutter https://github.com/Triram-2/cookiecutter-simplemspy
    ```
-3. Move into the created directory and install dependencies using [uv](https://github.com/astral-sh/uv):
+3. Change into the created directory:
+   ```bash
+   cd <project_slug>
+   ```
+4. Install dependencies with [uv](https://github.com/astral-sh/uv):
    ```bash
    uv sync
    ```
-4. Run tests and linters:
+5. Start required services and run tests:
    ```bash
-   nox -s ci-3.12 ci-3.13
+   docker-compose up -d
+   uv run pytest
    ```
-5. Build documentation:
+6. Launch the development server:
    ```bash
-   nox -s docs
-   ```
-6. Start the development server:
-   ```bash
-   uv run src/{{cookiecutter.python_package_name}}/main.py
+   uv run src/<python_package_name>/main.py
    ```
 
-The generated service exposes two endpoints:
-- `GET /health` – health information
-- `POST {{cookiecutter.tasks_endpoint_path}}` – accepts a payload and stores a task in Redis Streams returning `202 Accepted`
-
-Additional helper scripts are located in the `scripts/` folder to automate systemd service creation.
+List available Nox commands with:
+```bash
+nox -l
+```
 
 ## Configuration
 
-Environment variables are loaded from `.env` using Pydantic settings. The most
-important ones are:
+Copy `.env.example` to `.env` and adjust values. Important options include:
 
-- `APP_HOST` / `APP_PORT` – host and port for Uvicorn
-- `APP_RELOAD` – enable auto reloading
-- `APP_ENV` – environment name (`dev`, `prod`, `test`)
+- `APP_HOST` / `APP_PORT` – address for Uvicorn
 - `REDIS_URL` – Redis connection string
-- `STATSD_HOST` / `STATSD_PORT` – StatsD exporter address
-- `JAEGER_HOST` / `JAEGER_PORT` – Jaeger collector endpoint
-- `LOKI_ENDPOINT` – Loki push endpoint for logs
+- `STATSD_HOST` / `STATSD_PORT` – StatsD exporter
+- `JAEGER_ENDPOINT` – Jaeger collector endpoint
+- `LOKI_ENDPOINT` – Loki push endpoint
 
-The template ships with a `.env.example` file containing defaults.
+Refer to `.env.example` for all variables.
 
-## Running with Docker Compose
+## Endpoints
 
-Launch the service together with Redis, StatsD, Jaeger and Loki:
+- `GET /health` – service status
+- `POST /tasks` – enqueue a task and immediately respond with `202 Accepted`
 
+## Documentation
+
+Build HTML docs with:
 ```bash
-docker-compose up -d
+nox -s docs
 ```
 
-Containers use `restart: unless-stopped` so they will automatically start on
-host reboot. The compose file relies on the environment variables listed above,
-so adjust them if necessary.
 
-## Metrics and tracing
-
-Metrics are sent via a lightweight StatsD client defined in
-`src/utils/metrics.py`. When OpenTelemetry is available, traces are exported to
-Jaeger via `src/utils/tracing.py`. If `LOKI_ENDPOINT` is set, structured logs are
-pushed to Loki.
-
-## Graceful shutdown
-
-`src/api/main.py` registers a shutdown handler that closes Redis connections,
-resets the StatsD client and clears collected spans before the application
-exits. This ensures a clean termination.
