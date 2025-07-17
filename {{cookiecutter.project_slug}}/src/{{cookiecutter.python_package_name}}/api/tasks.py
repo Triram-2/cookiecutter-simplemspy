@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from html import escape
 from typing import Any, Dict, Mapping, Sequence, cast
+import sys
 
 import asyncio
 from pydantic import BaseModel, Field, ValidationError  # pyright: ignore[reportMissingImports]
@@ -47,18 +48,19 @@ MAX_BODY_SIZE = settings.performance.max_payload_size
 
 async def start_task_processor() -> None:
     """Start background task processor."""
-    global task_processor
-    if task_processor is None:
-        task_processor = TaskProcessor(tasks_service.repo)
-    await task_processor.start()
+    processor = getattr(sys.modules[__name__], "task_processor", None)
+    if processor is None:
+        processor = TaskProcessor(tasks_service.repo)
+        setattr(sys.modules[__name__], "task_processor", processor)
+    await processor.start()
 
 
 async def stop_task_processor() -> None:
     """Stop background task processor."""
-    global task_processor
-    if task_processor is not None:
-        await task_processor.stop()
-        task_processor = None
+    processor = getattr(sys.modules[__name__], "task_processor", None)
+    if processor is not None:
+        await processor.stop()
+        setattr(sys.modules[__name__], "task_processor", None)
 
 
 def _sanitize(value: Any) -> Any:
@@ -160,8 +162,8 @@ __all__ = [
     "TaskPayload",
     "get_router",
     "router",
-    "tasks_service",
-    "task_processor",
     "start_task_processor",
     "stop_task_processor",
+    "task_processor",
+    "tasks_service",
 ]
