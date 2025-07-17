@@ -1,5 +1,5 @@
 import pytest
-from datetime import datetime
+from datetime import UTC, datetime
 
 from pydantic import BaseModel, ValidationError
 
@@ -34,7 +34,7 @@ def test_id_model_schema():
 
 
 def test_timestamp_model_schema():
-    now = datetime.now(datetime.UTC)
+    now = datetime.now(UTC)
     data = {"created_at": now, "updated_at": now}
     ts_instance = TimestampModel(**data)
     assert ts_instance.created_at == now

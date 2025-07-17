@@ -49,7 +49,7 @@ class TasksService:
         with tracer.start_as_current_span("enqueue_task"):
             message = {
                 "task_id": str(uuid4()),
-                "timestamp": datetime.now(datetime.UTC).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "payload": json.dumps(payload),
                 "trace_context": json.dumps({"trace_id": "", "span_id": ""}),
             }
