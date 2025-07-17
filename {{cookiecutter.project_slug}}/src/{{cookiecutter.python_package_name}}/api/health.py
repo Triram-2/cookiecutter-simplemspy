@@ -51,7 +51,7 @@ def get_router(repo: RedisRepository | None = None) -> Router:
 
             payload = {
                 "status": "healthy" if redis_ok else "unhealthy",
-                "timestamp": datetime.now(datetime.UTC).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "redis_connected": redis_ok,
                 "version": __version__,
             }
