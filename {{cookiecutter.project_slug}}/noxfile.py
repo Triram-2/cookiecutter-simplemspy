@@ -279,7 +279,8 @@ def locust(session: Session) -> None:
             f"Файл {locust_file} не найден. Для запуска Locust необходимо создать его и определить сценарии нагрузки."
         )
         session.log(
-            "Пример команды, если locustfile.py существует: locust -f locustfile.py --host=http://localhost:8000"
+            "Пример команды, если locustfile.py существует: "
+            f"locust -f locustfile.py --host=http://localhost:{{cookiecutter.app_port_host}}"
         )
         return
 
