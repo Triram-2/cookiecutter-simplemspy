@@ -15,6 +15,7 @@ os.environ["APP_APP_ENV"] = "test"
 from {{cookiecutter.python_package_name}}.api import app as fastapi_app
 from {{cookiecutter.python_package_name}}.api import health, tasks, main as api_main
 from {{cookiecutter.python_package_name}} import utils
+from {{cookiecutter.python_package_name}}.core.config import settings
 from collections import defaultdict
 
 
@@ -32,6 +33,30 @@ class FakeRedis:
 
     async def ping(self) -> bool:
         return True
+
+    async def create_group(self, stream_name: str) -> None:
+        await self.xgroup_create(stream_name, settings.redis.consumer_group)
+
+    async def fetch(
+        self, stream_name: str, count: int = 1, block_ms: int = 1000
+    ) -> list[tuple[str, dict]]:
+        result = await self.xreadgroup(
+            settings.redis.consumer_group,
+            settings.redis.consumer_name,
+            streams={stream_name: ">"},
+            count=count,
+            block=block_ms,
+        )
+        messages: list[tuple[str, dict]] = []
+        for _stream, msgs in result:
+            for msg_id, data in msgs:
+                messages.append((msg_id, data))
+        return messages
+
+    async def ack(self, stream_name: str, message_id: str) -> int:
+        return await self.xack(
+            stream_name, settings.redis.consumer_group, message_id
+        )
 
     async def xgroup_create(self, stream_name: str, group_name: str, **_: dict) -> None:
         self.groups[stream_name][group_name] = 0
