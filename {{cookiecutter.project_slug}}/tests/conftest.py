@@ -9,7 +9,8 @@ from httpx import AsyncClient, ASGITransport
 from starlette.routing import Router
 
 # Ensure test environment
-os.environ["APP_ENV"] = "test"
+# Pydantic settings use the ``APP_`` prefix so we need ``APP_APP_ENV``
+os.environ["APP_APP_ENV"] = "test"
 
 from {{cookiecutter.python_package_name}}.api import app as fastapi_app
 from {{cookiecutter.python_package_name}}.api import health, tasks, main as api_main
