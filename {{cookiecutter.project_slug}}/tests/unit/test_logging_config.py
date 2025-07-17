@@ -54,8 +54,3 @@ def test_logger_outputs_json(monkeypatch, capsys):
     data = json.loads(captured)
     assert data["record"]["message"] == "json message"
     assert data["record"]["level"]["name"] == "INFO"
-
-
-# Note: Testing file creation/writing by get_logger is more complex and
-# would require mocking file system operations or cleaning up created files.
-# These basic tests primarily cover function calls and some configuration aspects.

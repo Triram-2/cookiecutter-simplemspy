@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     with tracer.start_as_current_span("главная"):
         uvicorn.run(
-            "{{cookiecutter.python_package_name}}.api:app",  # Path to the Starlette application object
+            "{{cookiecutter.python_package_name}}.api:app",
             host=settings.app_host,
             port=settings.app_port,
             reload=settings.app_reload,

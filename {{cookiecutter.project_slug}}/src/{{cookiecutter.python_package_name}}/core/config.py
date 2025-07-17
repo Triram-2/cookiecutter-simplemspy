@@ -11,8 +11,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent.parent
 
 
-# The path used for runtime data files.  The default is `<project>/data`,
-# but it can be overridden with the ``DATA_DIR`` environment variable.
 def _init_data_dir() -> Path:
     """Return a writable directory for runtime data."""
     data_dir = Path(os.getenv("DATA_DIR", str(BASE_DIR / "data")))
@@ -28,9 +26,6 @@ def _init_data_dir() -> Path:
 DATA_DIR: Path = _init_data_dir()
 
 
-# Determine where logs should be stored. Default to ``DATA_DIR / 'logs'`` so
-# that log files reside next to other runtime data. If the directory is not
-# writable, fall back to a temporary folder that is guaranteed to be available.
 def _init_log_dir(data_dir: Path) -> Path:
     """Return a writable directory for log files."""
     log_dir = Path(os.getenv("LOG_DIR", str(data_dir / "logs")))
@@ -51,7 +46,6 @@ LOG_DIR: Path = _init_log_dir(DATA_DIR)
 class LogSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="LOG_")
 
-    # Use the pre-created ``LOG_DIR`` as the default log directory.
     path: Path = LOG_DIR
     console_format: str = (
         "<blue>{time:YYYY-MM-DD HH:mm:ss.SSS}</blue> | "
@@ -73,9 +67,6 @@ class LogSettings(BaseSettings):
     diagnose: bool = True
     rotation: str = "00:00"
     retention: str = "7 days"
-    # Endpoint where logs should be pushed for aggregation
-    # When running inside Docker Compose use the service name
-    # rather than localhost so containers can reach Loki
     loki_endpoint: str = "http://loki:3100/loki/api/v1/push"
 
 
@@ -105,7 +96,6 @@ class StatsDSettings(BaseSettings):
 
     model_config = SettingsConfigDict(env_prefix="STATSD_")
 
-    # StatsD exporter hostname within Docker
     host: str = "statsd"
     port: int = 9125
     prefix: str = "{{cookiecutter.project_slug}}"
@@ -116,12 +106,10 @@ class JaegerSettings(BaseSettings):
 
     model_config = SettingsConfigDict(env_prefix="JAEGER_")
 
-    # Jaeger all-in-one hostname within Docker
     host: str = "jaeger"
     port: int = 14268
 
     endpoint: str = "http://jaeger:14268/api/traces"
-    # Name of the service as shown in Jaeger
     service_name: str = "{{cookiecutter.project_slug}}"
 
 
@@ -130,31 +118,21 @@ class ServiceSettings(BaseSettings):
 
     model_config = SettingsConfigDict(env_prefix="SERVICE_")
 
-    # Service identifier used in logs and traces
     name: str = "{{cookiecutter.project_slug}}"
-    # Application version reported on startup
     version: str = "{{cookiecutter.project_version}}"
     host: str = "0.0.0.0"
-    # Internal port the app listens on
     port: int = {{cookiecutter.internal_app_port}}
-    # Path for task creation endpoint
     tasks_endpoint: str = "{{cookiecutter.tasks_endpoint_path}}"
 
 
 class PerformanceSettings(BaseSettings):
     """Runtime performance and tuning parameters."""
 
-    # Enable high performance event loop
     uvloop_enabled: bool = True
-    # Number of Uvicorn worker processes
     worker_processes: str = "auto"
-    # Limit for concurrent background tasks
     max_concurrent_tasks: int = 1000
-    # Individual task timeout in seconds
     task_timeout: int = 30
-    # Maximum allowed request payload size in bytes
     max_payload_size: int = 1_048_576
-    # Graceful shutdown timeout in seconds
     shutdown_timeout: int = 30
 
 
@@ -173,12 +151,9 @@ class AppSettings(BaseSettings):
     service: ServiceSettings = Field(default_factory=ServiceSettings)
     performance: PerformanceSettings = Field(default_factory=PerformanceSettings)
 
-    app_host: str = Field(
-        default="0.0.0.0", description="Host for Uvicorn"
-    )  # Changed default to 0.0.0.0
+    app_host: str = Field(default="0.0.0.0", description="Host for Uvicorn")
     app_port: int = Field(
-        default={{cookiecutter.app_port_host}},
-        description="Порт Starlette приложения",
+        default={{cookiecutter.app_port_host}}, description="Порт Starlette приложения"
     )
     app_reload: bool = Field(
         default=True, description="Enable/disable Uvicorn auto-reloading"

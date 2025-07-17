@@ -30,7 +30,6 @@ log = get_logger(__name__)
 
 tasks_service: TasksService = get_tasks_service()
 
-# Keep references to background tasks to prevent premature garbage collection.
 background_tasks: set[asyncio.Task[Any]] = set()
 
 

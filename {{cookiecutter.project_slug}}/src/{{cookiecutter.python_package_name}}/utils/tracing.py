@@ -34,8 +34,6 @@ try:
     _otel_tracer: Any = ot_trace.get_tracer(__name__)
     use_otel = True
 except Exception as exc:
-    # If OpenTelemetry initialization fails, fall back to a dummy tracer and
-    # log the reason to stderr so that tracing issues are visible in logs.
     import sys
 
     print(f"OpenTelemetry disabled: {exc}", file=sys.stderr)
