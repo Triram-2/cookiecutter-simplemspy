@@ -21,6 +21,7 @@ from collections import defaultdict
 class FakeRedis:
     def __init__(self) -> None:
         self.streams = defaultdict(list)
+        self.groups = defaultdict(lambda: defaultdict(int))
 
     async def xadd(self, stream_name: str, fields: dict, **_: dict) -> str:
         self.streams[stream_name].append(fields)
@@ -31,6 +32,34 @@ class FakeRedis:
 
     async def ping(self) -> bool:
         return True
+
+    async def xgroup_create(self, stream_name: str, group_name: str, **_: dict) -> None:
+        self.groups[stream_name][group_name] = 0
+
+    async def xreadgroup(
+        self,
+        group_name: str,
+        consumer_name: str,
+        streams: dict,
+        count: int = 1,
+        block: int | None = None,
+    ) -> list[tuple[str, list[tuple[str, dict]]]]:
+        stream_name = next(iter(streams))
+        index = self.groups[stream_name][group_name]
+        if index >= len(self.streams[stream_name]):
+            await asyncio.sleep(0)
+            return []
+        messages = self.streams[stream_name][index : index + count]
+        self.groups[stream_name][group_name] += len(messages)
+        return [
+            (
+                stream_name,
+                [(str(i + 1), msg) for i, msg in enumerate(messages, start=index)],
+            )
+        ]
+
+    async def xack(self, stream_name: str, group_name: str, message_id: str) -> int:
+        return 1
 
 
 @pytest_asyncio.fixture(autouse=True)
