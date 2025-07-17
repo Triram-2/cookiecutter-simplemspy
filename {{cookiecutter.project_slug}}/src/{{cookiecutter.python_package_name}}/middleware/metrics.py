@@ -9,7 +9,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from ..repository.redis_repo import RedisRepository
-from ..utils import TASKS_STREAM_NAME, statsd_client, tracer
+from ..utils import TASKS_STREAM_NAME, statsd_client
 
 
 class MetricsMiddleware(BaseHTTPMiddleware):
