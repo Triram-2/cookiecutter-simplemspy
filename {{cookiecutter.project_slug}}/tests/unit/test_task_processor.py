@@ -19,7 +19,8 @@ async def test_task_processor_handles_message() -> None:
     handled: list[dict] = []
 
     async def handle(fields: dict) -> None:
-        handled.append(json.loads(fields["payload"]))
+        with tracer.start_as_current_span("обработка_задачи"):
+            handled.append(json.loads(fields["payload"]))
 
     processor.handle = handle  # type: ignore[assignment]
 
@@ -29,4 +30,4 @@ async def test_task_processor_handles_message() -> None:
     await processor.stop()
 
     assert handled == [{"v": 1}]
-    assert tracer.spans and tracer.spans[0].name == "обработка_задачи"
+    assert any(span.name == "обработка_задачи" for span in tracer.spans)

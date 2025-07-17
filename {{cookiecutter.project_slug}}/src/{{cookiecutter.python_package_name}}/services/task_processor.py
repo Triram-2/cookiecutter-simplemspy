@@ -25,7 +25,6 @@ class TaskProcessor:
         """Start processing tasks in the background."""
         self._running = True
         await self.repo.create_group(TASKS_STREAM_NAME)
-        tracer.spans.clear()
         self._task = asyncio.create_task(self._run())
 
     async def _run(self) -> None:
