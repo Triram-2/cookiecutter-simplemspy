@@ -17,7 +17,7 @@ class RedisStream:
         self.redis: Redis = Redis.from_url(url, decode_responses=True)  # pyright: ignore[reportUnknownMemberType,reportInvalidTypeArguments]
 
     async def xadd(self, stream_name: str, fields: Dict[str, Any]) -> str:
-        with tracer.start_as_current_span("redis_stream_xadd"):
+        with tracer.start_as_current_span("добавление_в_redis_stream"):
             result: Any = await self.redis.xadd(
                 stream_name, fields, maxlen=settings.redis.max_length
             )  # pyright: ignore[reportUnknownMemberType]
@@ -25,7 +25,7 @@ class RedisStream:
 
     async def ping(self) -> bool:
         """Check if Redis connection is alive."""
-        with tracer.start_as_current_span("redis_stream_ping"):
+        with tracer.start_as_current_span("пинг_redis_stream"):
             result: Any = await self.redis.ping()  # pyright: ignore[reportUnknownMemberType]
             return cast(bool, result)
 

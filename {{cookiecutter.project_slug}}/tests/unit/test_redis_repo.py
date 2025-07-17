@@ -22,10 +22,10 @@ async def test_should_add_to_stream_and_ping() -> None:
     assert fake.streams["mystream"][0]["foo"] == "bar"
     assert await repo.ping()
     assert [s.name for s in tracer.spans] == [
-        "redis_add_to_stream",
-        "circuitbreaker_call",
-        "redis_ping",
-        "circuitbreaker_call",
+        "добавление_в_redis_стрим",
+        "вызов_предохранителя",
+        "пинг_redis",
+        "вызов_предохранителя",
     ]
 
 
@@ -54,4 +54,4 @@ async def test_should_open_breaker_after_failures() -> None:
     # third call should trip the breaker
     with pytest.raises(CircuitBreakerError):
         await repo.add_to_stream("s", {"foo": "bar"})
-    assert tracer.spans[-1].name == "circuitbreaker_call"
+    assert tracer.spans[-1].name == "вызов_предохранителя"

@@ -22,7 +22,7 @@ async def test_health_check(async_client: AsyncClient):
     assert isinstance(data["redis_connected"], bool)
     assert isinstance(data["version"], str) and data["version"]
     assert statsd_client.counters["requests.health"] == 1
-    assert tracer.spans and tracer.spans[0].name == "health_check"
+    assert tracer.spans and tracer.spans[0].name == "проверка_здоровья"
 
 
 async def test_should_return_503_when_redis_unavailable(
@@ -45,4 +45,4 @@ async def test_should_return_503_when_redis_unavailable(
     assert isinstance(data["timestamp"], str)
     assert isinstance(data["version"], str) and data["version"]
     assert statsd_client.counters["requests.health"] == 1
-    assert tracer.spans and tracer.spans[0].name == "health_check"
+    assert tracer.spans and tracer.spans[0].name == "проверка_здоровья"
