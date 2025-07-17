@@ -89,6 +89,8 @@ class TasksService:
                     await self._record_usage()
                     return result
 
+            return ""
+
 
     async def _record_usage(self) -> None:
         """Record CPU, memory and GPU usage to StatsD."""

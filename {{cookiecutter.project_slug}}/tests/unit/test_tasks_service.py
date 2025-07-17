@@ -140,9 +140,13 @@ async def test_should_send_to_dead_letter_after_retries(monkeypatch) -> None:
     repo = FailingRepo(fail_times=3)
     service = TasksService(repo)  # type: ignore[arg-type]
 
+    async def fast_sleep(*_: float) -> None:
+        """Async sleep stub used to skip real waiting."""
+        return None
+
     monkeypatch.setattr(
         "{{cookiecutter.python_package_name}}.services.tasks_service.asyncio.sleep",
-        lambda *_: None,
+        fast_sleep,
     )
 
     await service.enqueue_task({"data": 2})
