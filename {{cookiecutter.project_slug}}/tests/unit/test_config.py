@@ -1,4 +1,10 @@
-from {{cookiecutter.python_package_name}}.core.config import LogSettings, AppSettings, DATA_DIR
+from pathlib import Path
+
+from {{cookiecutter.python_package_name}}.core.config import (
+    AppSettings,
+    DATA_DIR,
+    LogSettings,
+)
 
 
 def test_log_settings_instantiation():
@@ -50,6 +56,20 @@ def test_redis_settings_env_override(monkeypatch):
     monkeypatch.setenv("REDIS_URL", "redis://example.com:6379/1")
     cfg = AppSettings()
     assert cfg.redis.url == "redis://example.com:6379/1"
+
+
+def test_redis_default_local_when_not_in_container(monkeypatch):
+    original_exists = Path.exists
+
+    def fake_exists(self: Path) -> bool:
+        if self == Path("/.dockerenv"):
+            return False
+        return original_exists(self)
+
+    monkeypatch.setattr(Path, "exists", fake_exists)
+    monkeypatch.delenv("REDIS_URL", raising=False)
+    cfg = AppSettings()
+    assert cfg.redis.url == "redis://127.0.0.1:6379/0"
 
 
 def test_statsd_defaults():
