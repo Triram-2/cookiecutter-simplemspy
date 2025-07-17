@@ -79,13 +79,18 @@ class LogSettings(BaseSettings):
     loki_endpoint: str = "http://loki:3100/loki/api/v1/push"
 
 
+def _default_redis_url() -> str:
+    """Return a Redis URL appropriate for the environment."""
+    in_container = Path("/.dockerenv").exists()
+    return "redis://redis:6379/0" if in_container else "redis://127.0.0.1:6379/0"
+
+
 class RedisSettings(BaseSettings):
     """Configuration for Redis connection and streams."""
 
     model_config = SettingsConfigDict(env_prefix="REDIS_")
 
-    # Default to the Docker Compose service hostname
-    url: str = "redis://redis:6379/0"
+    url: str = Field(default_factory=_default_redis_url)
     stream_name: str = "{{cookiecutter.redis_stream_name}}"
     consumer_group: str = "{{cookiecutter.redis_consumer_group}}"
     consumer_name: str = "{{cookiecutter.redis_consumer_name}}"
