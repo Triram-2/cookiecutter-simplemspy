@@ -65,20 +65,19 @@ class RedisRepository:
         self, stream_name: str, count: int = 1, block_ms: int = 1000
     ) -> List[Tuple[str, Dict[str, Any]]]:
         """Read messages from a stream using XREADGROUP."""
-        with tracer.start_as_current_span("чтение_из_группы"):
-            result: Any = await self.breaker.call_async(
-                cast(Callable[..., Awaitable[Any]], self.redis.xreadgroup),
-                settings.redis.consumer_group,
-                settings.redis.consumer_name,
-                streams={stream_name: ">"},
-                count=count,
-                block=block_ms,
-            )
-            messages: List[Tuple[str, Dict[str, Any]]] = []
-            for _stream, msgs in result or []:
-                for msg_id, data in msgs:
-                    messages.append((cast(str, msg_id), cast(Dict[str, Any], data)))
-            return messages
+        result: Any = await self.breaker.call_async(
+            cast(Callable[..., Awaitable[Any]], self.redis.xreadgroup),
+            settings.redis.consumer_group,
+            settings.redis.consumer_name,
+            streams={stream_name: ">"},
+            count=count,
+            block=block_ms,
+        )
+        messages: List[Tuple[str, Dict[str, Any]]] = []
+        for _stream, msgs in result or []:
+            for msg_id, data in msgs:
+                messages.append((cast(str, msg_id), cast(Dict[str, Any], data)))
+        return messages
 
     async def ack(self, stream_name: str, message_id: str) -> int:
         """Acknowledge message processing."""
