@@ -30,6 +30,8 @@ class TaskProcessor:
         self._running = True
         await self.repo.create_group(TASKS_STREAM_NAME)
         self._task = asyncio.create_task(self._run())
+        # allow the processing loop to start before returning
+        await asyncio.sleep(0)
 
     async def _run(self) -> None:
         while self._running:
@@ -62,8 +64,12 @@ class TaskProcessor:
                     )
                     if attempts >= 3:
                         try:
-                            await self.repo.add_to_stream(DEAD_LETTER_STREAM_NAME, fields)
-                        except Exception as dead_exc:  # pragma: no cover - network errors
+                            await self.repo.add_to_stream(
+                                DEAD_LETTER_STREAM_NAME, fields
+                            )
+                        except (
+                            Exception
+                        ) as dead_exc:  # pragma: no cover - network errors
                             log.error(
                                 "Failed to enqueue to dead-letter", exc_info=dead_exc
                             )
