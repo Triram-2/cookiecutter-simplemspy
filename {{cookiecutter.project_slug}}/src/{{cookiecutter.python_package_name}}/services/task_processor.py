@@ -3,6 +3,8 @@ from __future__ import annotations
 """Simple example task processor consuming from Redis Streams."""
 
 import asyncio
+
+_yield_sleep = asyncio.sleep
 import json
 from typing import Any, Dict
 
@@ -30,8 +32,8 @@ class TaskProcessor:
         self._running = True
         await self.repo.create_group(TASKS_STREAM_NAME)
         self._task = asyncio.create_task(self._run())
-        # allow the processing loop to start before returning
-        await asyncio.sleep(0)
+        # ensure the processing loop has a chance to start before returning
+        await _yield_sleep(0)
 
     async def _run(self) -> None:
         while self._running:
