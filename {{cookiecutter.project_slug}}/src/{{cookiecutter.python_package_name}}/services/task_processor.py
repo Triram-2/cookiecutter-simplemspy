@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import asyncio
 
+# Preserve the original sleep function so tests can monkeypatch ``asyncio.sleep``
+# without causing recursive calls. All internal awaits use ``_yield_sleep`` which
+# always references the unpatched implementation.
 _yield_sleep = asyncio.sleep
 import json
 from typing import Any, Dict
@@ -39,7 +42,7 @@ class TaskProcessor:
         while self._running:
             msgs = await self.repo.fetch(TASKS_STREAM_NAME, count=1)
             if not msgs:
-                await asyncio.sleep(0.1)
+                await _yield_sleep(0.1)
                 continue
             msg_id, fields = msgs[0]
             task = asyncio.create_task(self._process(msg_id, fields))
@@ -51,7 +54,7 @@ class TaskProcessor:
         with tracer.start_as_current_span("обработка_задачи"):
             payload = json.loads(fields.get("payload", "{}"))
             log.info("Handled task %s", payload)
-            await asyncio.sleep(0)
+            await _yield_sleep(0)
 
     async def _process(self, msg_id: str, fields: Dict[str, Any]) -> None:
         async with self._semaphore:
@@ -76,7 +79,7 @@ class TaskProcessor:
                                 "Failed to enqueue to dead-letter", exc_info=dead_exc
                             )
                         break
-                    await asyncio.sleep(2 ** (attempts - 1))
+                    await _yield_sleep(2 ** (attempts - 1))
                 else:
                     break
             await self.repo.ack(TASKS_STREAM_NAME, msg_id)
