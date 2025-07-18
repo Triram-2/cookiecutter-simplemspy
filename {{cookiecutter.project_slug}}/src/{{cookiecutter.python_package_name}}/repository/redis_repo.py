@@ -54,7 +54,7 @@ class RedisRepository:
                     cast(Callable[..., Awaitable[Any]], self.redis.xgroup_create),
                     stream_name,
                     settings.redis.consumer_group,
-                    id="$",
+                    id="0",
                     mkstream=True,
                 )
             except ResponseError as exc:
