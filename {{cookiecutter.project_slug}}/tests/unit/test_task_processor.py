@@ -52,12 +52,14 @@ async def test_task_processor_retries_and_dead_letter(monkeypatch) -> None:
         attempts += 1
         raise RuntimeError("boom")
 
+    original_sleep = asyncio.sleep
+
     async def fast_sleep(_: float) -> None:
         """Async sleep stub used to yield without delay."""
-        await asyncio.sleep(0)
+        await original_sleep(0)
 
     monkeypatch.setattr(
-        "{{cookiecutter.python_package_name}}.services.task_processor.asyncio.sleep",
+        "{{cookiecutter.python_package_name}}.services.task_processor._yield_sleep",
         fast_sleep,
     )
 
