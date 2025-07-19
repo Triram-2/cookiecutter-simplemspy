@@ -146,8 +146,9 @@ class Browser:
                 finally:
                     del self.browser
             return
-        except:
+        except Exception as exc:  # noqa: BLE001
             self.error('Error while trying to initialize browser')
+            self.logger.exception(exc)
             return None
 
     def __await__(self):
@@ -190,13 +191,13 @@ class Browser:
                     finally:
                         del self.browser
                 return
-            except:
+            except Exception:
                 try:
                     await self.browser.get(url, timeout=40, wait_load=wait_load)
-                except:
+                except Exception:
                     await self.browser.get(url, timeout=50, wait_load=wait_load)
             self.info(f'Browser navigated to {url}.')
-        except:
+        except Exception:
             self.error(f'Error while navigating to {url}')
 
     async def check_cloudflare(self, func_for_get_first_shadow_root, move_to=True):
@@ -220,7 +221,7 @@ class Browser:
                 finally:
                     del self.browser
             return
-        except:
+        except Exception:
             self.info("Cloudflare protection not detected or an error occurred.")
 
     async def go_cloudflare(self, first_shadow_root, move_to=True):
@@ -277,7 +278,7 @@ class Browser:
                 finally:
                     del self.browser
             return
-        except:
+        except Exception:
             self.error("Error while attempting to bypass Cloudflare")
             return False
 
@@ -327,7 +328,7 @@ class Browser:
                 finally:
                     del self.browser
             return
-        except:
+        except Exception:
             self.error(f'Error when trying to change proxy to {proxy}')
 
     async def current_url(self):
@@ -342,32 +343,36 @@ class Browser:
         """Find multiple elements on the page."""
         return await self.browser.find_elements(*args, **kwargs)
 
-    async def auth(self, url, path_to_cookies, sleep=random.uniform(0.5, 1.5)):
+    async def auth(self, url, path_to_cookies, sleep: float | None = None):
+        """Authenticate using cookies and navigate to the given URL."""
+        if sleep is None:
+            sleep = random.uniform(0.5, 1.5)
         try:
             try:
-                for cookie in pickle.load(open(path_to_cookies, 'rb')):
+                for cookie in pickle.load(open(path_to_cookies, "rb")):
                     await self.browser.add_cookie(cookie)
-            except:
-                for cookie in pickle.load(open(path_to_cookies, 'rb')):
+            except Exception:
+                for cookie in pickle.load(open(path_to_cookies, "rb")):
                     await self.browser.add_cookie(cookie)
 
             await asyncio.sleep(sleep)
             await self.go_to_url(url)
-            self.info(f'The browser has logged in to {url}.')
-        except:
-            self.error(f'Error while trying to log in to {url}')
+            self.info(f"The browser has logged in to {url}.")
+        except Exception:
+            self.error(f"Error while trying to log in to {url}")
 
-    async def save_cookie(self, path, close_browser = False):
+    async def save_cookie(self, path: str, close_browser: bool = False) -> None:
+        """Save cookies to a file and optionally close the browser."""
         try:
             await asyncio.sleep(random.uniform(3, 5))
-            with open(path, 'wb') as file:
+            with open(path, "wb") as file:
                 pickle.dump(await self.browser.get_cookies(), file)
-            self.info(f'Browser cookies have been saved.')
+            self.info("Browser cookies have been saved.")
             if close_browser:
                 try:
                     await self.browser.quit()
-                    self.info('One of the browsers has terminated its work.')
-                except:
+                    self.info("One of the browsers has terminated its work.")
+                except Exception:
                     ...
-        except:
-            self.error(f'Error while trying to save cookies')
+        except Exception:
+            self.error("Error while trying to save cookies")
