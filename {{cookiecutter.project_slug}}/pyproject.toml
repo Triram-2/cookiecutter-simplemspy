@@ -21,6 +21,7 @@ dependencies = [
     "opentelemetry-exporter-jaeger",
     "tomli",
     "deprecated",
+    "selenium_driverless"
 ]
 
 [build-system]

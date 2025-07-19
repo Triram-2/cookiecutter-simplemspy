@@ -8,7 +8,7 @@ from selenium_driverless.types.by import By
 
 from bs4 import BeautifulSoup
 
-from logging_config import get_logger
+from ..core.logging_config import get_logger
 
 
 class Browser:
