@@ -195,7 +195,17 @@ strictSetInference = true # Строгая проверка типов множ�
 # Настройки производительности
 useLibraryCodeForTypes = true # Использовать код библиотек для анализа типов
 include = ["src"] # Файлы для проверки
-exclude = ["build/**", "dist/**", "venv/**", ".venv/**", "__pycache__/**"] # Исключаемые директории
+exclude = [
+    "build/**",
+    "dist/**",
+    "venv/**",
+    ".venv/**",
+    "__pycache__/**",
+    # Browser automation heavily relies on dynamic Selenium APIs.
+    # Type checking this file generates thousands of warnings,
+    # so it is skipped entirely.
+    "src/{{cookiecutter.python_package_name}}/services/browser.py",
+] # Исключаемые директории и файлы
 
 # 🔹 Структура проекта
 executionEnvironments = [{ root = "src" }]
